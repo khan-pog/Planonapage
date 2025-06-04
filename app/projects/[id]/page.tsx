@@ -3,26 +3,51 @@ import { useParams, useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowLeft, Calendar, Edit, User } from "lucide-react"
+import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { mockProjects } from "@/lib/mock-data"
 import { ProjectStatusPanel } from "@/components/project-status-panel"
 import { ProjectReportingTable } from "@/components/project-reporting-table"
 import { ProjectPhaseProgress } from "@/components/project-phase-progress"
 import { ProjectNarratives } from "@/components/project-narratives"
 import { ProjectMilestones } from "@/components/project-milestones"
+import type { Project } from "@/lib/types"
 
 export default function ProjectDetailPage() {
   const params = useParams()
   const router = useRouter()
   const projectId = params.id as string
+  const [project, setProject] = useState<Project | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  // Find the project in mock data
-  const project = mockProjects.find((p) => p.id === projectId)
+  useEffect(() => {
+    async function fetchProject() {
+      try {
+        const response = await fetch(`/api/projects/${projectId}`)
+        if (!response.ok) throw new Error('Project not found')
+        const data = await response.json()
+        setProject(data)
+      } catch (error) {
+        console.error('Error fetching project:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProject()
+  }, [projectId])
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <h1 className="text-2xl font-bold mb-4">Loading...</h1>
+      </div>
+    )
+  }
 
   if (!project) {
     return (
@@ -37,13 +62,14 @@ export default function ProjectDetailPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
-        <Link
-          href="/"
-          className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground"
+        <Button
+          variant="ghost"
+          onClick={() => router.push("/")}
+          className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Gallery
-        </Link>
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -57,7 +83,7 @@ export default function ProjectDetailPage() {
               </div>
               <h1 className="text-3xl font-bold">{project.title}</h1>
             </div>
-            <Button variant="outline" className="flex gap-2">
+            <Button variant="outline" className="flex gap-2" onClick={() => router.push(`/projects/${projectId}/edit`)}>
               <Edit className="h-4 w-4" />
               Edit Project
             </Button>
@@ -87,22 +113,15 @@ export default function ProjectDetailPage() {
 
             <TabsContent value="images" className="pt-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {project.images && project.images.length > 0 ? (
-                  project.images.map((image, index) => (
-                    <div key={index} className="relative aspect-square overflow-hidden rounded-md border">
-                      <Image
-                        src={image || "/placeholder.svg"}
-                        alt={`Project image ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  ))
-                ) : (
-                  <div className="col-span-full text-center py-12">
-                    <p className="text-muted-foreground">No images available for this project</p>
+                {project.images.map((image, index) => (
+                  <div key={index} className="relative aspect-square overflow-hidden rounded-md border">
+                    <img
+                      src={image || "/placeholder.svg"}
+                      alt={`Project image ${index + 1}`}
+                      className="object-cover w-full h-full"
+                    />
                   </div>
-                )}
+                ))}
               </div>
             </TabsContent>
           </Tabs>
@@ -112,90 +131,22 @@ export default function ProjectDetailPage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Project Summary</CardTitle>
+              <CardTitle>Project Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Project Manager:</span>
-                <span className="text-sm">{project.projectManager}</span>
+                <span className="text-sm text-muted-foreground">Project Manager:</span>
+                <span>{project.projectManager}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Report Month:</span>
-                <span className="text-sm">{project.reportMonth}</span>
-              </div>
-              <Separator />
-              <div>
-                <h4 className="text-sm font-medium mb-2">Current Status</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`w-3 h-3 rounded-full ${project.status.safety === "Yes" ? "bg-green-500" : project.status.safety === "Monitor" ? "bg-amber-500" : "bg-red-500"}`}
-                    />
-                    <span className="text-xs">Safety</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`w-3 h-3 rounded-full ${project.status.scopeQuality === "On Track" ? "bg-green-500" : project.status.scopeQuality === "Monitor" ? "bg-amber-500" : project.status.scopeQuality === "Not Applicable" ? "bg-gray-300" : "bg-red-500"}`}
-                    />
-                    <span className="text-xs">Scope/Quality</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`w-3 h-3 rounded-full ${project.status.cost === "On Track" ? "bg-green-500" : project.status.cost === "Monitor" ? "bg-amber-500" : "bg-red-500"}`}
-                    />
-                    <span className="text-xs">Cost</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`w-3 h-3 rounded-full ${project.status.schedule === "On Track" ? "bg-green-500" : project.status.schedule === "Monitor" ? "bg-amber-500" : "bg-red-500"}`}
-                    />
-                    <span className="text-xs">Schedule</span>
-                  </div>
-                </div>
-              </div>
-              <Separator />
-              <div>
-                <h4 className="text-sm font-medium mb-2">Last Updated</h4>
-                <p className="text-sm">{new Date(project.updatedAt).toLocaleDateString()}</p>
+                <span className="text-sm text-muted-foreground">Report Month:</span>
+                <span>{project.reportMonth}</span>
               </div>
             </CardContent>
           </Card>
-
-          {project.images && project.images.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Featured Image</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="relative aspect-video overflow-hidden rounded-md">
-                  <Image
-                    src={project.images[0] || "/placeholder.svg"}
-                    alt="Featured project image"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
-      </div>
-
-      <div className="mt-8 text-center border-t pt-6">
-        <div className="flex items-center justify-center gap-2">
-          <Image
-            src="/placeholder.svg?height=40&width=120"
-            alt="Incitec Pivot Ltd"
-            width={120}
-            height={40}
-            className="opacity-70"
-          />
-        </div>
-        <p className="text-sm text-muted-foreground mt-2">
-          Project Manager: {project.projectManager} | Report Month: {project.reportMonth}
-        </p>
       </div>
     </div>
   )
