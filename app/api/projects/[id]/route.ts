@@ -6,7 +6,12 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const project = await getProject(parseInt(params.id));
+    const id = parseInt(params.id, 10);
+    if (isNaN(id)) {
+      return new NextResponse('Invalid project ID', { status: 400 });
+    }
+
+    const project = await getProject(id);
     if (!project) {
       return new NextResponse('Project not found', { status: 404 });
     }
@@ -22,8 +27,13 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
+    const id = parseInt(params.id, 10);
+    if (isNaN(id)) {
+      return new NextResponse('Invalid project ID', { status: 400 });
+    }
+
     const data = await request.json();
-    const project = await updateProject(parseInt(params.id), data);
+    const project = await updateProject(id, data);
     if (!project) {
       return new NextResponse('Project not found', { status: 404 });
     }
@@ -39,7 +49,12 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const project = await deleteProject(parseInt(params.id));
+    const id = parseInt(params.id, 10);
+    if (isNaN(id)) {
+      return new NextResponse('Invalid project ID', { status: 400 });
+    }
+
+    const project = await deleteProject(id);
     if (!project) {
       return new NextResponse('Project not found', { status: 404 });
     }
