@@ -17,7 +17,7 @@ export async function getProject(id: number) {
     }
     return result[0];
   } catch (error) {
-    console.error('Database error in getProject:', error);
+    console.error('Database eerror in getProject:', error);
     throw error;
   }
 }
