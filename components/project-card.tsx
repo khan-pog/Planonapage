@@ -49,8 +49,11 @@ export function ProjectCard({ project }: ProjectCardProps) {
     }
   }
 
+  // Ensure we're using the numeric ID from the database
+  const projectId = typeof project.id === 'string' ? parseInt(project.id.replace('project-', ''), 10) : project.id
+
   return (
-    <Link href={`/projects/${project.id}`}>
+    <Link href={`/projects/${projectId}`}>
       <Card className="overflow-hidden h-full transition-all duration-200 hover:shadow-md">
         <div className="relative aspect-[4/3] w-full overflow-hidden">
           {project.images && project.images.length > 0 ? (
