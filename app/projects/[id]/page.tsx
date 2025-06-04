@@ -20,19 +20,29 @@ import type { Project } from "@/lib/types"
 export default function ProjectDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const projectId = params.id as string
+  const projectId = parseInt(params.id as string, 10)
   const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchProject() {
       try {
+        if (isNaN(projectId)) {
+          throw new Error('Invalid project ID')
+        }
         const response = await fetch(`/api/projects/${projectId}`)
-        if (!response.ok) throw new Error('Project not found')
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('Project not found')
+          }
+          throw new Error('Failed to fetch project')
+        }
         const data = await response.json()
         setProject(data)
       } catch (error) {
         console.error('Error fetching project:', error)
+        setError(error instanceof Error ? error.message : 'An error occurred')
       } finally {
         setLoading(false)
       }
@@ -49,7 +59,7 @@ export default function ProjectDetailPage() {
     )
   }
 
-  if (!project) {
+  if (error || !project) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <h1 className="text-2xl font-bold mb-4">Project not found</h1>
