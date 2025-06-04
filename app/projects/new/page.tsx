@@ -21,8 +21,7 @@ import { ProjectCostForm } from "@/components/project-cost-form"
 export default function NewProjectPage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("basic")
-  const [project, setProject] = useState<Project>({
-    id: "",
+  const [project, setProject] = useState<Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'ownerId'>>({
     title: "",
     number: "",
     projectManager: "",
@@ -61,8 +60,6 @@ export default function NewProjectPage() {
       variance: 0,
       forecastCompletion: 0,
     },
-    updatedAt: new Date().toISOString(),
-    ownerId: "",
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
