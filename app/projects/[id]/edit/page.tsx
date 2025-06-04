@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { mockProjects } from "@/lib/mock-data"
 import { ProjectStatusPanel } from "@/components/project-status-panel"
 import { ProjectNarratives } from "@/components/project-narratives"
 import { ProjectMilestones } from "@/components/project-milestones"
@@ -21,29 +20,69 @@ import type { Project } from "@/lib/types"
 export default function EditProjectPage() {
   const params = useParams()
   const router = useRouter()
-  const projectId = params.id as string
-
+  const projectId = parseInt(params.id as string, 10)
   const [project, setProject] = useState<Project | null>(null)
   const [activeTab, setActiveTab] = useState("basic")
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Find the project in mock data
-    const foundProject = mockProjects.find((p) => p.id === projectId)
-    if (foundProject) {
-      setProject(foundProject)
+    async function fetchProject() {
+      try {
+        if (isNaN(projectId)) {
+          throw new Error('Invalid project ID')
+        }
+        const response = await fetch(`/api/projects/${projectId}`)
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('Project not found')
+          }
+          throw new Error('Failed to fetch project')
+        }
+        const data = await response.json()
+        setProject(data)
+      } catch (error) {
+        console.error('Error fetching project:', error)
+        setError(error instanceof Error ? error.message : 'An error occurred')
+      } finally {
+        setLoading(false)
+      }
     }
+
+    fetchProject()
   }, [projectId])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // In a real app, this would save to the database
-    console.log("Saving project:", project)
+    if (!project) return
 
-    // Redirect to the project detail page
-    router.push(`/projects/${projectId}`)
+    try {
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(project),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update project')
+      }
+
+      router.push(`/projects/${projectId}`)
+    } catch (error) {
+      console.error('Error updating project:', error)
+      alert('Failed to update project. Please try again.')
+    }
   }
 
-  if (!project) {
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <h1 className="text-2xl font-bold mb-4">Loading...</h1>
+      </div>
+    )
+  }
+
+  if (error || !project) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <h1 className="text-2xl font-bold mb-4">Project not found</h1>

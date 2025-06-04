@@ -1,5 +1,5 @@
 export interface Project {
-  id: number
+  id: string
   title: string
   number: string
   projectManager: string
@@ -11,9 +11,8 @@ export interface Project {
   narrative: ProjectNarrative
   milestones: ProjectMilestone[]
   images: string[]
-  ownerId: string
   updatedAt: string
-  createdAt: string
+  ownerId: string
 }
 
 export interface ProjectStatus {
@@ -26,7 +25,7 @@ export interface ProjectStatus {
 }
 
 export interface PMReportingItem {
-  type: string
+  type: "PoAP Report" | "Schedule" | "Forecast" | "Execution Readiness"
   complete: boolean
   date: string
   signatory: string

@@ -67,12 +67,17 @@ export default function NewProjectPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formState),
       })
-      if (!response.ok) throw new Error('Failed to create project')
-      // Optionally, you can get the created project: const newProject = await response.json()
-      router.push('/')
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null)
+        throw new Error(errorData?.message || 'Failed to create project')
+      }
+
+      const newProject = await response.json()
+      router.push(`/projects/${newProject.id}`)
     } catch (error) {
-      alert('Error creating project.')
-      console.error(error)
+      console.error('Error creating project:', error)
+      alert(error instanceof Error ? error.message : 'Error creating project. Please try again.')
     }
   }
 

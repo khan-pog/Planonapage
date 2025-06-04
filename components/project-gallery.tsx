@@ -21,15 +21,20 @@ export function ProjectGallery() {
   const [phaseFilter, setPhaseFilter] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState("updatedAt")
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchProjects() {
       try {
         const response = await fetch("/api/projects")
+        if (!response.ok) {
+          throw new Error('Failed to fetch projects')
+        }
         const data = await response.json()
         setProjects(data)
       } catch (error) {
         console.error("Error fetching projects:", error)
+        setError(error instanceof Error ? error.message : 'Failed to load projects')
       } finally {
         setLoading(false)
       }
@@ -140,6 +145,18 @@ export function ProjectGallery() {
       {loading ? (
         <div className="text-center py-12">
           <h3 className="text-lg font-medium">Loading projects...</h3>
+        </div>
+      ) : error ? (
+        <div className="text-center py-12">
+          <h3 className="text-lg font-medium text-destructive">Error loading projects</h3>
+          <p className="text-muted-foreground mt-1">{error}</p>
+          <Button 
+            variant="outline" 
+            className="mt-4"
+            onClick={() => window.location.reload()}
+          >
+            Try Again
+          </Button>
         </div>
       ) : (
         <>
