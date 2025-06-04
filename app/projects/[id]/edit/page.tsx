@@ -16,11 +16,12 @@ import { ProjectStatusPanel } from "@/components/project-status-panel"
 import { ProjectNarratives } from "@/components/project-narratives"
 import { ProjectMilestones } from "@/components/project-milestones"
 import type { Project } from "@/lib/types"
+import { ProjectCostForm } from "@/components/project-cost-form"
 
 export default function EditProjectPage() {
   const params = useParams()
   const router = useRouter()
-  const projectId = parseInt(params.id as string, 10)
+  const projectId = Number.parseInt(params.id as string, 10)
   const [project, setProject] = useState<Project | null>(null)
   const [activeTab, setActiveTab] = useState("basic")
   const [loading, setLoading] = useState(true)
@@ -30,20 +31,20 @@ export default function EditProjectPage() {
     async function fetchProject() {
       try {
         if (isNaN(projectId)) {
-          throw new Error('Invalid project ID')
+          throw new Error("Invalid project ID")
         }
         const response = await fetch(`/api/projects/${projectId}`)
         if (!response.ok) {
           if (response.status === 404) {
-            throw new Error('Project not found')
+            throw new Error("Project not found")
           }
-          throw new Error('Failed to fetch project')
+          throw new Error("Failed to fetch project")
         }
         const data = await response.json()
         setProject(data)
       } catch (error) {
-        console.error('Error fetching project:', error)
-        setError(error instanceof Error ? error.message : 'An error occurred')
+        console.error("Error fetching project:", error)
+        setError(error instanceof Error ? error.message : "An error occurred")
       } finally {
         setLoading(false)
       }
@@ -58,19 +59,19 @@ export default function EditProjectPage() {
 
     try {
       const response = await fetch(`/api/projects/${projectId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(project),
       })
 
       if (!response.ok) {
-        throw new Error('Failed to update project')
+        throw new Error("Failed to update project")
       }
 
       router.push(`/projects/${projectId}`)
     } catch (error) {
-      console.error('Error updating project:', error)
-      alert('Failed to update project. Please try again.')
+      console.error("Error updating project:", error)
+      alert("Failed to update project. Please try again.")
     }
   }
 
@@ -114,9 +115,10 @@ export default function EditProjectPage() {
           <CardContent>
             <form id="edit-project-form" onSubmit={handleSubmit}>
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-5">
                   <TabsTrigger value="basic">Basic Info</TabsTrigger>
                   <TabsTrigger value="status">Status & RAG</TabsTrigger>
+                  <TabsTrigger value="cost">Cost Tracking</TabsTrigger>
                   <TabsTrigger value="narratives">Narratives</TabsTrigger>
                   <TabsTrigger value="milestones">Milestones & Images</TabsTrigger>
                 </TabsList>
@@ -227,6 +229,14 @@ export default function EditProjectPage() {
                       </div>
                     </CardContent>
                   </Card>
+                </TabsContent>
+
+                <TabsContent value="cost" className="pt-6">
+                  <ProjectCostForm
+                    costTracking={project.costTracking}
+                    onChange={(costTracking) => setProject({ ...project, costTracking })}
+                    editable={true}
+                  />
                 </TabsContent>
 
                 <TabsContent value="narratives" className="pt-6">

@@ -15,4 +15,4 @@ async function seed() {
   console.log('Seeding complete.');
 }
 
-seed().then(() => process.exit(0)); 
+seed().then(() => process.exit(0));

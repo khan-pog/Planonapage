@@ -11,6 +11,7 @@ export interface Project {
   narrative: ProjectNarrative
   milestones: ProjectMilestone[]
   images: string[]
+  costTracking: CostTracking
   updatedAt: string
   ownerId: string
 }
@@ -51,4 +52,22 @@ export interface ProjectMilestone {
   stage: string
   date: string
   comment: string
+}
+
+export interface CostTracking {
+  totalBudget: number
+  currency: string
+  monthlyData: MonthlyCostData[]
+  costStatus: "Under Budget" | "On Track" | "Monitor" | "Over Budget"
+  variance: number // percentage variance from budget
+  forecastCompletion: number
+}
+
+export interface MonthlyCostData {
+  month: string
+  budgetedCost: number
+  actualCost: number
+  cumulativeBudget: number
+  cumulativeActual: number
+  variance: number
 }

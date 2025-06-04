@@ -15,4 +15,4 @@ export const projects = pgTable('projects', {
   pmReporting: jsonb('pm_reporting').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-}); 
+});

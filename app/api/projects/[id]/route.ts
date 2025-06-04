@@ -68,4 +68,4 @@ export async function DELETE(
     console.error('Error deleting project:', error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
-} 
+}

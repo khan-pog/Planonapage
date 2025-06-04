@@ -43,4 +43,4 @@ export async function updateProject(id: number, data: Partial<typeof schema.proj
 export async function deleteProject(id: number) {
   const result = await db.delete(schema.projects).where(sql`id = ${id}`).returning();
   return result[0];
-} 
+}

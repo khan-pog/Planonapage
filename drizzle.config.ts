@@ -6,4 +6,4 @@ export default {
   dbCredentials: {
     connectionString: process.env.POSTGRES_URL!,
   },
-} satisfies Config; 
+} satisfies Config;
