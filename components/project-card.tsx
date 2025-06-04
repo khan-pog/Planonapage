@@ -49,8 +49,8 @@ export function ProjectCard({ project }: ProjectCardProps) {
     }
   }
 
-  // Ensure we're using the numeric ID from the database
-  const projectId = typeof project.id === 'string' ? parseInt(project.id.replace('project-', ''), 10) : project.id
+  // Use the project ID directly since it's already numeric from the database
+  const projectId = project.id
 
   return (
     <Link href={`/projects/${projectId}`}>

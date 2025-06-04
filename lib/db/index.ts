@@ -6,7 +6,9 @@ export const db = drizzle(sql, { schema });
 
 // Helper functions for database operations
 export async function getProject(id: number) {
+  console.log('Executing getProject query for ID:', id);
   const result = await db.select().from(schema.projects).where(sql`id = ${id}`);
+  console.log('Query result:', result);
   return result[0];
 }
 

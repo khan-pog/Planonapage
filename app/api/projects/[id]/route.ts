@@ -8,11 +8,16 @@ export async function GET(
   try {
     const id = parseInt(params.id, 10);
     if (isNaN(id)) {
+      console.error('Invalid project ID:', params.id);
       return new NextResponse('Invalid project ID', { status: 400 });
     }
 
+    console.log('Fetching project with ID:', id);
     const project = await getProject(id);
+    console.log('Project result:', project);
+    
     if (!project) {
+      console.error('Project not found with ID:', id);
       return new NextResponse('Project not found', { status: 404 });
     }
     return NextResponse.json(project);
