@@ -59,13 +59,21 @@ export default function NewProjectPage() {
     ownerId: "current-user-id",
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // In a real app, this would save to the database
-    console.log("Submitting project:", formState)
-
-    // Redirect to the gallery page
-    router.push("/")
+    try {
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formState),
+      })
+      if (!response.ok) throw new Error('Failed to create project')
+      // Optionally, you can get the created project: const newProject = await response.json()
+      router.push('/')
+    } catch (error) {
+      alert('Error creating project.')
+      console.error(error)
+    }
   }
 
   const nextTab = () => {

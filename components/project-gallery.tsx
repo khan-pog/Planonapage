@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, SlidersHorizontal } from "lucide-react"
 
 import { Input } from "@/components/ui/input"
@@ -13,15 +13,32 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ProjectCard } from "@/components/project-card"
-import { mockProjects } from "@/lib/mock-data"
+import type { Project } from "@/lib/types"
 
 export function ProjectGallery() {
+  const [projects, setProjects] = useState<Project[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [phaseFilter, setPhaseFilter] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState("updatedAt")
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const response = await fetch("/api/projects")
+        const data = await response.json()
+        setProjects(data)
+      } catch (error) {
+        console.error("Error fetching projects:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProjects()
+  }, [])
 
   // Filter projects based on search query and phase filter
-  const filteredProjects = mockProjects.filter((project) => {
+  const filteredProjects = projects.filter((project) => {
     const matchesSearch =
       searchQuery === "" ||
       project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -65,7 +82,7 @@ export function ProjectGallery() {
                 <span>Filter</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align="end">
               <DropdownMenuCheckboxItem checked={phaseFilter === null} onCheckedChange={() => setPhaseFilter(null)}>
                 All Phases
               </DropdownMenuCheckboxItem>
@@ -120,17 +137,25 @@ export function ProjectGallery() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {sortedProjects.map((project) => (
-          <ProjectCard key={project.id} project={project} />
-        ))}
-      </div>
-
-      {sortedProjects.length === 0 && (
+      {loading ? (
         <div className="text-center py-12">
-          <h3 className="text-lg font-medium">No projects found</h3>
-          <p className="text-muted-foreground mt-1">Try adjusting your search or filter criteria</p>
+          <h3 className="text-lg font-medium">Loading projects...</h3>
         </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {sortedProjects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+
+          {sortedProjects.length === 0 && (
+            <div className="text-center py-12">
+              <h3 className="text-lg font-medium">No projects found</h3>
+              <p className="text-muted-foreground mt-1">Try adjusting your search or filter criteria</p>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
