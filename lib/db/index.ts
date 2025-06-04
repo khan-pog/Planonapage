@@ -1,5 +1,6 @@
 import { drizzle } from 'drizzle-orm/vercel-postgres';
 import { sql } from '@vercel/postgres';
+import { eq } from 'drizzle-orm';
 import * as schema from './schema';
 
 export const db = drizzle(sql, { schema });
@@ -8,7 +9,7 @@ export const db = drizzle(sql, { schema });
 export async function getProject(id: number) {
   try {
     console.log('Executing getProject query for ID:', id);
-    const result = await db.select().from(schema.projects).where(sql`id = ${id}`);
+    const result = await db.select().from(schema.projects).where(eq(schema.projects.id, id));
     console.log('Query result:', result);
     if (!result || result.length === 0) {
       console.log('No project found with ID:', id);
