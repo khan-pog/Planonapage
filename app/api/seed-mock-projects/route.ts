@@ -5,7 +5,7 @@ import { createProject } from '@/lib/db';
 export async function POST() {
   try {
     for (const project of mockProjects) {
-      const { id, ...data } = project;
+      const { id, createdAt, updatedAt, ...data } = project;
       try {
         await createProject(data as any);
       } catch (err) {

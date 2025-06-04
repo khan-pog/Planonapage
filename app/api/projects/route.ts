@@ -14,7 +14,9 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    const project = await createProject(data);
+    // Remove createdAt and updatedAt if present
+    const { createdAt, updatedAt, ...rest } = data;
+    const project = await createProject(rest);
     return NextResponse.json(project);
   } catch (error) {
     console.error('Error creating project:', error);
