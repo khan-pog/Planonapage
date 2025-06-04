@@ -50,7 +50,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
   }
 
   return (
-    <Link href={`/projects/${project.id}`}>
+    <Link href={`/projects/${project.id.toString()}`}>
       <Card className="overflow-hidden h-full transition-all duration-200 hover:shadow-md">
         <div className="relative aspect-[4/3] w-full overflow-hidden">
           {project.images && project.images.length > 0 ? (
