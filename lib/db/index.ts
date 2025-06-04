@@ -6,10 +6,19 @@ export const db = drizzle(sql, { schema });
 
 // Helper functions for database operations
 export async function getProject(id: number) {
-  console.log('Executing getProject query for ID:', id);
-  const result = await db.select().from(schema.projects).where(sql`id = ${id}`);
-  console.log('Query result:', result);
-  return result[0];
+  try {
+    console.log('Executing getProject query for ID:', id);
+    const result = await db.select().from(schema.projects).where(sql`id = ${id}`);
+    console.log('Query result:', result);
+    if (!result || result.length === 0) {
+      console.log('No project found with ID:', id);
+      return null;
+    }
+    return result[0];
+  } catch (error) {
+    console.error('Database error in getProject:', error);
+    throw error;
+  }
 }
 
 export async function getAllProjects() {
