@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Mail, Download, Calendar, Settings, Plus, Trash2, Send, Clock, ArrowLeft } from "lucide-react"
 import { mockProjects } from "@/lib/mock-data"
 import Link from "next/link"
+import { SeedDatabaseButton } from "@/components/seed-database-button"
 
 export default function AdminReportsPage() {
   const [isGenerating, setIsGenerating] = useState(false)
@@ -74,9 +75,12 @@ export default function AdminReportsPage() {
         </Link>
       </div>
 
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Admin Reports Dashboard</h1>
-        <p className="text-muted-foreground mt-1">Manage automated project cost reporting and email notifications</p>
+      <div className="mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Admin Reports Dashboard</h1>
+          <p className="text-muted-foreground mt-1">Manage automated project cost reporting and email notifications</p>
+        </div>
+        <SeedDatabaseButton />
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">

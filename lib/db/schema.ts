@@ -13,6 +13,7 @@ export const projects = pgTable('projects', {
   milestones: jsonb('milestones').notNull(),
   images: jsonb('images').notNull(),
   pmReporting: jsonb('pm_reporting').notNull(),
+  costTracking: jsonb('cost_tracking').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

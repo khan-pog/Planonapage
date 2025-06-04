@@ -1,14 +1,48 @@
 export const mockProjects = [
   {
     id: "1",
-    name: "Project Alpha",
-    description: "A groundbreaking initiative to revolutionize the industry.",
-    status: "In Progress",
-    startDate: "2024-01-15",
-    endDate: "2024-12-31",
-    teamMembers: [
-      { id: "101", name: "Alice Smith", role: "Project Manager" },
-      { id: "102", name: "Bob Johnson", role: "Lead Developer" },
+    title: "Project Alpha",
+    number: "PRJ-001",
+    projectManager: "Alice Smith",
+    reportMonth: "2024-03",
+    phase: "Execution",
+    status: {
+      safety: "Yes",
+      scopeQuality: "On Track",
+      cost: "On Track",
+      schedule: "On Track",
+      comments: "Project progressing well",
+      cpmRagComment: "All metrics green"
+    },
+    phasePercentages: {
+      FEL0: 100,
+      FEL2: 100,
+      FEL3: 100,
+      "Pre-Execution": 100,
+      Execution: 45,
+      "Close-Out": 0
+    },
+    narrative: {
+      general: "Major infrastructure upgrade project",
+      achieved: "Completed site preparation and initial setup",
+      plannedNext: "Begin main construction phase",
+      riskIssues: "No major risks identified"
+    },
+    milestones: [
+      {
+        stage: "Site Preparation",
+        date: "2024-02-15",
+        comment: "Completed ahead of schedule"
+      }
+    ],
+    images: [],
+    pmReporting: [
+      {
+        type: "PoAP Report",
+        complete: true,
+        date: "2024-03-01",
+        signatory: "Alice Smith"
+      }
     ],
     costTracking: {
       totalBudget: 2500000,
@@ -20,7 +54,7 @@ export const mockProjects = [
           actualCost: 185000,
           cumulativeBudget: 200000,
           cumulativeActual: 185000,
-          variance: -15000,
+          variance: -15000
         },
         {
           month: "Feb 2024",
@@ -28,7 +62,7 @@ export const mockProjects = [
           actualCost: 275000,
           cumulativeBudget: 450000,
           cumulativeActual: 460000,
-          variance: 25000,
+          variance: 25000
         },
         {
           month: "Mar 2024",
@@ -36,24 +70,58 @@ export const mockProjects = [
           actualCost: 290000,
           cumulativeBudget: 750000,
           cumulativeActual: 750000,
-          variance: -10000,
-        },
+          variance: -10000
+        }
       ],
       costStatus: "On Track",
       variance: 2.5,
-      forecastCompletion: 2450000,
-    },
+      forecastCompletion: 2450000
+    }
   },
   {
     id: "2",
-    name: "Project Beta",
-    description: "Developing a cutting-edge solution for sustainable energy.",
-    status: "Planning",
-    startDate: "2024-03-01",
-    endDate: "2025-02-28",
-    teamMembers: [
-      { id: "201", name: "Charlie Brown", role: "Project Manager" },
-      { id: "202", name: "Diana Miller", role: "Senior Engineer" },
+    title: "Project Beta",
+    number: "PRJ-002",
+    projectManager: "Charlie Brown",
+    reportMonth: "2024-03",
+    phase: "Pre-Execution",
+    status: {
+      safety: "Yes",
+      scopeQuality: "On Track",
+      cost: "On Track",
+      schedule: "On Track",
+      comments: "Planning phase complete",
+      cpmRagComment: "Ready for execution"
+    },
+    phasePercentages: {
+      FEL0: 100,
+      FEL2: 100,
+      FEL3: 100,
+      "Pre-Execution": 90,
+      Execution: 0,
+      "Close-Out": 0
+    },
+    narrative: {
+      general: "Sustainable energy initiative",
+      achieved: "Completed all planning phases",
+      plannedNext: "Begin execution phase",
+      riskIssues: "Supply chain delays possible"
+    },
+    milestones: [
+      {
+        stage: "Planning Complete",
+        date: "2024-03-01",
+        comment: "All approvals received"
+      }
+    ],
+    images: [],
+    pmReporting: [
+      {
+        type: "PoAP Report",
+        complete: true,
+        date: "2024-03-01",
+        signatory: "Charlie Brown"
+      }
     ],
     costTracking: {
       totalBudget: 2500000,
@@ -65,7 +133,7 @@ export const mockProjects = [
           actualCost: 175000,
           cumulativeBudget: 200000,
           cumulativeActual: 175000,
-          variance: -25000,
+          variance: -25000
         },
         {
           month: "Feb 2024",
@@ -73,7 +141,7 @@ export const mockProjects = [
           actualCost: 225000,
           cumulativeBudget: 450000,
           cumulativeActual: 400000,
-          variance: -25000,
+          variance: -25000
         },
         {
           month: "Mar 2024",
@@ -81,13 +149,13 @@ export const mockProjects = [
           actualCost: 280000,
           cumulativeBudget: 750000,
           cumulativeActual: 680000,
-          variance: -20000,
-        },
+          variance: -20000
+        }
       ],
       costStatus: "Under Budget",
       variance: -3.0,
-      forecastCompletion: 2300000,
-    },
+      forecastCompletion: 2300000
+    }
   },
   {
     id: "3",
