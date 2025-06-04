@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link"
 import { ProjectGallery } from "@/components/project-gallery"
 import { useState } from "react"
