@@ -25,6 +25,7 @@ export function ProjectMilestones({ milestones, editable = false, onChange }: Pr
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    e.stopPropagation() // Prevent event from bubbling up to parent form
     if (!newMilestone.stage || !newMilestone.date) return
     if (onChange) {
       onChange([...milestones, newMilestone])
@@ -69,6 +70,7 @@ export function ProjectMilestones({ milestones, editable = false, onChange }: Pr
             <p className="text-muted-foreground">No milestones have been added yet.</p>
           </div>
         )}
+        
         {editable && showForm && (
           <form className="mt-4 flex flex-col gap-2" onSubmit={handleFormSubmit}>
             <div className="flex gap-2">

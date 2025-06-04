@@ -244,7 +244,11 @@ export default function EditProjectPage() {
                 </TabsContent>
 
                 <TabsContent value="milestones" className="space-y-6 pt-6">
-                  <ProjectMilestones milestones={project.milestones} editable={true} />
+                  <ProjectMilestones 
+                    milestones={project.milestones} 
+                    editable={true} 
+                    onChange={(milestones) => setProject({ ...project, milestones })}
+                  />
 
                   <Card>
                     <CardHeader>
