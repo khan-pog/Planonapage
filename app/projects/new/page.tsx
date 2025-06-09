@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ProjectCostForm } from "@/components/project-cost-form"
 import type { Project } from "@/lib/types"
 
 export default function NewProjectPage() {
@@ -429,107 +430,11 @@ export default function NewProjectPage() {
                 </TabsContent>
 
                 <TabsContent value="cost" className="pt-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Cost Tracking</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="totalBudget">Total Budget</Label>
-                          <Input
-                            id="totalBudget"
-                            type="number"
-                            value={project.costTracking.totalBudget}
-                            onChange={(e) => setProject({ 
-                              ...project, 
-                              costTracking: { 
-                                ...project.costTracking, 
-                                totalBudget: Number.parseFloat(e.target.value) || 0 
-                              } 
-                            })}
-                            disabled={isSubmitting}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="currency">Currency</Label>
-                          <Select
-                            value={project.costTracking.currency}
-                            onValueChange={(value) => setProject({ 
-                              ...project, 
-                              costTracking: { ...project.costTracking, currency: value } 
-                            })}
-                            disabled={isSubmitting}
-                          >
-                            <SelectTrigger id="currency">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="AUD">AUD</SelectItem>
-                              <SelectItem value="USD">USD</SelectItem>
-                              <SelectItem value="EUR">EUR</SelectItem>
-                              <SelectItem value="GBP">GBP</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="costStatus">Cost Status</Label>
-                          <Select
-                            value={project.costTracking.costStatus}
-                            onValueChange={(value: "Under Budget" | "On Track" | "Monitor" | "Over Budget") => 
-                              setProject({ 
-                                ...project, 
-                                costTracking: { ...project.costTracking, costStatus: value } 
-                              })
-                            }
-                            disabled={isSubmitting}
-                          >
-                            <SelectTrigger id="costStatus">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Under Budget">Under Budget</SelectItem>
-                              <SelectItem value="On Track">On Track</SelectItem>
-                              <SelectItem value="Monitor">Monitor</SelectItem>
-                              <SelectItem value="Over Budget">Over Budget</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="variance">Variance (%)</Label>
-                          <Input
-                            id="variance"
-                            type="number"
-                            value={project.costTracking.variance}
-                            onChange={(e) => setProject({ 
-                              ...project, 
-                              costTracking: { 
-                                ...project.costTracking, 
-                                variance: Number.parseFloat(e.target.value) || 0 
-                              } 
-                            })}
-                            disabled={isSubmitting}
-                          />
-                        </div>
-                        <div className="space-y-2 md:col-span-2">
-                          <Label htmlFor="forecastCompletion">Forecast Completion</Label>
-                          <Input
-                            id="forecastCompletion"
-                            type="number"
-                            value={project.costTracking.forecastCompletion}
-                            onChange={(e) => setProject({ 
-                              ...project, 
-                              costTracking: { 
-                                ...project.costTracking, 
-                                forecastCompletion: Number.parseFloat(e.target.value) || 0 
-                              } 
-                            })}
-                            disabled={isSubmitting}
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <ProjectCostForm
+                    costTracking={project.costTracking}
+                    onChange={(costTracking) => setProject({ ...project, costTracking })}
+                    editable={!isSubmitting}
+                  />
                 </TabsContent>
 
                 <TabsContent value="narratives" className="pt-6">
