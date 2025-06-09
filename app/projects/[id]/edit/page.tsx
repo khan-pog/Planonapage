@@ -58,10 +58,13 @@ export default function EditProjectPage() {
     if (!project) return
 
     try {
+      // Remove timestamp fields from the data sent to the API
+      const { updatedAt, ...projectData } = project
+      
       const response = await fetch(`/api/projects/${projectId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(project),
+        body: JSON.stringify(projectData),
       })
 
       if (!response.ok) {

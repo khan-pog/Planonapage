@@ -42,9 +42,12 @@ export async function createProject(data: Omit<typeof schema.projects.$inferInse
 }
 
 export async function updateProject(id: number, data: Partial<typeof schema.projects.$inferInsert>) {
+  // Remove timestamp fields from incoming data to avoid conflicts
+  const { createdAt, updatedAt, ...cleanData } = data;
+  
   const result = await db
     .update(schema.projects)
-    .set({ ...data, updatedAt: new Date() })
+    .set({ ...cleanData, updatedAt: new Date() })
     .where(sql`id = ${id}`)
     .returning();
   return result[0];
