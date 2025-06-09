@@ -28,10 +28,16 @@ export function ProjectMilestones({ milestones, editable = false, onChange }: Pr
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     e.stopPropagation()
+    
+    // Prevent the event from bubbling up to any parent forms
+    e.nativeEvent.stopImmediatePropagation()
+    
     if (!newMilestone.stage || !newMilestone.date) return
+    
     if (onChange) {
       onChange([...milestones, newMilestone])
     }
+    
     setNewMilestone({ stage: '', date: '', comment: '' })
     setShowForm(false)
   }
@@ -80,7 +86,11 @@ export function ProjectMilestones({ milestones, editable = false, onChange }: Pr
         )}
         
         {editable && showForm && (
-          <form className="mt-4 flex flex-col gap-2" onSubmit={handleFormSubmit}>
+          <form 
+            className="mt-4 flex flex-col gap-2" 
+            onSubmit={handleFormSubmit}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex gap-2">
               <input
                 name="stage"
@@ -108,7 +118,14 @@ export function ProjectMilestones({ milestones, editable = false, onChange }: Pr
                 onChange={handleFormChange}
                 className="border rounded px-2 py-1 flex-1"
               />
-              <Button type="submit" size="sm" className="h-8">Save</Button>
+              <Button 
+                type="submit" 
+                size="sm" 
+                className="h-8"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Save
+              </Button>
             </div>
           </form>
         )}
