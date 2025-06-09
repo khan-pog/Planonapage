@@ -15,6 +15,8 @@ import {
 import { ProjectCard } from "@/components/project-card"
 import type { Project } from "@/lib/types"
 
+const ITEMS_PER_PAGE = 12
+
 export function ProjectGallery() {
   const [projects, setProjects] = useState<Project[]>([])
   const [searchQuery, setSearchQuery] = useState("")
@@ -22,6 +24,7 @@ export function ProjectGallery() {
   const [sortBy, setSortBy] = useState("updatedAt")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
     async function fetchProjects() {
@@ -66,6 +69,13 @@ export function ProjectGallery() {
     }
   })
 
+  // Paginate projects
+  const totalPages = Math.ceil(sortedProjects.length / ITEMS_PER_PAGE)
+  const paginatedProjects = sortedProjects.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  )
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row gap-4">
@@ -79,67 +89,65 @@ export function ProjectGallery() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="flex gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex gap-2">
-                <SlidersHorizontal className="h-4 w-4" />
-                <span>Filter</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuCheckboxItem checked={phaseFilter === null} onCheckedChange={() => setPhaseFilter(null)}>
-                All Phases
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                checked={phaseFilter === "FEL0"}
-                onCheckedChange={() => setPhaseFilter(phaseFilter === "FEL0" ? null : "FEL0")}
-              >
-                FEL0
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                checked={phaseFilter === "FEL2"}
-                onCheckedChange={() => setPhaseFilter(phaseFilter === "FEL2" ? null : "FEL2")}
-              >
-                FEL2
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                checked={phaseFilter === "FEL3"}
-                onCheckedChange={() => setPhaseFilter(phaseFilter === "FEL3" ? null : "FEL3")}
-              >
-                FEL3
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                checked={phaseFilter === "Pre-Execution"}
-                onCheckedChange={() => setPhaseFilter(phaseFilter === "Pre-Execution" ? null : "Pre-Execution")}
-              >
-                Pre-Execution
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                checked={phaseFilter === "Execution"}
-                onCheckedChange={() => setPhaseFilter(phaseFilter === "Execution" ? null : "Execution")}
-              >
-                Execution
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                checked={phaseFilter === "Close-Out"}
-                onCheckedChange={() => setPhaseFilter(phaseFilter === "Close-Out" ? null : "Close-Out")}
-              >
-                Close-Out
-              </DropdownMenuCheckboxItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="updatedAt">Last Updated</SelectItem>
-              <SelectItem value="title">Title</SelectItem>
-              <SelectItem value="phase">Phase</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="flex gap-2">
+              <SlidersHorizontal className="h-4 w-4" />
+              <span>Filter</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuCheckboxItem checked={phaseFilter === null} onCheckedChange={() => setPhaseFilter(null)}>
+              All Phases
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={phaseFilter === "FEL0"}
+              onCheckedChange={() => setPhaseFilter(phaseFilter === "FEL0" ? null : "FEL0")}
+            >
+              FEL0
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={phaseFilter === "FEL2"}
+              onCheckedChange={() => setPhaseFilter(phaseFilter === "FEL2" ? null : "FEL2")}
+            >
+              FEL2
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={phaseFilter === "FEL3"}
+              onCheckedChange={() => setPhaseFilter(phaseFilter === "FEL3" ? null : "FEL3")}
+            >
+              FEL3
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={phaseFilter === "Pre-Execution"}
+              onCheckedChange={() => setPhaseFilter(phaseFilter === "Pre-Execution" ? null : "Pre-Execution")}
+            >
+              Pre-Execution
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={phaseFilter === "Execution"}
+              onCheckedChange={() => setPhaseFilter(phaseFilter === "Execution" ? null : "Execution")}
+            >
+              Execution
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={phaseFilter === "Close-Out"}
+              onCheckedChange={() => setPhaseFilter(phaseFilter === "Close-Out" ? null : "Close-Out")}
+            >
+              Close-Out
+            </DropdownMenuCheckboxItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="updatedAt">Last Updated</SelectItem>
+            <SelectItem value="title">Title</SelectItem>
+            <SelectItem value="phase">Phase</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {loading ? (
@@ -161,7 +169,7 @@ export function ProjectGallery() {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {sortedProjects.map((project) => (
+            {paginatedProjects.map((project) => (
               <ProjectCard key={project.id} project={project} />
             ))}
           </div>
@@ -170,6 +178,37 @@ export function ProjectGallery() {
             <div className="text-center py-12">
               <h3 className="text-lg font-medium">No projects found</h3>
               <p className="text-muted-foreground mt-1">Try adjusting your search or filter criteria</p>
+            </div>
+          )}
+
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-2 mt-8">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <div className="flex items-center gap-2">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    onClick={() => setCurrentPage(page)}
+                    className="w-10"
+                  >
+                    {page}
+                  </Button>
+                ))}
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
             </div>
           )}
         </>

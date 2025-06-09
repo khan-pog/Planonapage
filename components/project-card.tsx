@@ -55,22 +55,34 @@ export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <Link href={`/projects/${projectId}`}>
       <Card className="overflow-hidden h-full transition-all duration-200 hover:shadow-md">
-        <div className="relative aspect-[4/3] w-full overflow-hidden">
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
           {project.images && project.images.length > 0 ? (
             <Image
-              src={project.images[0] || "/placeholder.svg"}
+              src={project.images[0]}
               alt={`${project.title} - Project Image`}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover"
               priority={false}
-              quality={85}
+              quality={75}
               loading="lazy"
+              onError={(e) => {
+                // If image fails to load, show placeholder
+                const target = e.target as HTMLImageElement;
+                target.src = "/placeholder.svg";
+              }}
             />
           ) : (
-            <div className="w-full h-full bg-muted flex items-center justify-center">
-              <span className="text-muted-foreground">No image</span>
-            </div>
+            <Image
+              src="/placeholder.svg"
+              alt="No project image available"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-contain p-4"
+              priority={false}
+              quality={75}
+              loading="lazy"
+            />
           )}
         </div>
         <CardContent className="p-4">
@@ -78,7 +90,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
           <h3 className="text-lg font-semibold line-clamp-2">{project.title}</h3>
           <p className="text-sm text-muted-foreground mt-1">#{project.number}</p>
         </CardContent>
-        <CardFooter className="p-4 pt-0 flex justify-between">
+        <CardFooter className="p-4 pt-0 flex flex-col items-start gap-2">
           <div className="flex items-center gap-2">
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
