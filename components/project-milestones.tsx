@@ -85,7 +85,7 @@ export function ProjectMilestones({ milestones, editable = false, onChange }: Pr
           </div>
         )}
         
-        {editable && showForm && (
+        {showForm && (
           <form 
             className="mt-4 flex flex-col gap-2" 
             onSubmit={handleFormSubmit}
