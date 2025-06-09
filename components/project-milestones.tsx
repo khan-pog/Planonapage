@@ -1,7 +1,6 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus, Trash2 } from "lucide-react"
 import type { ProjectMilestone } from "@/lib/types"
@@ -16,22 +15,30 @@ interface ProjectMilestonesProps {
 }
 
 export function ProjectMilestones({ milestones, editable = false, onChange }: ProjectMilestonesProps) {
-  const [newMilestone, setNewMilestone] = useState<ProjectMilestone>({ stage: '', date: '', comment: '' })
-
-  const handleAddMilestone = (e: React.MouseEvent) => {
+  const addMilestone = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    
-    if (!newMilestone.stage || !newMilestone.date) return
-    
+    const newMilestone: ProjectMilestone = {
+      stage: '',
+      date: '',
+      comment: ''
+    }
     if (onChange) {
       onChange([...milestones, newMilestone])
     }
-    
-    setNewMilestone({ stage: '', date: '', comment: '' })
   }
 
-  const handleDeleteMilestone = (index: number) => {
+  const updateMilestone = (index: number, field: keyof ProjectMilestone, value: string) => {
+    if (onChange) {
+      const updatedMilestones = [...milestones]
+      updatedMilestones[index] = { ...updatedMilestones[index], [field]: value }
+      onChange(updatedMilestones)
+    }
+  }
+
+  const removeMilestone = (index: number, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     if (onChange) {
       const updatedMilestones = [...milestones]
       updatedMilestones.splice(index, 1)
@@ -39,108 +46,80 @@ export function ProjectMilestones({ milestones, editable = false, onChange }: Pr
     }
   }
 
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewMilestone({ ...newMilestone, [e.target.name]: e.target.value })
-  }
-
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle>Major Milestones</CardTitle>
-          <p className="text-sm text-muted-foreground">Add and manage project milestones</p>
+          <CardDescription>Add and manage project milestones</CardDescription>
         </div>
+        {editable && (
+          <Button onClick={addMilestone} size="sm" className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Add Milestone
+          </Button>
+        )}
       </CardHeader>
       <CardContent>
-        <div className="space-y-6">
-          {/* Add New Milestone Form */}
-          {editable && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg">
-              <div className="space-y-2">
-                <Label htmlFor="stage">Stage</Label>
-                <Input
-                  id="stage"
-                  name="stage"
-                  type="text"
-                  placeholder="Enter stage"
-                  value={newMilestone.stage}
-                  onChange={handleFormChange}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="date">Date</Label>
-                <Input
-                  id="date"
-                  name="date"
-                  type="date"
-                  value={newMilestone.date}
-                  onChange={handleFormChange}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="comment">Comment</Label>
-                <Input
-                  id="comment"
-                  name="comment"
-                  type="text"
-                  placeholder="Enter comment"
-                  value={newMilestone.comment}
-                  onChange={handleFormChange}
-                />
-              </div>
-              <div className="flex items-end">
-                <Button 
-                  onClick={handleAddMilestone}
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Milestone
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Milestones List */}
-          {milestones.length > 0 ? (
-            <div className="space-y-4">
-              {milestones.map((milestone, index) => (
-                <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg">
-                  <div className="space-y-2">
-                    <Label>Stage</Label>
-                    <div className="font-medium">{milestone.stage}</div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Date</Label>
-                    <div>{milestone.date}</div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Comment</Label>
-                    <div>{milestone.comment}</div>
-                  </div>
-                  {editable && (
-                    <div className="flex items-end">
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDeleteMilestone(index)}
-                        className="flex items-center gap-2"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        Remove
-                      </Button>
-                    </div>
-                  )}
+        {milestones.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">No milestones have been added yet.</p>
+            {editable && (
+              <Button onClick={addMilestone} variant="outline" className="mt-4">
+                Add First Milestone
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {milestones.map((milestone, index) => (
+              <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg">
+                <div className="space-y-2">
+                  <Label>Stage</Label>
+                  <Input
+                    type="text"
+                    placeholder="Enter stage"
+                    value={milestone.stage}
+                    onChange={(e) => updateMilestone(index, 'stage', e.target.value)}
+                    disabled={!editable}
+                  />
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-6">
-              <p className="text-muted-foreground">No milestones have been added yet.</p>
-            </div>
-          )}
-        </div>
+                <div className="space-y-2">
+                  <Label>Date</Label>
+                  <Input
+                    type="date"
+                    value={milestone.date}
+                    onChange={(e) => updateMilestone(index, 'date', e.target.value)}
+                    disabled={!editable}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Comment</Label>
+                  <Input
+                    type="text"
+                    placeholder="Enter comment"
+                    value={milestone.comment}
+                    onChange={(e) => updateMilestone(index, 'comment', e.target.value)}
+                    disabled={!editable}
+                  />
+                </div>
+                {editable && (
+                  <div className="flex items-end">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={(e) => removeMilestone(index, e)}
+                      className="flex items-center gap-2"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Remove
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   )
