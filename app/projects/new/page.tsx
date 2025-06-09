@@ -251,85 +251,25 @@ export default function NewProjectPage() {
                   />
                 </TabsContent>
 
-                <TabsContent value="milestones" className="space-y-6 pt-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Project Milestones</CardTitle>
-                      <CardDescription>Add and manage project milestones</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {project.milestones.map((milestone, index) => (
-                        <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg">
-                          <div className="space-y-2">
-                            <Label htmlFor={`milestone-stage-${index}`}>Stage</Label>
-                            <Input
-                              id={`milestone-stage-${index}`}
-                              value={milestone.stage}
-                              onChange={(e) => updateMilestone(index, 'stage', e.target.value)}
-                              disabled={isSubmitting}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor={`milestone-date-${index}`}>Date</Label>
-                            <Input
-                              id={`milestone-date-${index}`}
-                              type="date"
-                              value={milestone.date}
-                              onChange={(e) => updateMilestone(index, 'date', e.target.value)}
-                              disabled={isSubmitting}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor={`milestone-comment-${index}`}>Comment</Label>
-                            <Input
-                              id={`milestone-comment-${index}`}
-                              value={milestone.comment}
-                              onChange={(e) => updateMilestone(index, 'comment', e.target.value)}
-                              disabled={isSubmitting}
-                            />
-                          </div>
-                          <div className="flex items-end">
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => removeMilestone(index)}
-                              disabled={isSubmitting}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={addMilestone}
-                        disabled={isSubmitting}
-                      >
-                        Add Milestone
-                      </Button>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Project Images</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ImageUpload
-                        images={project.images}
-                        onChange={(images) => setProject({ ...project, images })}
-                      />
-                    </CardContent>
-                  </Card>
+                <TabsContent value="milestones" className="pt-6">
+                  <div className="space-y-6">
+                    <ProjectMilestones
+                      milestones={project.milestones}
+                      editable={true}
+                      onChange={(milestones) => setProject({ ...project, milestones })}
+                    />
+                    <ImageUpload
+                      images={project.images}
+                      onChange={(images) => setProject({ ...project, images })}
+                    />
+                  </div>
                 </TabsContent>
               </Tabs>
             </form>
           </CardContent>
-          <CardFooter className="flex justify-end">
-            <Button type="submit" form="new-project-form" className="flex gap-2">
-              <Save className="h-4 w-4" />
+          <CardFooter>
+            <Button type="submit" form="new-project-form" className="w-full">
+              <Save className="mr-2 h-4 w-4" />
               Create Project
             </Button>
           </CardFooter>
