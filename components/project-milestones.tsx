@@ -15,7 +15,9 @@ export function ProjectMilestones({ milestones, editable = false, onChange }: Pr
   const [showForm, setShowForm] = useState(false)
   const [newMilestone, setNewMilestone] = useState<ProjectMilestone>({ stage: '', date: '', comment: '' })
 
-  const handleAddMilestone = () => {
+  const handleAddMilestone = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     setShowForm(true)
   }
 
@@ -25,7 +27,7 @@ export function ProjectMilestones({ milestones, editable = false, onChange }: Pr
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    e.stopPropagation() // Prevent event from bubbling up to parent form
+    e.stopPropagation()
     if (!newMilestone.stage || !newMilestone.date) return
     if (onChange) {
       onChange([...milestones, newMilestone])
@@ -38,8 +40,14 @@ export function ProjectMilestones({ milestones, editable = false, onChange }: Pr
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Major Milestones</CardTitle>
-        {editable && (
-          <Button size="sm" variant="outline" className="h-8" onClick={handleAddMilestone}>
+        {editable && !showForm && (
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="h-8" 
+            onClick={handleAddMilestone}
+            type="button"
+          >
             <Plus className="h-4 w-4 mr-1" />
             Add Milestone
           </Button>
