@@ -84,7 +84,9 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
   };
 
   const triggerFileSelect = () => {
-    fileInputRef.current?.click();
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
   return (
@@ -114,6 +116,8 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
             onClick={triggerFileSelect}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
+            role="button"
+            tabIndex={0}
           >
             <Upload className="h-8 w-8 text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground text-center">
@@ -131,6 +135,7 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
         multiple
         onChange={handleFileSelect}
         className="hidden"
+        aria-label="Upload images"
       />
       
       {images.length > 0 && (
