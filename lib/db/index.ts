@@ -56,3 +56,8 @@ export async function deleteProject(id: number) {
   const result = await db.delete(schema.projects).where(sql`id = ${id}`).returning();
   return result[0];
 }
+
+export async function deleteAllProjects() {
+  const result = await db.delete(schema.projects).returning();
+  return result;
+}

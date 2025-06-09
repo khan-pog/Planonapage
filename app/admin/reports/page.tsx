@@ -13,6 +13,17 @@ import { Mail, Download, Calendar, Settings, Plus, Trash2, Send, Clock, ArrowLef
 import Link from "next/link"
 import { SeedDatabaseButton } from "@/components/seed-database-button"
 import { toast } from "sonner"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 interface Project {
   id: number
@@ -56,6 +67,7 @@ export default function AdminReportsPage() {
     includeSummary: true,
     includeDetails: true,
   })
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // Fetch projects from database
   useEffect(() => {
@@ -156,6 +168,28 @@ export default function AdminReportsPage() {
 
   const summary = getProjectSummary()
 
+  const handleDeleteAllProjects = async () => {
+    try {
+      setIsDeleting(true)
+      const response = await fetch('/api/projects', {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete projects')
+      }
+
+      const result = await response.json()
+      toast.success(`Successfully deleted ${result.count} projects`)
+      fetchProjects() // Refresh the projects list
+    } catch (error: any) {
+      console.error('Error deleting projects:', error)
+      toast.error(`Failed to delete projects: ${error.message}`)
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -229,6 +263,39 @@ export default function AdminReportsPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" className="flex items-center gap-2">
+                <Trash2 className="h-4 w-4" />
+                Delete All Projects
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete all projects from the database.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteAllProjects}
+                  disabled={isDeleting}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {isDeleting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Deleting...
+                    </>
+                  ) : (
+                    'Delete All Projects'
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           <Button onClick={testSeeding} variant="outline" className="flex items-center gap-2">
             <Database className="h-4 w-4" />
             Test Seeding
