@@ -42,10 +42,12 @@ export async function createProject(data: Omit<typeof schema.projects.$inferInse
 }
 
 export async function updateProject(id: number, data: Partial<typeof schema.projects.$inferInsert>) {
+  // Remove id from the update data if it exists
+  const { id: _, ...updateData } = data;
   const result = await db
     .update(schema.projects)
-    .set({ ...data, updatedAt: new Date() })
-    .where(sql`id = ${id}`)
+    .set({ ...updateData, updatedAt: new Date() })
+    .where(eq(schema.projects.id, id))
     .returning();
   return result[0];
 }
