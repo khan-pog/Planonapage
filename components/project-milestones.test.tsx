@@ -13,6 +13,24 @@ describe('ProjectMilestones', () => {
     jest.clearAllMocks()
   })
 
+  it('should render milestones in view-only mode', () => {
+    render(
+      <ProjectMilestones 
+        milestones={mockMilestones} 
+        editable={false} 
+      />
+    )
+
+    // Should show the milestone
+    expect(screen.getByText('Test Stage')).toBeInTheDocument()
+    expect(screen.getByText('2024-03-01')).toBeInTheDocument()
+    expect(screen.getByText('Test Comment')).toBeInTheDocument()
+
+    // Should not show add button or form
+    expect(screen.queryByText('Add Milestone')).not.toBeInTheDocument()
+    expect(screen.queryByPlaceholderText('Stage')).not.toBeInTheDocument()
+  })
+
   it('should not trigger parent form submission when adding a milestone', () => {
     const parentFormSubmit = jest.fn()
     
@@ -72,5 +90,28 @@ describe('ProjectMilestones', () => {
 
     // Verify onChange was not called
     expect(mockOnChange).not.toHaveBeenCalled()
+  })
+
+  it('should hide add button when form is visible', () => {
+    render(
+      <ProjectMilestones 
+        milestones={mockMilestones} 
+        editable={true} 
+        onChange={mockOnChange} 
+      />
+    )
+
+    // Initially show add button
+    expect(screen.getByText('Add Milestone')).toBeInTheDocument()
+
+    // Click add button
+    const addButton = screen.getByText('Add Milestone')
+    fireEvent.click(addButton)
+
+    // Add button should be hidden
+    expect(screen.queryByText('Add Milestone')).not.toBeInTheDocument()
+
+    // Form should be visible
+    expect(screen.getByPlaceholderText('Stage')).toBeInTheDocument()
   })
 }) 
