@@ -7,6 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Trash2 } from "lucide-react"
 import type { CostTracking, MonthlyCostData } from "@/lib/types"
 
+// Add function to get current month and year
+const getCurrentMonthYear = () => {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  return `${year}-${month}`
+}
+
 interface ProjectCostFormProps {
   costTracking: CostTracking
   onChange: (costTracking: CostTracking) => void
@@ -28,7 +36,7 @@ export function ProjectCostForm({ costTracking, onChange, editable = true }: Pro
     e.preventDefault()
     e.stopPropagation()
     const newMonth: MonthlyCostData = {
-      month: '',
+      month: getCurrentMonthYear(),
       budgetedCost: 0,
       actualCost: 0,
       cumulativeBudget: 0,
