@@ -176,7 +176,11 @@ export default function NewProjectPage() {
                 </TabsContent>
 
                 <TabsContent value="status" className="space-y-6 pt-6">
-                  <ProjectStatusPanel status={project.status} editable={true} />
+                  <ProjectStatusPanel 
+                    status={project.status} 
+                    editable={true} 
+                    onChange={(status) => setProject({ ...project, status })}
+                  />
 
                   <Card>
                     <CardHeader>
@@ -231,7 +235,11 @@ export default function NewProjectPage() {
                 </TabsContent>
 
                 <TabsContent value="narratives" className="pt-6">
-                  <ProjectNarratives narrative={project.narrative} editable={true} />
+                  <ProjectNarratives 
+                    narrative={project.narrative} 
+                    editable={true} 
+                    onChange={(narrative) => setProject({ ...project, narrative })}
+                  />
                 </TabsContent>
 
                 <TabsContent value="milestones" className="space-y-6 pt-6">
@@ -269,6 +277,49 @@ export default function NewProjectPage() {
                           </div>
                         ))}
                         <div className="border border-dashed rounded-lg p-4 flex flex-col items-center justify-center aspect-square cursor-pointer hover:bg-muted/50 transition-colors">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={async (e) => {
+                              const files = e.target.files;
+                              if (!files) return;
+
+                              const newImages: string[] = [];
+                              for (const file of Array.from(files)) {
+                                if (project.images.length + newImages.length >= 10) {
+                                  alert('Maximum 10 images allowed');
+                                  break;
+                                }
+
+                                if (!file.type.startsWith('image/')) {
+                                  alert('Please select only image files');
+                                  continue;
+                                }
+
+                                if (file.size > 10 * 1024 * 1024) {
+                                  alert('File size must be less than 10MB');
+                                  continue;
+                                }
+
+                                try {
+                                  const reader = new FileReader();
+                                  const result = await new Promise<string>((resolve) => {
+                                    reader.onload = () => resolve(reader.result as string);
+                                    reader.readAsDataURL(file);
+                                  });
+                                  newImages.push(result);
+                                } catch (error) {
+                                  console.error('Error processing file:', error);
+                                  alert('Error processing file: ' + file.name);
+                                }
+                              }
+
+                              setProject({ ...project, images: [...project.images, ...newImages] });
+                              e.target.value = '';
+                            }}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          />
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"

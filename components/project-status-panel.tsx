@@ -7,9 +7,10 @@ import { Label } from "@/components/ui/label"
 interface ProjectStatusPanelProps {
   status: ProjectStatus
   editable?: boolean
+  onChange?: (status: ProjectStatus) => void
 }
 
-export function ProjectStatusPanel({ status, editable = false }: ProjectStatusPanelProps) {
+export function ProjectStatusPanel({ status, editable = false, onChange }: ProjectStatusPanelProps) {
   const getStatusColor = (status: "On Track" | "Monitor" | "Over" | "Delayed" | "Yes" | "No" | "Not Applicable") => {
     switch (status) {
       case "On Track":
@@ -28,6 +29,12 @@ export function ProjectStatusPanel({ status, editable = false }: ProjectStatusPa
     }
   }
 
+  const handleStatusChange = (field: keyof ProjectStatus, value: string) => {
+    if (onChange) {
+      onChange({ ...status, [field]: value })
+    }
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -38,7 +45,7 @@ export function ProjectStatusPanel({ status, editable = false }: ProjectStatusPa
           <div className="space-y-2">
             <Label htmlFor="safety-status">Safety</Label>
             {editable ? (
-              <Select defaultValue={status.safety}>
+              <Select value={status.safety} onValueChange={(value) => handleStatusChange('safety', value)}>
                 <SelectTrigger id="safety-status">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
@@ -59,7 +66,7 @@ export function ProjectStatusPanel({ status, editable = false }: ProjectStatusPa
           <div className="space-y-2">
             <Label htmlFor="scope-quality-status">Scope/Quality</Label>
             {editable ? (
-              <Select defaultValue={status.scopeQuality}>
+              <Select value={status.scopeQuality} onValueChange={(value) => handleStatusChange('scopeQuality', value)}>
                 <SelectTrigger id="scope-quality-status">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
@@ -80,7 +87,7 @@ export function ProjectStatusPanel({ status, editable = false }: ProjectStatusPa
           <div className="space-y-2">
             <Label htmlFor="cost-status">Cost</Label>
             {editable ? (
-              <Select defaultValue={status.cost}>
+              <Select value={status.cost} onValueChange={(value) => handleStatusChange('cost', value)}>
                 <SelectTrigger id="cost-status">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
@@ -101,7 +108,7 @@ export function ProjectStatusPanel({ status, editable = false }: ProjectStatusPa
           <div className="space-y-2">
             <Label htmlFor="schedule-status">Schedule</Label>
             {editable ? (
-              <Select defaultValue={status.schedule}>
+              <Select value={status.schedule} onValueChange={(value) => handleStatusChange('schedule', value)}>
                 <SelectTrigger id="schedule-status">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
@@ -125,7 +132,8 @@ export function ProjectStatusPanel({ status, editable = false }: ProjectStatusPa
           {editable ? (
             <Textarea
               id="status-comments"
-              defaultValue={status.comments}
+              value={status.comments}
+              onChange={(e) => handleStatusChange('comments', e.target.value)}
               placeholder="Add comments about the current status..."
               className="min-h-[100px]"
             />
@@ -141,7 +149,8 @@ export function ProjectStatusPanel({ status, editable = false }: ProjectStatusPa
           {editable ? (
             <Textarea
               id="cpm-rag-comment"
-              defaultValue={status.cpmRagComment}
+              value={status.cpmRagComment}
+              onChange={(e) => handleStatusChange('cpmRagComment', e.target.value)}
               placeholder="Add CPM RAG comments..."
               className="min-h-[100px]"
             />
