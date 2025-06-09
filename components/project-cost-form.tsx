@@ -147,7 +147,7 @@ export function ProjectCostForm({ costTracking, onChange, editable = true }: Pro
             <CardDescription>Track monthly budgeted vs actual costs</CardDescription>
           </div>
           {editable && (
-            <Button onClick={addMonth} size="sm" className="flex items-center gap-2">
+            <Button onClick={addMonth} size="sm" className="flex items-center gap-2" type="button">
               <Plus className="h-4 w-4" />
               Add Month
             </Button>
@@ -158,7 +158,7 @@ export function ProjectCostForm({ costTracking, onChange, editable = true }: Pro
             <div className="text-center py-8">
               <p className="text-muted-foreground">No monthly data added yet.</p>
               {editable && (
-                <Button onClick={addMonth} variant="outline" className="mt-4">
+                <Button onClick={addMonth} variant="outline" className="mt-4" type="button">
                   Add First Month
                 </Button>
               )}
