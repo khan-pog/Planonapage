@@ -57,7 +57,16 @@ export function ProjectCard({ project }: ProjectCardProps) {
       <Card className="overflow-hidden h-full transition-all duration-200 hover:shadow-md">
         <div className="relative aspect-[4/3] w-full overflow-hidden">
           {project.images && project.images.length > 0 ? (
-            <Image src={project.images[0] || "/placeholder.svg"} alt={project.title} fill className="object-cover" />
+            <Image
+              src={project.images[0] || "/placeholder.svg"}
+              alt={`${project.title} - Project Image`}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover"
+              priority={false}
+              quality={85}
+              loading="lazy"
+            />
           ) : (
             <div className="w-full h-full bg-muted flex items-center justify-center">
               <span className="text-muted-foreground">No image</span>
