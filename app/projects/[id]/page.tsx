@@ -125,10 +125,12 @@ export default function ProjectDetailPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {project.images.map((image, index) => (
                   <div key={index} className="relative aspect-square overflow-hidden rounded-md border">
-                    <img
+                    <Image
                       src={image || "/placeholder.svg"}
                       alt={`Project image ${index + 1}`}
-                      className="object-cover w-full h-full"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   </div>
                 ))}

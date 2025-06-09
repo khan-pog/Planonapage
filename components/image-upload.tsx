@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Upload, X } from "lucide-react";
 
@@ -92,15 +93,17 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {images.map((image, index) => (
           <div key={index} className="relative aspect-square overflow-hidden rounded-md border">
-            <img
+            <Image
               src={image || "/placeholder.svg"}
               alt={`Project image ${index + 1}`}
-              className="object-cover w-full h-full"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
             <Button
               variant="destructive"
               size="sm"
-              className="absolute top-2 right-2"
+              className="absolute top-2 right-2 z-10"
               onClick={() => removeImage(index)}
             >
               <X className="h-4 w-4" />

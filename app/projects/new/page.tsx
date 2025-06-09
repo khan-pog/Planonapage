@@ -3,6 +3,7 @@
 import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { ArrowLeft, Save, Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -664,16 +665,18 @@ export default function NewProjectPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {project.images.map((image, index) => (
                           <div key={index} className="relative aspect-square overflow-hidden rounded-md border">
-                            <img
+                            <Image
                               src={image}
                               alt={`Project image ${index + 1}`}
-                              className="object-cover w-full h-full"
+                              fill
+                              className="object-cover"
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
                             <Button
                               type="button"
                               variant="destructive"
                               size="sm"
-                              className="absolute top-2 right-2"
+                              className="absolute top-2 right-2 z-10"
                               onClick={() => removeImage(index)}
                               disabled={isSubmitting}
                             >
