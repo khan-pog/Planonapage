@@ -34,10 +34,31 @@ export default function AdminReportsPage() {
 
   const generateWeeklyReport = async () => {
     setIsGenerating(true)
-    // Simulate report generation
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    console.log("Weekly report generated and sent to:", emailList)
-    setIsGenerating(false)
+    try {
+      const response = await fetch('/api/reports/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          emailList,
+          reportSettings,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to send report')
+      }
+
+      const result = await response.json()
+      console.log('Report sent successfully:', result)
+      alert(`Report sent successfully to ${result.message}`)
+    } catch (error) {
+      console.error('Error sending report:', error)
+      alert('Failed to send report. Please try again.')
+    } finally {
+      setIsGenerating(false)
+    }
   }
 
   const addEmail = () => {

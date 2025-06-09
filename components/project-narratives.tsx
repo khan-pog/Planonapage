@@ -5,9 +5,16 @@ import type { ProjectNarrative } from "@/lib/types"
 interface ProjectNarrativesProps {
   narrative: ProjectNarrative
   editable?: boolean
+  onChange?: (narrative: ProjectNarrative) => void
 }
 
-export function ProjectNarratives({ narrative, editable = false }: ProjectNarrativesProps) {
+export function ProjectNarratives({ narrative, editable = false, onChange }: ProjectNarrativesProps) {
+  const handleNarrativeChange = (field: keyof ProjectNarrative, value: string) => {
+    if (onChange) {
+      onChange({ ...narrative, [field]: value })
+    }
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -17,7 +24,8 @@ export function ProjectNarratives({ narrative, editable = false }: ProjectNarrat
         <CardContent>
           {editable ? (
             <Textarea
-              defaultValue={narrative.general}
+              value={narrative.general}
+              onChange={(e) => handleNarrativeChange('general', e.target.value)}
               placeholder="Add general narrative..."
               className="min-h-[150px]"
             />
@@ -34,7 +42,8 @@ export function ProjectNarratives({ narrative, editable = false }: ProjectNarrat
         <CardContent>
           {editable ? (
             <Textarea
-              defaultValue={narrative.achieved}
+              value={narrative.achieved}
+              onChange={(e) => handleNarrativeChange('achieved', e.target.value)}
               placeholder="Add achievements for this month..."
               className="min-h-[150px]"
             />
@@ -51,7 +60,8 @@ export function ProjectNarratives({ narrative, editable = false }: ProjectNarrat
         <CardContent>
           {editable ? (
             <Textarea
-              defaultValue={narrative.plannedNext}
+              value={narrative.plannedNext}
+              onChange={(e) => handleNarrativeChange('plannedNext', e.target.value)}
               placeholder="Add plans for next month..."
               className="min-h-[150px]"
             />
@@ -68,7 +78,8 @@ export function ProjectNarratives({ narrative, editable = false }: ProjectNarrat
         <CardContent>
           {editable ? (
             <Textarea
-              defaultValue={narrative.riskIssues}
+              value={narrative.riskIssues}
+              onChange={(e) => handleNarrativeChange('riskIssues', e.target.value)}
               placeholder="Add risks, issues, or escalations..."
               className="min-h-[150px]"
             />
