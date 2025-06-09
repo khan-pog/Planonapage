@@ -17,6 +17,7 @@ import { ProjectNarratives } from "@/components/project-narratives"
 import { ProjectMilestones } from "@/components/project-milestones"
 import type { Project } from "@/lib/types"
 import { ProjectCostForm } from "@/components/project-cost-form"
+import { ImageUpload } from "@/components/image-upload"
 
 export default function NewProjectPage() {
   const router = useRouter()
@@ -254,90 +255,10 @@ export default function NewProjectPage() {
                       <CardTitle>Project Images</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        {project.images.map((image, index) => (
-                          <div key={index} className="relative aspect-square overflow-hidden rounded-md border">
-                            <img
-                              src={image || "/placeholder.svg"}
-                              alt={`Project image ${index + 1}`}
-                              className="object-cover w-full h-full"
-                            />
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              className="absolute top-2 right-2"
-                              onClick={() => {
-                                const newImages = [...project.images]
-                                newImages.splice(index, 1)
-                                setProject({ ...project, images: newImages })
-                              }}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        ))}
-                        <div className="border border-dashed rounded-lg p-4 flex flex-col items-center justify-center aspect-square cursor-pointer hover:bg-muted/50 transition-colors">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={async (e) => {
-                              const files = e.target.files;
-                              if (!files) return;
-
-                              const newImages: string[] = [];
-                              for (const file of Array.from(files)) {
-                                if (project.images.length + newImages.length >= 10) {
-                                  alert('Maximum 10 images allowed');
-                                  break;
-                                }
-
-                                if (!file.type.startsWith('image/')) {
-                                  alert('Please select only image files');
-                                  continue;
-                                }
-
-                                if (file.size > 10 * 1024 * 1024) {
-                                  alert('File size must be less than 10MB');
-                                  continue;
-                                }
-
-                                try {
-                                  const reader = new FileReader();
-                                  const result = await new Promise<string>((resolve) => {
-                                    reader.onload = () => resolve(reader.result as string);
-                                    reader.readAsDataURL(file);
-                                  });
-                                  newImages.push(result);
-                                } catch (error) {
-                                  console.error('Error processing file:', error);
-                                  alert('Error processing file: ' + file.name);
-                                }
-                              }
-
-                              setProject({ ...project, images: [...project.images, ...newImages] });
-                              e.target.value = '';
-                            }}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                          />
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="h-8 w-8 text-muted-foreground mb-2"
-                          >
-                            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                            <circle cx="9" cy="9" r="2" />
-                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-                          </svg>
-                          <p className="text-sm text-muted-foreground text-center">Click to upload or drag and drop</p>
-                          <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 10MB</p>
-                        </div>
-                      </div>
+                      <ImageUpload
+                        images={project.images}
+                        onChange={(images) => setProject({ ...project, images })}
+                      />
                     </CardContent>
                   </Card>
                 </TabsContent>
