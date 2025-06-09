@@ -21,39 +21,28 @@ export function ProjectCostForm({ costTracking, onChange, editable = true }: Pro
   const updateMonthlyData = (index: number, updates: Partial<MonthlyCostData>) => {
     const newMonthlyData = [...costTracking.monthlyData]
     newMonthlyData[index] = { ...newMonthlyData[index], ...updates }
-
-    // Recalculate variance
-    if (updates.actualCost !== undefined || updates.budgetedCost !== undefined) {
-      newMonthlyData[index].variance = newMonthlyData[index].actualCost - newMonthlyData[index].budgetedCost
-    }
-
-    // Recalculate cumulative values
-    let cumulativeBudget = 0
-    let cumulativeActual = 0
-    newMonthlyData.forEach((month, i) => {
-      cumulativeBudget += month.budgetedCost
-      cumulativeActual += month.actualCost
-      newMonthlyData[i].cumulativeBudget = cumulativeBudget
-      newMonthlyData[i].cumulativeActual = cumulativeActual
-    })
-
     updateCostTracking({ monthlyData: newMonthlyData })
   }
 
-  const addMonth = () => {
+  const addMonth = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     const newMonth: MonthlyCostData = {
-      month: "",
+      month: '',
       budgetedCost: 0,
       actualCost: 0,
       cumulativeBudget: 0,
       cumulativeActual: 0,
-      variance: 0,
+      variance: 0
     }
     updateCostTracking({ monthlyData: [...costTracking.monthlyData, newMonth] })
   }
 
-  const removeMonth = (index: number) => {
-    const newMonthlyData = costTracking.monthlyData.filter((_, i) => i !== index)
+  const removeMonth = (index: number, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const newMonthlyData = [...costTracking.monthlyData]
+    newMonthlyData.splice(index, 1)
     updateCostTracking({ monthlyData: newMonthlyData })
   }
 
@@ -216,7 +205,7 @@ export function ProjectCostForm({ costTracking, onChange, editable = true }: Pro
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => removeMonth(index)}
+                        onClick={(e) => removeMonth(index, e)}
                         className="flex items-center gap-2"
                       >
                         <Trash2 className="h-4 w-4" />

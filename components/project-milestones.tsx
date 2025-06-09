@@ -23,7 +23,7 @@ export function ProjectMilestones({ milestones, editable = false, onChange }: Pr
     setNewMilestone({ ...newMilestone, [e.target.name]: e.target.value })
   }
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     e.stopPropagation() // Prevent event from bubbling up to parent form
     if (!newMilestone.stage || !newMilestone.date) return
