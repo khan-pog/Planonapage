@@ -252,11 +252,65 @@ export default function NewProjectPage() {
                 </TabsContent>
 
                 <TabsContent value="milestones" className="space-y-6 pt-6">
-                  <ProjectMilestones 
-                    milestones={project.milestones} 
-                    editable={true} 
-                    onChange={(milestones) => setProject({ ...project, milestones })}
-                  />
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Project Milestones</CardTitle>
+                      <CardDescription>Add and manage project milestones</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {project.milestones.map((milestone, index) => (
+                        <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg">
+                          <div className="space-y-2">
+                            <Label htmlFor={`milestone-stage-${index}`}>Stage</Label>
+                            <Input
+                              id={`milestone-stage-${index}`}
+                              value={milestone.stage}
+                              onChange={(e) => updateMilestone(index, 'stage', e.target.value)}
+                              disabled={isSubmitting}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor={`milestone-date-${index}`}>Date</Label>
+                            <Input
+                              id={`milestone-date-${index}`}
+                              type="date"
+                              value={milestone.date}
+                              onChange={(e) => updateMilestone(index, 'date', e.target.value)}
+                              disabled={isSubmitting}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor={`milestone-comment-${index}`}>Comment</Label>
+                            <Input
+                              id={`milestone-comment-${index}`}
+                              value={milestone.comment}
+                              onChange={(e) => updateMilestone(index, 'comment', e.target.value)}
+                              disabled={isSubmitting}
+                            />
+                          </div>
+                          <div className="flex items-end">
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => removeMilestone(index)}
+                              disabled={isSubmitting}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={addMilestone}
+                        disabled={isSubmitting}
+                      >
+                        Add Milestone
+                      </Button>
+                    </CardContent>
+                  </Card>
 
                   <Card>
                     <CardHeader>
