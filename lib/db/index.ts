@@ -3,6 +3,16 @@ import { sql } from '@vercel/postgres';
 import { eq } from 'drizzle-orm';
 import * as schema from './schema';
 
+// When running locally, you need to use the Vercel Postgres connection string
+// from your project's settings. It should be the one for local connections,
+// often called `POSTGRES_URL_NON_POOLING`.
+// Make sure you have a .env.local file with POSTGRES_URL set.
+if (!process.env.POSTGRES_URL) {
+  throw new Error(
+    'POSTGRES_URL environment variable is not set. Please set it in your .env.local file.'
+  );
+}
+
 export const db = drizzle(sql, { schema });
 
 // Helper functions for database operations
