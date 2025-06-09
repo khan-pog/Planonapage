@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -9,12 +9,37 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Mail, Download, Calendar, Settings, Plus, Trash2, Send, Clock, ArrowLeft } from "lucide-react"
-import { mockProjects } from "@/lib/mock-data"
+import { Mail, Download, Calendar, Settings, Plus, Trash2, Send, Clock, ArrowLeft, Database, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { SeedDatabaseButton } from "@/components/seed-database-button"
+import { toast } from "sonner"
+
+interface Project {
+  id: number
+  title: string
+  number: string
+  projectManager: string
+  reportMonth: string
+  phase: string
+  status: {
+    safety: string
+    scopeQuality: string
+    cost: string
+    schedule: string
+    comments?: string
+    cpmRagComment?: string
+  }
+  costTracking?: {
+    costStatus: string
+    totalBudget?: number
+    currency?: string
+  }
+}
 
 export default function AdminReportsPage() {
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const [emailList, setEmailList] = useState([
     "jane.smith@company.com",
@@ -31,6 +56,53 @@ export default function AdminReportsPage() {
     includeSummary: true,
     includeDetails: true,
   })
+
+  // Fetch projects from database
+  useEffect(() => {
+    fetchProjects()
+  }, [])
+
+  const fetchProjects = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const response = await fetch('/api/projects')
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch projects: ${response.status} ${response.statusText}`)
+      }
+      
+      const data = await response.json()
+      setProjects(data || [])
+      
+      toast.success(`Successfully loaded ${data?.length || 0} projects from database`)
+      
+    } catch (err: any) {
+      console.error('Error fetching projects:', err)
+      setError(err.message)
+      toast.error(`Failed to load projects: ${err.message}`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Test seeding validation
+  const testSeeding = async () => {
+    try {
+      const response = await fetch('/api/seed', { method: 'GET' })
+      const data = await response.json()
+      
+      if (data.readyToSeed) {
+        toast.success(`All ${data.results.validProjects} projects are ready for seeding!`)
+      } else {
+        toast.error(`${data.results.invalidProjects} projects have validation errors. Check console for details.`)
+        console.log('Seeding validation results:', data.results)
+      }
+    } catch (err: any) {
+      toast.error(`Seeding validation failed: ${err.message}`)
+    }
+  }
 
   const generateWeeklyReport = async () => {
     setIsGenerating(true)
@@ -52,10 +124,10 @@ export default function AdminReportsPage() {
 
       const result = await response.json()
       console.log('Report sent successfully:', result)
-      alert(`Report sent successfully to ${result.message}`)
-    } catch (error) {
+      toast.success(`Report sent successfully to ${result.message}`)
+    } catch (error: any) {
       console.error('Error sending report:', error)
-      alert('Failed to send report. Please try again.')
+      toast.error('Failed to send report. Please try again.')
     } finally {
       setIsGenerating(false)
     }
@@ -73,16 +145,64 @@ export default function AdminReportsPage() {
   }
 
   const getProjectSummary = () => {
-    const totalProjects = mockProjects.length
-    const underBudget = mockProjects.filter((p) => p.costTracking?.costStatus === "Under Budget").length
-    const onTrackCost = mockProjects.filter((p) => p.costTracking?.costStatus === "On Track").length
-    const monitorCost = mockProjects.filter((p) => p.costTracking?.costStatus === "Monitor").length
-    const overBudget = mockProjects.filter((p) => p.costTracking?.costStatus === "Over Budget").length
+    const totalProjects = projects.length
+    const underBudget = projects.filter((p) => p.costTracking?.costStatus === "Under Budget").length
+    const onTrackCost = projects.filter((p) => p.costTracking?.costStatus === "On Track").length
+    const monitorCost = projects.filter((p) => p.costTracking?.costStatus === "Monitor").length
+    const overBudget = projects.filter((p) => p.costTracking?.costStatus === "Over Budget").length
 
     return { totalProjects, underBudget, onTrackCost, monitorCost, overBudget }
   }
 
   const summary = getProjectSummary()
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p>Loading projects from database...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Card className="border-red-200 bg-red-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-red-700">
+              <AlertCircle className="h-5 w-5" />
+              Database Connection Error
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-red-600 mb-4">{error}</p>
+            <div className="space-y-2">
+              <p className="text-sm text-red-600">Possible solutions:</p>
+              <ul className="list-disc list-inside text-sm text-red-600 space-y-1">
+                <li>Check if your database is running and accessible</li>
+                <li>Verify POSTGRES_URL environment variable is set correctly</li>
+                <li>Ensure the projects table exists in your database</li>
+                <li>Try seeding the database if it's empty</li>
+              </ul>
+            </div>
+            <div className="flex gap-2 mt-4">
+              <Button onClick={fetchProjects} variant="outline">
+                Retry Connection
+              </Button>
+              <Button onClick={testSeeding} variant="outline">
+                Test Seeding
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -99,10 +219,45 @@ export default function AdminReportsPage() {
       <div className="mb-8 flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Admin Reports Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Manage automated project cost reporting and email notifications</p>
+          <p className="text-muted-foreground mt-1">
+            Manage automated project cost reporting and email notifications
+            {projects.length > 0 && (
+              <span className="ml-2 text-green-600">
+                • {projects.length} projects loaded from database
+              </span>
+            )}
+          </p>
         </div>
-        <SeedDatabaseButton />
+        <div className="flex gap-2">
+          <Button onClick={testSeeding} variant="outline" className="flex items-center gap-2">
+            <Database className="h-4 w-4" />
+            Test Seeding
+          </Button>
+          <SeedDatabaseButton />
+        </div>
       </div>
+
+      {projects.length === 0 && (
+        <Card className="border-yellow-200 bg-yellow-50 mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-yellow-700">
+              <AlertCircle className="h-5 w-5" />
+              No Projects Found
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-yellow-600 mb-4">
+              No projects found in the database. You may need to seed the database with initial data.
+            </p>
+            <div className="flex gap-2">
+              <SeedDatabaseButton />
+              <Button onClick={testSeeding} variant="outline">
+                Test Seeding Validation
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
@@ -119,7 +274,10 @@ export default function AdminReportsPage() {
                 <Mail className="h-5 w-5" />
                 Weekly Cost Report Preview
               </CardTitle>
-              <CardDescription>Current status of all projects for this week's report</CardDescription>
+              <CardDescription>
+                Current status of all projects for this week's report
+                {projects.length > 0 && ` (${projects.length} projects from database)`}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -147,7 +305,7 @@ export default function AdminReportsPage() {
 
               <div className="space-y-3">
                 <h4 className="font-medium text-lg">Projects Requiring Attention:</h4>
-                {mockProjects
+                {projects
                   .filter(
                     (p) =>
                       p.costTracking?.costStatus &&
@@ -166,6 +324,15 @@ export default function AdminReportsPage() {
                       </Badge>
                     </div>
                   ))}
+                {projects.filter(p => 
+                  p.costTracking?.costStatus &&
+                  p.costTracking.costStatus !== "On Track" &&
+                  p.costTracking.costStatus !== "Under Budget"
+                ).length === 0 && (
+                  <p className="text-muted-foreground text-sm">
+                    ✅ No projects requiring immediate attention
+                  </p>
+                )}
               </div>
 
               <div className="flex gap-3">
@@ -185,6 +352,10 @@ export default function AdminReportsPage() {
                 <Button variant="outline" className="flex items-center gap-2">
                   <Download className="h-4 w-4" />
                   Download PDF
+                </Button>
+                <Button onClick={fetchProjects} variant="outline" className="flex items-center gap-2">
+                  <Database className="h-4 w-4" />
+                  Refresh Data
                 </Button>
               </div>
             </CardContent>

@@ -159,14 +159,59 @@ export const mockProjects = [
   },
   {
     id: "3",
-    name: "Project Gamma",
-    description: "Creating an innovative platform for global communication.",
-    status: "Completed",
-    startDate: "2023-09-01",
-    endDate: "2024-02-15",
-    teamMembers: [
-      { id: "301", name: "Eve Davis", role: "Project Lead" },
-      { id: "302", name: "Frank White", role: "UX Designer" },
+    title: "Project Gamma",
+    number: "PRJ-003",
+    projectManager: "Eve Davis",
+    reportMonth: "2024-03",
+    phase: "Close-Out",
+    status: {
+      safety: "Yes",
+      scopeQuality: "On Track",
+      cost: "Monitor",
+      schedule: "On Track",
+      comments: "Project completed successfully with minor cost variance",
+      cpmRagComment: "Monitoring final costs"
+    },
+    phasePercentages: {
+      FEL0: 100,
+      FEL2: 100,
+      FEL3: 100,
+      "Pre-Execution": 100,
+      Execution: 100,
+      "Close-Out": 85
+    },
+    narrative: {
+      general: "Creating an innovative platform for global communication",
+      achieved: "Successfully delivered all major deliverables",
+      plannedNext: "Final documentation and project closure",
+      riskIssues: "Minor budget overrun due to additional requirements"
+    },
+    milestones: [
+      {
+        stage: "Platform Launch",
+        date: "2024-02-15",
+        comment: "Successfully launched to production"
+      },
+      {
+        stage: "User Training",
+        date: "2024-02-28",
+        comment: "All users trained and onboarded"
+      }
+    ],
+    images: [],
+    pmReporting: [
+      {
+        type: "PoAP Report",
+        complete: true,
+        date: "2024-03-01",
+        signatory: "Eve Davis"
+      },
+      {
+        type: "Final Report",
+        complete: false,
+        date: "2024-03-15",
+        signatory: "Eve Davis"
+      }
     ],
     costTracking: {
       totalBudget: 2500000,
@@ -200,18 +245,63 @@ export const mockProjects = [
       costStatus: "Monitor",
       variance: 5.0,
       forecastCompletion: 2600000,
-    },
+    }
   },
   {
     id: "4",
-    name: "Project Delta",
-    description: "Researching and developing advanced AI algorithms.",
-    status: "On Hold",
-    startDate: "2024-05-01",
-    endDate: "2024-11-30",
-    teamMembers: [
-      { id: "401", name: "Grace Green", role: "Research Lead" },
-      { id: "402", name: "Henry Black", role: "Data Scientist" },
+    title: "Project Delta",
+    number: "PRJ-004",
+    projectManager: "Grace Green",
+    reportMonth: "2024-03",
+    phase: "FEL3",
+    status: {
+      safety: "Yes",
+      scopeQuality: "On Track",
+      cost: "Over Budget",
+      schedule: "At Risk",
+      comments: "Project on hold due to budget constraints and scope changes",
+      cpmRagComment: "Requires management attention"
+    },
+    phasePercentages: {
+      FEL0: 100,
+      FEL2: 100,
+      FEL3: 75,
+      "Pre-Execution": 0,
+      Execution: 0,
+      "Close-Out": 0
+    },
+    narrative: {
+      general: "Researching and developing advanced AI algorithms",
+      achieved: "Completed initial research phase and prototype development",
+      plannedNext: "Pending budget approval for next phase",
+      riskIssues: "Significant budget overrun and scope creep identified"
+    },
+    milestones: [
+      {
+        stage: "Research Phase",
+        date: "2024-01-31",
+        comment: "Completed with valuable insights"
+      },
+      {
+        stage: "Prototype Development",
+        date: "2024-02-29",
+        comment: "Initial prototype delivered"
+      }
+    ],
+    images: [],
+    pmReporting: [
+      {
+        type: "PoAP Report",
+        complete: true,
+        date: "2024-03-01",
+        signatory: "Grace Green"
+      },
+      {
+        type: "Budget Review",
+        complete: true,
+        date: "2024-03-05",
+        signatory: "Grace Green"
+      }
     ],
     costTracking: {
       totalBudget: 2500000,
@@ -245,6 +335,6 @@ export const mockProjects = [
       costStatus: "Over Budget",
       variance: 7.5,
       forecastCompletion: 2700000,
-    },
+    }
   },
 ]
