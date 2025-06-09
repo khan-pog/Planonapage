@@ -166,12 +166,28 @@ export function ProjectCostForm({ costTracking, onChange, editable = true }: Pro
                 <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border rounded-lg">
                   <div className="space-y-2">
                     <Label>Month</Label>
-                    <Input
-                      type="month"
+                    <Select
                       value={month.month}
-                      onChange={(e) => updateMonthlyData(index, { month: e.target.value })}
+                      onValueChange={(value) => updateMonthlyData(index, { month: value })}
                       disabled={!editable}
-                    />
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select month" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 12 }, (_, i) => {
+                          const date = new Date()
+                          date.setMonth(i)
+                          const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' })
+                          const value = `${date.getFullYear()}-${String(i + 1).padStart(2, '0')}`
+                          return (
+                            <SelectItem key={value} value={value}>
+                              {monthYear}
+                            </SelectItem>
+                          )
+                        })}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label>Budgeted Cost</Label>
