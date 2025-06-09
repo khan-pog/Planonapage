@@ -38,7 +38,8 @@ export async function PATCH(
     }
 
     const data = await request.json();
-    const project = await updateProject(id, data);
+    const { updatedAt, createdAt, ...updateData } = data;
+    const project = await updateProject(id, updateData);
     if (!project) {
       return new NextResponse('Project not found', { status: 404 });
     }
