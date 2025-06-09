@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { Plus, Save, X } from "lucide-react"
 import type { ProjectMilestone } from "@/lib/types"
 import { useState } from "react"
 
@@ -23,13 +23,16 @@ export function ProjectMilestones({ milestones, editable = false, onChange }: Pr
     setNewMilestone({ ...newMilestone, [e.target.name]: e.target.value })
   }
 
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    e.stopPropagation() // Prevent event from bubbling up to parent form
+  const handleSaveMilestone = () => {
     if (!newMilestone.stage || !newMilestone.date) return
     if (onChange) {
       onChange([...milestones, newMilestone])
     }
+    setNewMilestone({ stage: '', date: '', comment: '' })
+    setShowForm(false)
+  }
+
+  const handleCancelMilestone = () => {
     setNewMilestone({ stage: '', date: '', comment: '' })
     setShowForm(false)
   }
@@ -72,7 +75,7 @@ export function ProjectMilestones({ milestones, editable = false, onChange }: Pr
         )}
         
         {editable && showForm && (
-          <form className="mt-4 flex flex-col gap-2" onSubmit={handleFormSubmit}>
+          <div className="mt-4 flex flex-col gap-2">
             <div className="flex gap-2">
               <input
                 name="stage"
@@ -100,9 +103,28 @@ export function ProjectMilestones({ milestones, editable = false, onChange }: Pr
                 onChange={handleFormChange}
                 className="border rounded px-2 py-1 flex-1"
               />
-              <Button type="submit" size="sm" className="h-8">Save</Button>
+              <Button 
+                type="button" 
+                size="sm" 
+                className="h-8" 
+                onClick={handleSaveMilestone}
+                disabled={!newMilestone.stage || !newMilestone.date}
+              >
+                <Save className="h-4 w-4 mr-1" />
+                Save
+              </Button>
+              <Button 
+                type="button" 
+                size="sm" 
+                variant="outline" 
+                className="h-8" 
+                onClick={handleCancelMilestone}
+              >
+                <X className="h-4 w-4 mr-1" />
+                Cancel
+              </Button>
             </div>
-          </form>
+          </div>
         )}
       </CardContent>
     </Card>
