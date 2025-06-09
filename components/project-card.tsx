@@ -10,23 +10,20 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
-  // Function to determine phase badge color
+  const projectId = project.id || project._id
+
   const getPhaseBadgeColor = (phase: string) => {
-    switch (phase) {
-      case "FEL0":
-        return "bg-purple-100 text-purple-800 hover:bg-purple-100"
-      case "FEL2":
-        return "bg-blue-100 text-blue-800 hover:bg-blue-100"
-      case "FEL3":
-        return "bg-cyan-100 text-cyan-800 hover:bg-cyan-100"
-      case "Pre-Execution":
-        return "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
-      case "Execution":
-        return "bg-orange-100 text-orange-800 hover:bg-orange-100"
-      case "Close-Out":
-        return "bg-green-100 text-green-800 hover:bg-green-100"
+    switch (phase.toLowerCase()) {
+      case 'planning':
+        return 'bg-blue-500/10 text-blue-500 hover:bg-blue-500/20'
+      case 'in progress':
+        return 'bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20'
+      case 'completed':
+        return 'bg-green-500/10 text-green-500 hover:bg-green-500/20'
+      case 'on hold':
+        return 'bg-red-500/10 text-red-500 hover:bg-red-500/20'
       default:
-        return "bg-gray-100 text-gray-800 hover:bg-gray-100"
+        return 'bg-gray-500/10 text-gray-500 hover:bg-gray-500/20'
     }
   }
 
@@ -49,9 +46,6 @@ export function ProjectCard({ project }: ProjectCardProps) {
     }
   }
 
-  // Use the project ID directly since it's already numeric from the database
-  const projectId = project.id
-
   return (
     <Link href={`/projects/${projectId}`}>
       <Card className="overflow-hidden h-full transition-all duration-200 hover:shadow-md">
@@ -70,7 +64,9 @@ export function ProjectCard({ project }: ProjectCardProps) {
                 // If image fails to load, show placeholder
                 const target = e.target as HTMLImageElement;
                 target.src = "/placeholder.svg";
+                target.onerror = null; // Prevent infinite loop
               }}
+              unoptimized={project.images[0].startsWith('data:')} // Skip optimization for base64 images
             />
           ) : (
             <Image

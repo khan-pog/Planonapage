@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { put } from '@vercel/blob';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,29 +20,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File size must be less than 10MB' }, { status: 400 });
     }
 
-    // Convert file to base64 for storage
-    // In a real implementation, you would upload to a cloud storage service like AWS S3, Cloudinary, etc.
+    // Convert file to base64
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     const base64 = buffer.toString('base64');
     const dataUrl = `data:${file.type};base64,${base64}`;
 
-    // In a production environment, you would:
-    // 1. Upload to cloud storage (AWS S3, Cloudinary, etc.)
-    // 2. Return the public URL
-    // 
-    // Example with AWS S3:
-    // const uploadResult = await s3.upload({
-    //   Bucket: process.env.AWS_S3_BUCKET_NAME,
-    //   Key: `projects/${Date.now()}-${file.name}`,
-    //   Body: buffer,
-    //   ContentType: file.type,
-    // }).promise();
-    // 
-    // return NextResponse.json({ url: uploadResult.Location });
+    // Upload to Vercel Blob Storage
+    const blob = await put(file.name, buffer, {
+      access: 'public',
+      contentType: file.type,
+    });
 
-    // For now, return the base64 data URL
-    return NextResponse.json({ url: dataUrl });
+    // Return both the blob URL and the base64 data URL
+    return NextResponse.json({ 
+      url: blob.url,
+      base64: dataUrl 
+    });
   } catch (error) {
     console.error('Error uploading image:', error);
     return NextResponse.json(

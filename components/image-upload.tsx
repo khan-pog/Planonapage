@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Upload, X } from "lucide-react";
+import { Upload, X, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ImageUploadProps {
   images: string[];
@@ -10,6 +11,7 @@ interface ImageUploadProps {
 
 export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -19,39 +21,48 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
     setUploading(true);
     const newImages: string[] = [];
 
-    for (const file of Array.from(files)) {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
       if (images.length + newImages.length >= maxImages) {
-        alert(`Maximum ${maxImages} images allowed`);
+        toast.error(`Maximum ${maxImages} images allowed`);
         break;
       }
 
       if (!file.type.startsWith('image/')) {
-        alert('Please select only image files');
+        toast.error('Please select only image files');
         continue;
       }
 
       if (file.size > 10 * 1024 * 1024) {
-        alert('File size must be less than 10MB');
+        toast.error('File size must be less than 10MB');
         continue;
       }
 
       try {
-        // Convert to base64 for storage (in production, upload to cloud storage)
-        const reader = new FileReader();
-        const result = await new Promise<string>((resolve) => {
-          reader.onload = () => resolve(reader.result as string);
-          reader.readAsDataURL(file);
+        setUploadingIndex(i);
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/images/upload', {
+          method: 'POST',
+          body: formData,
         });
-        
-        newImages.push(result);
+
+        if (!response.ok) {
+          throw new Error('Upload failed');
+        }
+
+        const data = await response.json();
+        newImages.push(data.base64); // Use base64 for immediate display
       } catch (error) {
         console.error('Error processing file:', error);
-        alert('Error processing file: ' + file.name);
+        toast.error(`Error uploading ${file.name}`);
       }
     }
 
     onChange([...images, ...newImages]);
     setUploading(false);
+    setUploadingIndex(null);
     
     // Clear the input
     if (fileInputRef.current) {
@@ -119,11 +130,22 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
             role="button"
             tabIndex={0}
           >
-            <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground text-center">
-              {uploading ? 'Uploading...' : 'Click to upload or drag and drop'}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 10MB</p>
+            {uploading ? (
+              <>
+                <Loader2 className="h-8 w-8 text-muted-foreground mb-2 animate-spin" />
+                <p className="text-sm text-muted-foreground text-center">
+                  Uploading...
+                </p>
+              </>
+            ) : (
+              <>
+                <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground text-center">
+                  Click to upload or drag and drop
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 10MB</p>
+              </>
+            )}
           </div>
         )}
       </div>
