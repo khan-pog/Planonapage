@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Upload, X } from "lucide-react";
+import { validateImages, MAX_IMAGE_SIZE, MAX_IMAGES } from '@/utils/imageValidation';
+import { toast } from 'sonner';
 
 interface ImageUploadProps {
   images: string[];
@@ -8,7 +10,7 @@ interface ImageUploadProps {
   maxImages?: number;
 }
 
-export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadProps) {
+export function ImageUpload({ images, onChange, maxImages = MAX_IMAGES }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -19,19 +21,24 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
     setUploading(true);
     const newImages: string[] = [];
 
+    // Validate all files first
+    const validationError = validateImages(Array.from(files));
+    if (validationError) {
+      toast.error(validationError.message);
+      setUploading(false);
+      return;
+    }
+
+    // Check if adding these files would exceed the max images limit
+    if (images.length + files.length > maxImages) {
+      toast.error(`Maximum ${maxImages} images allowed`);
+      setUploading(false);
+      return;
+    }
+
     for (const file of Array.from(files)) {
-      if (images.length + newImages.length >= maxImages) {
-        alert(`Maximum ${maxImages} images allowed`);
-        break;
-      }
-
       if (!file.type.startsWith('image/')) {
-        alert('Please select only image files');
-        continue;
-      }
-
-      if (file.size > 10 * 1024 * 1024) {
-        alert('File size must be less than 10MB');
+        toast.error('Please select only image files');
         continue;
       }
 
@@ -46,7 +53,7 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
         newImages.push(result);
       } catch (error) {
         console.error('Error processing file:', error);
-        alert('Error processing file: ' + file.name);
+        toast.error('Error processing file: ' + file.name);
       }
     }
 
@@ -119,7 +126,9 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
             <p className="text-sm text-muted-foreground text-center">
               {uploading ? 'Uploading...' : 'Click to upload or drag and drop'}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 10MB</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              PNG, JPG up to {MAX_IMAGE_SIZE / (1024 * 1024)}MB
+            </p>
           </div>
         )}
       </div>
