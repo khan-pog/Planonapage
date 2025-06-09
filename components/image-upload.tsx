@@ -36,17 +36,23 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
       }
 
       try {
-        // Convert to base64 for storage (in production, upload to cloud storage)
-        const reader = new FileReader();
-        const result = await new Promise<string>((resolve) => {
-          reader.onload = () => resolve(reader.result as string);
-          reader.readAsDataURL(file);
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/images/upload', {
+          method: 'POST',
+          body: formData,
         });
-        
-        newImages.push(result);
+
+        if (!response.ok) {
+          throw new Error('Failed to upload image');
+        }
+
+        const data = await response.json();
+        newImages.push(data.url);
       } catch (error) {
-        console.error('Error processing file:', error);
-        alert('Error processing file: ' + file.name);
+        console.error('Error uploading file:', error);
+        alert('Error uploading file: ' + file.name);
       }
     }
 
@@ -95,7 +101,7 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
         {images.map((image, index) => (
           <div key={index} className="relative aspect-square overflow-hidden rounded-md border">
             <img
-              src={image || "/placeholder.svg"}
+              src={image}
               alt={`Project image ${index + 1}`}
               className="object-cover w-full h-full"
             />
