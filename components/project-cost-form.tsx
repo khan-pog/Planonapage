@@ -159,7 +159,7 @@ export function ProjectCostForm({ costTracking, onChange, editable = true }: Pro
                   <div className="space-y-2">
                     <Label>Month</Label>
                     <Input
-                      placeholder="e.g., Jan 2023"
+                      type="month"
                       value={month.month}
                       onChange={(e) => updateMonthlyData(index, { month: e.target.value })}
                       disabled={!editable}

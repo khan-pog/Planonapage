@@ -19,6 +19,14 @@ import type { Project } from "@/lib/types"
 import { ProjectCostForm } from "@/components/project-cost-form"
 import { ImageUpload } from "@/components/image-upload"
 
+// Add function to get current month and year
+const getCurrentMonthYear = () => {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  return `${year}-${month}`
+}
+
 export default function NewProjectPage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("basic")
@@ -26,7 +34,7 @@ export default function NewProjectPage() {
     title: "",
     number: "",
     projectManager: "",
-    reportMonth: "",
+    reportMonth: getCurrentMonthYear(),
     phase: "FEL0",
     status: {
       schedule: "On Track",
