@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Upload, X, Loader2 } from "lucide-react";
+import { Upload, X, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 interface ImageUploadProps {
@@ -20,21 +20,31 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
 
     setUploading(true);
     const newImages: string[] = [];
+    let successCount = 0;
+    let failureCount = 0;
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (images.length + newImages.length >= maxImages) {
-        toast.error(`Maximum ${maxImages} images allowed`);
+        toast.error(`Maximum ${maxImages} images allowed`, {
+          icon: <AlertCircle className="h-4 w-4" />,
+        });
         break;
       }
 
       if (!file.type.startsWith('image/')) {
-        toast.error('Please select only image files');
+        toast.error(`"${file.name}" is not an image file`, {
+          icon: <AlertCircle className="h-4 w-4" />,
+        });
+        failureCount++;
         continue;
       }
 
       if (file.size > 10 * 1024 * 1024) {
-        toast.error('File size must be less than 10MB');
+        toast.error(`"${file.name}" is too large (max 10MB)`, {
+          icon: <AlertCircle className="h-4 w-4" />,
+        });
+        failureCount++;
         continue;
       }
 
@@ -49,14 +59,40 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
         });
 
         if (!response.ok) {
-          throw new Error('Upload failed');
+          const error = await response.json();
+          throw new Error(error.error || 'Upload failed');
         }
 
         const data = await response.json();
-        newImages.push(data.base64); // Use base64 for immediate display
+        newImages.push(data.url);
+        successCount++;
+        toast.success(`Successfully uploaded "${file.name}"`, {
+          icon: <CheckCircle2 className="h-4 w-4" />,
+        });
       } catch (error) {
         console.error('Error processing file:', error);
-        toast.error(`Error uploading ${file.name}`);
+        toast.error(`Failed to upload "${file.name}"`, {
+          icon: <AlertCircle className="h-4 w-4" />,
+          description: error instanceof Error ? error.message : 'Please try again',
+        });
+        failureCount++;
+      }
+    }
+
+    // Show summary toast if multiple files were uploaded
+    if (files.length > 1) {
+      if (successCount > 0 && failureCount > 0) {
+        toast.info(`Upload complete: ${successCount} succeeded, ${failureCount} failed`, {
+          icon: <AlertCircle className="h-4 w-4" />,
+        });
+      } else if (successCount > 0) {
+        toast.success(`Successfully uploaded ${successCount} images`, {
+          icon: <CheckCircle2 className="h-4 w-4" />,
+        });
+      } else if (failureCount > 0) {
+        toast.error(`Failed to upload ${failureCount} images`, {
+          icon: <AlertCircle className="h-4 w-4" />,
+        });
       }
     }
 
@@ -92,6 +128,9 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
     const newImages = [...images];
     newImages.splice(index, 1);
     onChange(newImages);
+    toast.success('Image removed', {
+      icon: <CheckCircle2 className="h-4 w-4" />,
+    });
   };
 
   const triggerFileSelect = () => {
