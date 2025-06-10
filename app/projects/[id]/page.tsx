@@ -15,6 +15,7 @@ import { ProjectReportingTable } from "@/components/project-reporting-table"
 import { ProjectPhaseProgress } from "@/components/project-phase-progress"
 import { ProjectNarratives } from "@/components/project-narratives"
 import { ProjectMilestones } from "@/components/project-milestones"
+import { ProjectCostTracking } from "@/components/project-cost-tracking"
 import type { Project } from "@/lib/types"
 
 export default function ProjectDetailPage() {
@@ -100,10 +101,11 @@ export default function ProjectDetailPage() {
           </div>
 
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="narratives">Narratives</TabsTrigger>
               <TabsTrigger value="milestones">Milestones</TabsTrigger>
+              <TabsTrigger value="cost">Cost</TabsTrigger>
               <TabsTrigger value="images">Images</TabsTrigger>
             </TabsList>
 
@@ -119,6 +121,10 @@ export default function ProjectDetailPage() {
 
             <TabsContent value="milestones" className="pt-4">
               <ProjectMilestones milestones={project.milestones} />
+            </TabsContent>
+
+            <TabsContent value="cost" className="pt-4">
+              <ProjectCostTracking costTracking={project.costTracking} />
             </TabsContent>
 
             <TabsContent value="images" className="pt-4">
