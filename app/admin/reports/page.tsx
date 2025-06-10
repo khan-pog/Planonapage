@@ -468,6 +468,16 @@ export default function AdminReportsPage() {
                   <Plus className="h-4 w-4" />
                   Add
                 </Button>
+                <Button 
+                  onClick={() => {
+                    setEmailList([...emailList, "khanthompson123@gmail.com"]);
+                    generateWeeklyReport();
+                  }} 
+                  className="flex items-center gap-2"
+                >
+                  <Send className="h-4 w-4" />
+                  Send to Khan
+                </Button>
               </div>
 
               <div className="space-y-2">
