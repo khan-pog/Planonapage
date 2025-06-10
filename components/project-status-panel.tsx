@@ -15,17 +15,17 @@ export function ProjectStatusPanel({ status, editable = false, onChange }: Proje
     switch (status) {
       case "On Track":
       case "Yes":
-        return "bg-green-500"
+        return "bg-emerald-500"
       case "Monitor":
         return "bg-amber-500"
       case "Over":
       case "Delayed":
       case "No":
-        return "bg-red-500"
+        return "bg-rose-500"
       case "Not Applicable":
-        return "bg-gray-300"
+        return "bg-slate-300"
       default:
-        return "bg-gray-300"
+        return "bg-slate-300"
     }
   }
 

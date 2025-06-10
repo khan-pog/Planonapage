@@ -100,18 +100,18 @@ export function ProjectCostTracking({ costTracking }: ProjectCostTrackingProps) 
             config={{
               budgetedCost: {
                 label: "Budgeted Cost",
-                color: "hsl(222.2 84% 4.9%)",
+                color: "hsl(220, 70%, 50%)",
               },
               actualCost: {
                 label: "Actual Cost",
-                color: "hsl(346.8 77.2% 49.8%)",
+                color: "hsl(142, 76%, 36%)",
               },
             }}
             className="h-[300px]"
           >
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={costTracking.monthlyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(0, 0%, 90%)" />
                 <XAxis dataKey="month" />
                 <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`} />
                 <ChartTooltip
@@ -119,8 +119,8 @@ export function ProjectCostTracking({ costTracking }: ProjectCostTrackingProps) 
                   formatter={(value: number) => [formatCurrency(value), ""]}
                 />
                 <Legend />
-                <Bar dataKey="budgetedCost" fill="hsl(222.2 84% 4.9%)" name="Budgeted Cost" />
-                <Bar dataKey="actualCost" fill="hsl(346.8 77.2% 49.8%)" name="Actual Cost" />
+                <Bar dataKey="budgetedCost" fill="hsl(220, 70%, 50%)" name="Budgeted Cost" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="actualCost" fill="hsl(142, 76%, 36%)" name="Actual Cost" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>

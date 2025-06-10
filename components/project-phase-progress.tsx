@@ -7,12 +7,12 @@ interface ProjectPhaseProgressProps {
 
 export function ProjectPhaseProgress({ percentages }: ProjectPhaseProgressProps) {
   const phases = [
-    { key: "fel0", label: "FEL 0", color: "bg-purple-500" },
+    { key: "fel0", label: "FEL 0", color: "bg-violet-500" },
     { key: "fel2", label: "FEL 2", color: "bg-blue-500" },
     { key: "fel3", label: "FEL 3", color: "bg-cyan-500" },
-    { key: "preExecution", label: "Pre-Execution", color: "bg-yellow-500" },
-    { key: "execution", label: "Execution", color: "bg-orange-500" },
-    { key: "closeOut", label: "Close-Out", color: "bg-green-500" },
+    { key: "preExecution", label: "Pre-Execution", color: "bg-amber-500" },
+    { key: "execution", label: "Execution", color: "bg-emerald-500" },
+    { key: "closeOut", label: "Close-Out", color: "bg-teal-500" },
   ]
 
   return (

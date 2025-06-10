@@ -15,15 +15,15 @@ export function ProjectCard({ project }: ProjectCardProps) {
   const getPhaseBadgeColor = (phase: string) => {
     switch (phase.toLowerCase()) {
       case 'planning':
-        return 'bg-blue-500/10 text-blue-500 hover:bg-blue-500/20'
+        return 'bg-blue-500/10 text-blue-600 hover:bg-blue-500/20'
       case 'in progress':
-        return 'bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20'
+        return 'bg-amber-500/10 text-amber-600 hover:bg-amber-500/20'
       case 'completed':
-        return 'bg-green-500/10 text-green-500 hover:bg-green-500/20'
+        return 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20'
       case 'on hold':
-        return 'bg-red-500/10 text-red-500 hover:bg-red-500/20'
+        return 'bg-rose-500/10 text-rose-600 hover:bg-rose-500/20'
       default:
-        return 'bg-gray-500/10 text-gray-500 hover:bg-gray-500/20'
+        return 'bg-slate-500/10 text-slate-600 hover:bg-slate-500/20'
     }
   }
 
@@ -32,17 +32,17 @@ export function ProjectCard({ project }: ProjectCardProps) {
     switch (status) {
       case "On Track":
       case "Yes":
-        return "bg-green-500"
+        return "bg-emerald-500"
       case "Monitor":
         return "bg-amber-500"
       case "Over":
       case "Delayed":
       case "No":
-        return "bg-red-500"
+        return "bg-rose-500"
       case "Not Applicable":
-        return "bg-gray-300"
+        return "bg-slate-300"
       default:
-        return "bg-gray-300"
+        return "bg-slate-300"
     }
   }
 
