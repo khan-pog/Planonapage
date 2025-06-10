@@ -83,8 +83,23 @@ export function ProjectCostForm({ costTracking, onChange, editable = true }: Pro
   const addMonth = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    
+    let newMonthValue: string
+    
+    if (costTracking.monthlyData.length === 0) {
+      // First entry - use current month
+      newMonthValue = getCurrentMonthYear()
+    } else {
+      // Get the last month's date and add one month
+      const lastMonth = costTracking.monthlyData[costTracking.monthlyData.length - 1].month
+      const [year, month] = lastMonth.split('-').map(Number)
+      const date = new Date(year, month - 1) // month is 0-based in JS Date
+      date.setMonth(date.getMonth() + 1)
+      newMonthValue = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+    }
+    
     const newMonth: MonthlyCostData = {
-      month: getCurrentMonthYear(),
+      month: newMonthValue,
       budgetedCost: 0,
       actualCost: 0,
       cumulativeBudget: 0,
