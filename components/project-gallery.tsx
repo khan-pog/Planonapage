@@ -27,25 +27,32 @@ export function ProjectGallery() {
   const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
+    let ignore = false;
     async function fetchProjects() {
+      setLoading(true);
       try {
-        const response = await fetch("/api/projects")
-        console.log('API response:', response)
-        if (!response.ok) {
-          throw new Error('Failed to fetch projects')
-        }
-        const data = await response.json()
-        console.log('Fetched projects:', data)
-        setProjects(data)
-      } catch (error) {
-        console.error("Error fetching projects:", error)
-        setError(error instanceof Error ? error.message : 'Failed to load projects')
+        const response = await fetch("/api/projects", { cache: "no-store" });
+        if (!response.ok) throw new Error("Failed to fetch projects");
+        const data = await response.json();
+        if (!ignore) setProjects(data);
+      } catch (err) {
+        if (!ignore) setError("Failed to load projects");
       } finally {
-        setLoading(false)
+        if (!ignore) setLoading(false);
       }
     }
-    fetchProjects()
-  }, [])
+    fetchProjects();
+    // Listen for refresh-projects event
+    const handler = () => {
+      setLoading(true);
+      fetchProjects();
+    };
+    window.addEventListener("refresh-projects", handler);
+    return () => {
+      ignore = true;
+      window.removeEventListener("refresh-projects", handler);
+    };
+  }, []);
 
   // Filter projects based on search query and phase filter
   const filteredProjects = projects.filter((project) => {

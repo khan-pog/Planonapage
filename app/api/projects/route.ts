@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       console.log('Returning summary projects:', summaryProjects);
       return NextResponse.json(summaryProjects, {
         headers: {
-          'Cache-Control': 'public, max-age=31536000, immutable',
+          'Cache-Control': 'no-store',
         },
       });
     }
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     console.log('Returning full projects:', projectsArray);
     return NextResponse.json(projectsArray, {
       headers: {
-        'Cache-Control': 'public, max-age=31536000, immutable',
+        'Cache-Control': 'no-store',
       },
     });
   } catch (error) {

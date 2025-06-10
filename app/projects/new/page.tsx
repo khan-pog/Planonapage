@@ -121,6 +121,9 @@ export default function NewProjectPage() {
       }
 
       const data = await response.json()
+      // Warm up the cache in the background
+      fetch('/api/warm-cache', { method: 'POST' })
+      // Redirect to the new project's detail page
       router.push(`/projects/${data.id}`)
     } catch (error) {
       console.error("Error creating project:", error)

@@ -106,6 +106,9 @@ export default function EditProjectPage() {
         throw new Error("Failed to update project")
       }
 
+      // Warm up the cache in the background
+      fetch('/api/warm-cache', { method: 'POST' })
+      // Redirect to the project's detail page
       router.push(`/projects/${projectId}`)
     } catch (error) {
       console.error("Error updating project:", error)
