@@ -28,8 +28,56 @@ export function ProjectCostForm({ costTracking, onChange, editable = true }: Pro
 
   const updateMonthlyData = (index: number, updates: Partial<MonthlyCostData>) => {
     const newMonthlyData = [...costTracking.monthlyData]
-    newMonthlyData[index] = { ...newMonthlyData[index], ...updates }
-    updateCostTracking({ monthlyData: newMonthlyData })
+    const updatedMonth = { ...newMonthlyData[index], ...updates }
+    
+    // Calculate variance
+    updatedMonth.variance = updatedMonth.actualCost - updatedMonth.budgetedCost
+    
+    // Calculate cumulative values
+    let cumulativeBudget = 0
+    let cumulativeActual = 0
+    
+    // Update all months up to and including the current month
+    for (let i = 0; i <= index; i++) {
+      if (i === index) {
+        cumulativeBudget += updatedMonth.budgetedCost
+        cumulativeActual += updatedMonth.actualCost
+        newMonthlyData[i] = {
+          ...updatedMonth,
+          cumulativeBudget,
+          cumulativeActual
+        }
+      } else {
+        cumulativeBudget += newMonthlyData[i].budgetedCost
+        cumulativeActual += newMonthlyData[i].actualCost
+        newMonthlyData[i] = {
+          ...newMonthlyData[i],
+          cumulativeBudget,
+          cumulativeActual
+        }
+      }
+    }
+    
+    // Update remaining months with new cumulative values
+    for (let i = index + 1; i < newMonthlyData.length; i++) {
+      cumulativeBudget += newMonthlyData[i].budgetedCost
+      cumulativeActual += newMonthlyData[i].actualCost
+      newMonthlyData[i] = {
+        ...newMonthlyData[i],
+        cumulativeBudget,
+        cumulativeActual
+      }
+    }
+
+    // Calculate overall variance percentage
+    const totalBudget = costTracking.totalBudget
+    const totalActual = newMonthlyData.reduce((sum, month) => sum + month.actualCost, 0)
+    const variancePercentage = totalBudget > 0 ? ((totalActual - totalBudget) / totalBudget) * 100 : 0
+
+    updateCostTracking({ 
+      monthlyData: newMonthlyData,
+      variance: variancePercentage
+    })
   }
 
   const addMonth = (e: React.MouseEvent) => {
