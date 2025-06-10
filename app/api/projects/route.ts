@@ -19,11 +19,13 @@ export async function GET(request: NextRequest) {
       console.log('Bypassing cache due to nocache param');
     }
 
-    if (!Array.isArray(projects)) {
+    // Treat empty array as cache miss
+    if (!Array.isArray(projects) || projects.length === 0) {
       try {
         projects = await getAllProjects();
         console.log('DB result:', projects);
-        await kv.set(CACHE_KEY, projects);
+        // Set cache with 5 minute TTL
+        await kv.set(CACHE_KEY, projects, { ex: 60 * 5 });
       } catch (dbError) {
         console.error('DB query error:', dbError);
         projects = [];

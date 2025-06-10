@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getProject, updateProject, deleteProject } from '@/lib/db';
+import { kv } from '@vercel/kv';
+
+const CACHE_KEY = 'all_projects';
 
 export async function GET(
   request: Request,
@@ -43,6 +46,8 @@ export async function PATCH(
     if (!project) {
       return new NextResponse('Project not found', { status: 404 });
     }
+    // Invalidate cache after update
+    await kv.del(CACHE_KEY);
     return NextResponse.json(project);
   } catch (error) {
     console.error('Error updating project:', error);
@@ -64,6 +69,8 @@ export async function DELETE(
     if (!project) {
       return new NextResponse('Project not found', { status: 404 });
     }
+    // Invalidate cache after delete
+    await kv.del(CACHE_KEY);
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error('Error deleting project:', error);
