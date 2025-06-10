@@ -7,6 +7,7 @@ A modern project management dashboard built with Next.js, TypeScript, and Tailwi
 - Project tracking and management
 - Cost tracking and reporting
 - Image upload and management
+- Email notifications and reporting
 - Responsive design
 - Real-time updates
 
@@ -34,6 +35,7 @@ Required environment variables:
 - `KV_REST_API_URL`: Vercel KV REST API URL
 - `KV_REST_API_TOKEN`: Vercel KV REST API token
 - `KV_REST_API_READ_ONLY_TOKEN`: Vercel KV REST API read-only token
+- `EMAIL_API_KEY`: Your email service API key (for sending reports)
 
 ## Tech Stack
 
@@ -43,6 +45,7 @@ Required environment variables:
 - PostgreSQL
 - Vercel KV
 - Vercel Blob Storage
+- Email Service (Resend/SendGrid)
 
 ## License
 
