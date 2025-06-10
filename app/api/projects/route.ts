@@ -1,30 +1,39 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getAllProjects, createProject, deleteAllProjects } from '@/lib/db';
 import { kv } from '@vercel/kv';
 
 const CACHE_KEY = 'all_projects';
 const MONTHLY_CACHE_KEY = 'projects_monthly_version';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // Try to get data from cache first
-    const cachedProjects = await kv.get(CACHE_KEY);
-    
-    if (cachedProjects) {
-      return NextResponse.json(cachedProjects, {
+    const summary = request.nextUrl.searchParams.get('summary') === 'true';
+    let projects = await kv.get(CACHE_KEY);
+    if (!Array.isArray(projects)) {
+      projects = await getAllProjects();
+      await kv.set(CACHE_KEY, projects);
+    }
+    // Explicitly cast projects to any[]
+    const projectsArray = projects as any[];
+
+    // If summary mode, map to minimal fields
+    if (summary) {
+      const summaryProjects = projectsArray.map((project: any) => ({
+        id: project.id,
+        title: project.title,
+        number: project.number,
+        phase: project.phase,
+        image: Array.isArray(project.images) ? project.images[0] : null,
+        updatedAt: project.updatedAt,
+      }));
+      return NextResponse.json(summaryProjects, {
         headers: {
-          'Cache-Control': 'public, max-age=31536000, immutable', // Cache for 1 year, mark as immutable
+          'Cache-Control': 'public, max-age=31536000, immutable',
         },
       });
     }
 
-    // If not in cache, get from database
-    const projects = await getAllProjects();
-    
-    // Store in cache without expiration
-    await kv.set(CACHE_KEY, projects);
-    
-    return NextResponse.json(projects, {
+    return NextResponse.json(projectsArray, {
       headers: {
         'Cache-Control': 'public, max-age=31536000, immutable',
       },
