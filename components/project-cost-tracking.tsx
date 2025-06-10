@@ -100,11 +100,11 @@ export function ProjectCostTracking({ costTracking }: ProjectCostTrackingProps) 
             config={{
               budgetedCost: {
                 label: "Budgeted Cost",
-                color: "hsl(var(--chart-1))",
+                color: "hsl(222.2 84% 4.9%)",
               },
               actualCost: {
                 label: "Actual Cost",
-                color: "hsl(var(--chart-2))",
+                color: "hsl(346.8 77.2% 49.8%)",
               },
             }}
             className="h-[300px]"
@@ -119,8 +119,8 @@ export function ProjectCostTracking({ costTracking }: ProjectCostTrackingProps) 
                   formatter={(value: number) => [formatCurrency(value), ""]}
                 />
                 <Legend />
-                <Bar dataKey="budgetedCost" fill="var(--color-budgetedCost)" name="Budgeted Cost" />
-                <Bar dataKey="actualCost" fill="var(--color-actualCost)" name="Actual Cost" />
+                <Bar dataKey="budgetedCost" fill="hsl(222.2 84% 4.9%)" name="Budgeted Cost" />
+                <Bar dataKey="actualCost" fill="hsl(346.8 77.2% 49.8%)" name="Actual Cost" />
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
@@ -138,11 +138,11 @@ export function ProjectCostTracking({ costTracking }: ProjectCostTrackingProps) 
             config={{
               cumulativeBudget: {
                 label: "Cumulative Budget",
-                color: "hsl(var(--chart-1))",
+                color: "hsl(222.2 84% 4.9%)",
               },
               cumulativeActual: {
                 label: "Cumulative Actual",
-                color: "hsl(var(--chart-2))",
+                color: "hsl(346.8 77.2% 49.8%)",
               },
             }}
             className="h-[300px]"
@@ -160,14 +160,14 @@ export function ProjectCostTracking({ costTracking }: ProjectCostTrackingProps) 
                 <Line
                   type="monotone"
                   dataKey="cumulativeBudget"
-                  stroke="var(--color-cumulativeBudget)"
+                  stroke="hsl(222.2 84% 4.9%)"
                   name="Cumulative Budget"
                   strokeWidth={2}
                 />
                 <Line
                   type="monotone"
                   dataKey="cumulativeActual"
-                  stroke="var(--color-cumulativeActual)"
+                  stroke="hsl(346.8 77.2% 49.8%)"
                   name="Cumulative Actual"
                   strokeWidth={2}
                 />
