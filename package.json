@@ -61,6 +61,7 @@
     "@types/sql.js": "latest",
     "@upstash/redis": "latest",
     "@vercel/blob": "^1.1.1",
+    "@vercel/kv": "^3.0.0",
     "@vercel/postgres": "latest",
     "@xata.io/client": "latest",
     "autoprefixer": "^10.4.20",
