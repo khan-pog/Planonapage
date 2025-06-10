@@ -1,6 +1,6 @@
 # Plan on a Page
 
-A modern project management dashboard built with Next.js, TypeScript, and Tailwind CSS.
+A modern project management dashboard built with Next.js, TypeScript, and Tailwind CSS
 
 ## Features
 
