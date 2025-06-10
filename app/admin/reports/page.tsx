@@ -190,6 +190,20 @@ export default function AdminReportsPage() {
     }
   }
 
+  const handleWarmCache = async () => {
+    try {
+      const response = await fetch('/api/warm-cache', { method: 'POST' });
+      const result = await response.json();
+      if (response.ok) {
+        toast.success(`Cache warmed: ${result.count} projects cached`);
+      } else {
+        toast.error(`Failed to warm cache: ${result.error || 'Unknown error'}`);
+      }
+    } catch (error: any) {
+      toast.error(`Failed to warm cache: ${error.message}`);
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -301,6 +315,9 @@ export default function AdminReportsPage() {
             Test Seeding
           </Button>
           <SeedDatabaseButton />
+          <Button variant="outline" onClick={handleWarmCache}>
+            Warm Up Cache
+          </Button>
         </div>
       </div>
 
