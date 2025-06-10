@@ -8,19 +8,31 @@ const MONTHLY_CACHE_KEY = 'projects_monthly_version';
 export async function GET(request: NextRequest) {
   try {
     console.log('--- /api/projects called ---');
-    const summary = request.nextUrl.searchParams.get('summary') === 'true';
-    let projects = await kv.get(CACHE_KEY);
-    console.log('KV cache result:', projects);
+    console.log('POSTGRES_URL:', process.env.POSTGRES_URL ? process.env.POSTGRES_URL.slice(0, 30) + '...' : 'NOT SET');
+    const url = new URL(request.url);
+    const noCache = url.searchParams.get('nocache') === 'true';
+    let projects;
+    if (!noCache) {
+      projects = await kv.get(CACHE_KEY);
+      console.log('KV cache result:', projects);
+    } else {
+      console.log('Bypassing cache due to nocache param');
+    }
 
     if (!Array.isArray(projects)) {
-      projects = await getAllProjects();
-      console.log('DB result:', projects);
-      await kv.set(CACHE_KEY, projects);
+      try {
+        projects = await getAllProjects();
+        console.log('DB result:', projects);
+        await kv.set(CACHE_KEY, projects);
+      } catch (dbError) {
+        console.error('DB query error:', dbError);
+        projects = [];
+      }
     }
 
     const projectsArray = projects as any[];
 
-    if (summary) {
+    if (url.searchParams.get('summary') === 'true') {
       const summaryProjects = projectsArray.map((project: any) => ({
         id: project.id,
         title: project.title,
