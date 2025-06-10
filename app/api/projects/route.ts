@@ -7,16 +7,19 @@ const MONTHLY_CACHE_KEY = 'projects_monthly_version';
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('--- /api/projects called ---');
     const summary = request.nextUrl.searchParams.get('summary') === 'true';
     let projects = await kv.get(CACHE_KEY);
+    console.log('KV cache result:', projects);
+
     if (!Array.isArray(projects)) {
       projects = await getAllProjects();
+      console.log('DB result:', projects);
       await kv.set(CACHE_KEY, projects);
     }
-    // Explicitly cast projects to any[]
+
     const projectsArray = projects as any[];
 
-    // If summary mode, map to minimal fields
     if (summary) {
       const summaryProjects = projectsArray.map((project: any) => ({
         id: project.id,
@@ -26,6 +29,7 @@ export async function GET(request: NextRequest) {
         image: Array.isArray(project.images) ? project.images[0] : null,
         updatedAt: project.updatedAt,
       }));
+      console.log('Returning summary projects:', summaryProjects);
       return NextResponse.json(summaryProjects, {
         headers: {
           'Cache-Control': 'public, max-age=31536000, immutable',
@@ -33,6 +37,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    console.log('Returning full projects:', projectsArray);
     return NextResponse.json(projectsArray, {
       headers: {
         'Cache-Control': 'public, max-age=31536000, immutable',
