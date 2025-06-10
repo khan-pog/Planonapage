@@ -30,6 +30,8 @@ const getCurrentMonthYear = () => {
 export default function NewProjectPage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("basic")
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [project, setProject] = useState<Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'ownerId'>>({
     title: "",
     number: "",
@@ -71,8 +73,41 @@ export default function NewProjectPage() {
     },
   })
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
+    
+    if (!project.title.trim()) {
+      newErrors.title = "Project title is required"
+    }
+    
+    if (!project.number.trim()) {
+      newErrors.number = "Project number is required"
+    }
+    
+    if (!project.projectManager.trim()) {
+      newErrors.projectManager = "Project manager is required"
+    }
+    
+    if (!project.reportMonth) {
+      newErrors.reportMonth = "Report month is required"
+    }
+    
+    if (!project.phase) {
+      newErrors.phase = "Current phase is required"
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!validateForm()) {
+      return
+    }
+
+    setIsSubmitting(true)
 
     try {
       const response = await fetch("/api/projects", {
@@ -90,6 +125,8 @@ export default function NewProjectPage() {
     } catch (error) {
       console.error("Error creating project:", error)
       alert("Failed to create project. Please try again.")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -126,49 +163,100 @@ export default function NewProjectPage() {
                 <TabsContent value="basic" className="space-y-6 pt-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="project-title">Project Title</Label>
+                      <Label htmlFor="project-title">
+                        Project Title <span className="text-red-500">*</span>
+                      </Label>
                       <Input
                         id="project-title"
                         value={project.title}
-                        onChange={(e) => setProject({ ...project, title: e.target.value })}
+                        onChange={(e) => {
+                          setProject({ ...project, title: e.target.value })
+                          if (errors.title) {
+                            setErrors({ ...errors, title: "" })
+                          }
+                        }}
+                        className={errors.title ? "border-red-500" : ""}
                         required
                       />
+                      {errors.title && (
+                        <p className="text-sm text-red-500">{errors.title}</p>
+                      )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="project-number">Project Number</Label>
+                      <Label htmlFor="project-number">
+                        Project Number <span className="text-red-500">*</span>
+                      </Label>
                       <Input
                         id="project-number"
                         value={project.number}
-                        onChange={(e) => setProject({ ...project, number: e.target.value })}
+                        onChange={(e) => {
+                          setProject({ ...project, number: e.target.value })
+                          if (errors.number) {
+                            setErrors({ ...errors, number: "" })
+                          }
+                        }}
+                        className={errors.number ? "border-red-500" : ""}
                         required
                       />
+                      {errors.number && (
+                        <p className="text-sm text-red-500">{errors.number}</p>
+                      )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="project-manager">Project Manager</Label>
+                      <Label htmlFor="project-manager">
+                        Project Manager <span className="text-red-500">*</span>
+                      </Label>
                       <Input
                         id="project-manager"
                         value={project.projectManager}
-                        onChange={(e) => setProject({ ...project, projectManager: e.target.value })}
+                        onChange={(e) => {
+                          setProject({ ...project, projectManager: e.target.value })
+                          if (errors.projectManager) {
+                            setErrors({ ...errors, projectManager: "" })
+                          }
+                        }}
+                        className={errors.projectManager ? "border-red-500" : ""}
                         required
                       />
+                      {errors.projectManager && (
+                        <p className="text-sm text-red-500">{errors.projectManager}</p>
+                      )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="report-month">Report Month</Label>
+                      <Label htmlFor="report-month">
+                        Report Month <span className="text-red-500">*</span>
+                      </Label>
                       <Input
                         id="report-month"
                         type="month"
                         value={project.reportMonth}
-                        onChange={(e) => setProject({ ...project, reportMonth: e.target.value })}
+                        onChange={(e) => {
+                          setProject({ ...project, reportMonth: e.target.value })
+                          if (errors.reportMonth) {
+                            setErrors({ ...errors, reportMonth: "" })
+                          }
+                        }}
+                        className={errors.reportMonth ? "border-red-500" : ""}
                         required
                       />
+                      {errors.reportMonth && (
+                        <p className="text-sm text-red-500">{errors.reportMonth}</p>
+                      )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="project-phase">Current Phase</Label>
+                      <Label htmlFor="project-phase">
+                        Current Phase <span className="text-red-500">*</span>
+                      </Label>
                       <Select
                         value={project.phase}
-                        onValueChange={(value: any) => setProject({ ...project, phase: value })}
+                        onValueChange={(value: any) => {
+                          setProject({ ...project, phase: value })
+                          if (errors.phase) {
+                            setErrors({ ...errors, phase: "" })
+                          }
+                        }}
                       >
-                        <SelectTrigger id="project-phase">
+                        <SelectTrigger id="project-phase" className={errors.phase ? "border-red-500" : ""}>
                           <SelectValue placeholder="Select phase" />
                         </SelectTrigger>
                         <SelectContent>
@@ -180,6 +268,9 @@ export default function NewProjectPage() {
                           <SelectItem value="Close-Out">Close-Out</SelectItem>
                         </SelectContent>
                       </Select>
+                      {errors.phase && (
+                        <p className="text-sm text-red-500">{errors.phase}</p>
+                      )}
                     </div>
                   </div>
                 </TabsContent>
@@ -268,9 +359,14 @@ export default function NewProjectPage() {
             </form>
           </CardContent>
           <CardFooter>
-            <Button type="submit" form="new-project-form" className="w-full">
+            <Button 
+              type="submit" 
+              form="new-project-form" 
+              className="w-full"
+              disabled={isSubmitting}
+            >
               <Save className="mr-2 h-4 w-4" />
-              Create Project
+              {isSubmitting ? "Creating..." : "Create Project"}
             </Button>
           </CardFooter>
         </Card>

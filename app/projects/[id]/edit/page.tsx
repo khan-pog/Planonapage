@@ -27,6 +27,8 @@ export default function EditProjectPage() {
   const [activeTab, setActiveTab] = useState("basic")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     async function fetchProject() {
@@ -54,9 +56,44 @@ export default function EditProjectPage() {
     fetchProject()
   }, [projectId])
 
+  const validateForm = () => {
+    if (!project) return false
+    
+    const newErrors: Record<string, string> = {}
+    
+    if (!project.title.trim()) {
+      newErrors.title = "Project title is required"
+    }
+    
+    if (!project.number.trim()) {
+      newErrors.number = "Project number is required"
+    }
+    
+    if (!project.projectManager.trim()) {
+      newErrors.projectManager = "Project manager is required"
+    }
+    
+    if (!project.reportMonth) {
+      newErrors.reportMonth = "Report month is required"
+    }
+    
+    if (!project.phase) {
+      newErrors.phase = "Current phase is required"
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!project) return
+
+    if (!validateForm()) {
+      return
+    }
+
+    setIsSubmitting(true)
 
     try {
       const response = await fetch(`/api/projects/${projectId}`, {
@@ -73,6 +110,8 @@ export default function EditProjectPage() {
     } catch (error) {
       console.error("Error updating project:", error)
       alert("Failed to update project. Please try again.")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -127,49 +166,100 @@ export default function EditProjectPage() {
                 <TabsContent value="basic" className="space-y-6 pt-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="project-title">Project Title</Label>
+                      <Label htmlFor="project-title">
+                        Project Title <span className="text-red-500">*</span>
+                      </Label>
                       <Input
                         id="project-title"
                         value={project.title}
-                        onChange={(e) => setProject({ ...project, title: e.target.value })}
+                        onChange={(e) => {
+                          setProject({ ...project, title: e.target.value })
+                          if (errors.title) {
+                            setErrors({ ...errors, title: "" })
+                          }
+                        }}
+                        className={errors.title ? "border-red-500" : ""}
                         required
                       />
+                      {errors.title && (
+                        <p className="text-sm text-red-500">{errors.title}</p>
+                      )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="project-number">Project Number</Label>
+                      <Label htmlFor="project-number">
+                        Project Number <span className="text-red-500">*</span>
+                      </Label>
                       <Input
                         id="project-number"
                         value={project.number}
-                        onChange={(e) => setProject({ ...project, number: e.target.value })}
+                        onChange={(e) => {
+                          setProject({ ...project, number: e.target.value })
+                          if (errors.number) {
+                            setErrors({ ...errors, number: "" })
+                          }
+                        }}
+                        className={errors.number ? "border-red-500" : ""}
                         required
                       />
+                      {errors.number && (
+                        <p className="text-sm text-red-500">{errors.number}</p>
+                      )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="project-manager">Project Manager</Label>
+                      <Label htmlFor="project-manager">
+                        Project Manager <span className="text-red-500">*</span>
+                      </Label>
                       <Input
                         id="project-manager"
                         value={project.projectManager}
-                        onChange={(e) => setProject({ ...project, projectManager: e.target.value })}
+                        onChange={(e) => {
+                          setProject({ ...project, projectManager: e.target.value })
+                          if (errors.projectManager) {
+                            setErrors({ ...errors, projectManager: "" })
+                          }
+                        }}
+                        className={errors.projectManager ? "border-red-500" : ""}
                         required
                       />
+                      {errors.projectManager && (
+                        <p className="text-sm text-red-500">{errors.projectManager}</p>
+                      )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="report-month">Report Month</Label>
+                      <Label htmlFor="report-month">
+                        Report Month <span className="text-red-500">*</span>
+                      </Label>
                       <Input
                         id="report-month"
                         type="month"
                         value={project.reportMonth}
-                        onChange={(e) => setProject({ ...project, reportMonth: e.target.value })}
+                        onChange={(e) => {
+                          setProject({ ...project, reportMonth: e.target.value })
+                          if (errors.reportMonth) {
+                            setErrors({ ...errors, reportMonth: "" })
+                          }
+                        }}
+                        className={errors.reportMonth ? "border-red-500" : ""}
                         required
                       />
+                      {errors.reportMonth && (
+                        <p className="text-sm text-red-500">{errors.reportMonth}</p>
+                      )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="project-phase">Current Phase</Label>
+                      <Label htmlFor="project-phase">
+                        Current Phase <span className="text-red-500">*</span>
+                      </Label>
                       <Select
                         value={project.phase}
-                        onValueChange={(value: any) => setProject({ ...project, phase: value })}
+                        onValueChange={(value: any) => {
+                          setProject({ ...project, phase: value })
+                          if (errors.phase) {
+                            setErrors({ ...errors, phase: "" })
+                          }
+                        }}
                       >
-                        <SelectTrigger id="project-phase">
+                        <SelectTrigger id="project-phase" className={errors.phase ? "border-red-500" : ""}>
                           <SelectValue placeholder="Select phase" />
                         </SelectTrigger>
                         <SelectContent>
@@ -181,6 +271,9 @@ export default function EditProjectPage() {
                           <SelectItem value="Close-Out">Close-Out</SelectItem>
                         </SelectContent>
                       </Select>
+                      {errors.phase && (
+                        <p className="text-sm text-red-500">{errors.phase}</p>
+                      )}
                     </div>
                   </div>
                 </TabsContent>
@@ -275,9 +368,14 @@ export default function EditProjectPage() {
             </form>
           </CardContent>
           <CardFooter className="flex justify-end">
-            <Button type="submit" form="edit-project-form" className="flex gap-2">
+            <Button 
+              type="submit" 
+              form="edit-project-form" 
+              className="flex gap-2"
+              disabled={isSubmitting}
+            >
               <Save className="h-4 w-4" />
-              Save Changes
+              {isSubmitting ? "Saving..." : "Save Changes"}
             </Button>
           </CardFooter>
         </Card>
