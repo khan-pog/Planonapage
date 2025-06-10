@@ -66,7 +66,6 @@ export function ProjectCard({ project }: ProjectCardProps) {
                 target.src = "/placeholder.svg";
                 target.onerror = null; // Prevent infinite loop
               }}
-              unoptimized={project.images[0].startsWith('data:')} // Skip optimization for base64 images
             />
           ) : (
             <Image

@@ -117,7 +117,7 @@ POST /api/reports/send
 ## Ready for Production Upgrades
 
 ### Image Storage
-The current implementation uses base64 encoding for immediate functionality. For production, replace with:
+The current implementation uses Vercel Blob Storage for image hosting. For production, you can easily switch to:
 - AWS S3 upload
 - Cloudinary integration  
 - Firebase Storage
