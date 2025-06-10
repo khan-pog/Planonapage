@@ -20,27 +20,44 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File size must be less than 10MB' }, { status: 400 });
     }
 
-    // Convert file to base64
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const base64 = buffer.toString('base64');
-    const dataUrl = `data:${file.type};base64,${base64}`;
+    try {
+      // Convert file to buffer
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
 
-    // Upload to Vercel Blob Storage
-    const blob = await put(file.name, buffer, {
-      access: 'public',
-      contentType: file.type,
-    });
+      // Get file extension
+      const extension = file.name.split('.').pop();
+      const baseName = file.name.slice(0, -(extension?.length || 0) - 1);
+      
+      // Create a unique filename with timestamp
+      const uniqueFilename = `${baseName}_${Date.now()}.${extension}`;
 
-    // Return both the blob URL and the base64 data URL
-    return NextResponse.json({ 
-      url: blob.url,
-      base64: dataUrl 
-    });
+      // Upload to Vercel Blob Storage
+      const blob = await put(uniqueFilename, buffer, {
+        access: 'public',
+        contentType: file.type,
+        addRandomSuffix: true
+      });
+
+      if (!blob.url) {
+        throw new Error('No URL returned from blob storage');
+      }
+
+      // Return only the blob URL
+      return NextResponse.json({ 
+        url: blob.url
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      return NextResponse.json(
+        { error: 'Failed to upload image. Please try again.' },
+        { status: 500 }
+      );
+    }
   } catch (error) {
-    console.error('Error uploading image:', error);
+    console.error('Error in upload handler:', error);
     return NextResponse.json(
-      { error: 'Failed to upload image' },
+      { error: 'An unexpected error occurred. Please try again.' },
       { status: 500 }
     );
   }
