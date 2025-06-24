@@ -15,8 +15,10 @@ export async function POST() {
           plants plant_enum[],
           disciplines discipline_enum[],
           created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-          updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+          updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+          is_pm BOOLEAN NOT NULL DEFAULT FALSE
        );`,
+      `ALTER TABLE IF EXISTS email_recipients ADD COLUMN IF NOT EXISTS is_pm BOOLEAN NOT NULL DEFAULT FALSE;`,
       `DO $$ BEGIN CREATE TYPE report_trigger_enum AS ENUM ('cron', 'manual', 'demo'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;`,
       `CREATE TABLE IF NOT EXISTS report_schedules (
           id SERIAL PRIMARY KEY,

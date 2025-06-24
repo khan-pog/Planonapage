@@ -23,6 +23,11 @@ interface Recipient {
   email: string
   plants: string[] | null
   disciplines: string[] | null
+  isPm?: boolean
+}
+
+interface RecipientsManagerProps {
+  pmOnly?: boolean;
 }
 
 const plantOptions = [
@@ -35,7 +40,7 @@ const plantOptions = [
 
 const disciplineOptions = ["HSE", "Rotating", "Static", "EIC"]
 
-export default function RecipientsManager() {
+export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {}) {
   const [recipients, setRecipients] = useState<Recipient[]>([])
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -44,6 +49,7 @@ export default function RecipientsManager() {
   const [plants, setPlants] = useState<string[]>([])
   const [disciplines, setDisciplines] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
+  const [isPm, setIsPm] = useState(false)
 
   useEffect(() => {
     fetchRecipients()
@@ -55,7 +61,8 @@ export default function RecipientsManager() {
       const res = await fetch("/api/recipients")
       if (!res.ok) throw new Error("Failed to fetch recipients")
       const data = await res.json()
-      setRecipients(data || [])
+      const list = data || []
+      setRecipients(pmOnly === undefined ? list : list.filter(r=>!!(r.isPm) === pmOnly))
     } catch (err: any) {
       toast.error(`Failed to load recipients: ${err.message}`)
     } finally {
@@ -68,6 +75,7 @@ export default function RecipientsManager() {
     setEmail("")
     setPlants([])
     setDisciplines([])
+    setIsPm(false)
     setDialogOpen(true)
   }
 
@@ -76,6 +84,7 @@ export default function RecipientsManager() {
     setEmail(r.email)
     setPlants(r.plants || [])
     setDisciplines(r.disciplines || [])
+    setIsPm(r.isPm ?? false)
     setDialogOpen(true)
   }
 
@@ -94,7 +103,7 @@ export default function RecipientsManager() {
   const handleSave = async () => {
     try {
       setSaving(true)
-      const payload = { email, plants, disciplines }
+      const payload = { email, plants, disciplines, isPm }
       let res: Response
       if (editingRecipient) {
         res = await fetch(`/api/recipients/${editingRecipient.id}`, {
@@ -156,6 +165,7 @@ export default function RecipientsManager() {
                   <th className="py-2 px-2">Email</th>
                   <th className="py-2 px-2">Plants</th>
                   <th className="py-2 px-2">Disciplines</th>
+                  <th className="py-2 px-2">PM?</th>
                   <th className="py-2 px-2 text-right">Actions</th>
                 </tr>
               </thead>
@@ -169,6 +179,7 @@ export default function RecipientsManager() {
                     <td className="py-2 px-2">
                       {(r.disciplines || []).join(", ")}
                     </td>
+                    <td className="py-2 px-2">{r.isPm ? '✅' : ''}</td>
                     <td className="py-2 px-2 text-right space-x-1">
                       <Button
                         size="icon"
@@ -252,6 +263,11 @@ export default function RecipientsManager() {
                   </label>
                 ))}
               </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox checked={isPm} onCheckedChange={(v)=>setIsPm(v as boolean)} />
+              <span className="text-sm">Project Manager reminder recipient</span>
             </div>
           </div>
 

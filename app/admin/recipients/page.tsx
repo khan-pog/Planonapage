@@ -1,6 +1,7 @@
 "use client";
 
 import RecipientsManager from "@/components/recipients-manager";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -36,7 +37,18 @@ export default function AdminRecipientsPage() {
         </CardHeader>
       </Card>
 
-      <RecipientsManager />
+      <Tabs defaultValue="general" className="mt-6">
+        <TabsList className="grid grid-cols-2 w-full mb-4">
+          <TabsTrigger value="general">Email Groups</TabsTrigger>
+          <TabsTrigger value="pm">PM Reminders</TabsTrigger>
+        </TabsList>
+        <TabsContent value="general">
+          <RecipientsManager />
+        </TabsContent>
+        <TabsContent value="pm">
+          <RecipientsManager pmOnly={true} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 } 
