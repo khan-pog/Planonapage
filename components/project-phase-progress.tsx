@@ -12,7 +12,7 @@ export function ProjectPhaseProgress({ percentages }: ProjectPhaseProgressProps)
     { key: "fel3", label: "FEL 3", color: "bg-cyan-500" },
     { key: "preExecution", label: "Pre-Execution", color: "bg-amber-500" },
     { key: "execution", label: "Execution", color: "bg-emerald-500" },
-    { key: "closeOut", label: "Close-Out", color: "bg-teal-500" },
+    { key: "closeOut", label: "Close-Out", color: "bg-rose-500" },
   ]
 
   return (

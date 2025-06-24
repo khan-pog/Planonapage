@@ -103,7 +103,7 @@ export default function ProjectDetailPage() {
                     case 'execution':
                       return 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20'
                     case 'close-out':
-                      return 'bg-teal-500/10 text-teal-600 hover:bg-teal-500/20'
+                      return 'bg-rose-500/10 text-rose-600 hover:bg-rose-500/20'
                     default:
                       return 'bg-slate-500/10 text-slate-600 hover:bg-slate-500/20'
                   }
