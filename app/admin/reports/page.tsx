@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Mail, Download, Calendar, Trash2, Send, Clock, ArrowLeft, Database, AlertCircle } from "lucide-react"
+import { Mail, Calendar, Trash2, Send, Clock, ArrowLeft, Database, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { SeedDatabaseButton } from "@/components/seed-database-button"
 import { MigrateDatabaseButton } from "@/components/migrate-database-button"
@@ -61,18 +61,8 @@ export default function AdminReportsPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [isGenerating, setIsGenerating] = useState(false)
   // Read-only preview of DB-backed recipients list (for Settings tab)
   const [recipientsPreview, setRecipientsPreview] = useState<{ id?: number; email: string }[]>([])
-  // Information returned after the most recent send action
-  const [lastSentInfo, setLastSentInfo] = useState<
-    | {
-        sent: number
-        failed: number
-        timestamp: string
-      }
-    | null
-  >(null)
 
   const [reportSettings, setReportSettings] = useState<ScheduleSettings>({
     frequency: "weekly",
@@ -126,26 +116,6 @@ export default function AdminReportsPage() {
       }
     } catch (err: any) {
       toast.error(`Seeding validation failed: ${err.message}`)
-    }
-  }
-
-  // Trigger a one-off report to the full recipient list (no testEmail param)
-  const sendReportNow = async () => {
-    setIsGenerating(true)
-    try {
-      const res = await fetch('/api/reports/send')
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
-      const data: { sent: number; failed: number } = await res.json()
-
-      // Persist last-sent info so we can surface the feedback in the UI
-      setLastSentInfo({ ...data, timestamp: new Date().toISOString() })
-
-      toast.success(`Report sent! (sent: ${data.sent}, failed: ${data.failed})`)
-    } catch (err: any) {
-      console.error('Error sending report', err)
-      toast.error(`Failed to send report: ${err.message || err}`)
-    } finally {
-      setIsGenerating(false)
     }
   }
 
@@ -476,37 +446,6 @@ export default function AdminReportsPage() {
                   </p>
                 )}
               </div>
-
-              <div className="flex gap-3">
-                <Button onClick={sendReportNow} disabled={isGenerating} className="flex items-center gap-2">
-                  {isGenerating ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4" />
-                      Send Report Now
-                    </>
-                  )}
-                </Button>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Download className="h-4 w-4" />
-                  Download PDF
-                </Button>
-                <Button onClick={fetchProjects} variant="outline" className="flex items-center gap-2">
-                  <Database className="h-4 w-4" />
-                  Refresh Data
-                </Button>
-              </div>
-
-              {/* Last-sent feedback */}
-              {lastSentInfo && (
-                <div className="text-sm text-muted-foreground">
-                  Last sent {new Date(lastSentInfo.timestamp).toLocaleString()} — sent {lastSentInfo.sent}, failed {lastSentInfo.failed}
-                </div>
-              )}
             </CardContent>
           </Card>
         </TabsContent>
