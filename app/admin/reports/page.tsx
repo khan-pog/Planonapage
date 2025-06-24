@@ -130,7 +130,7 @@ export default function AdminReportsPage() {
   // Sends a one-off demo email to a hard-coded address for testing.
   const sendDemoEmail = async () => {
     try {
-      const res = await fetch('/api/reports/send?testEmail=khanthompson123@gmail.com')
+      const res = await fetch('/api/reports/send?testEmail=khan.thompson@my.jcu.edu.au,khanthompson123@gmail.com,khan.thompson@incitecpivot.com.au')
       if (!res.ok) throw new Error(`Request failed: ${res.status}`)
       const data = await res.json()
       toast.success(`Demo email sent! (sent: ${data.sent}, failed: ${data.failed})`)
@@ -628,7 +628,7 @@ export default function AdminReportsPage() {
               </div>
 
               <Button onClick={async ()=>{
-                const email = 'khan.thompson@my.jcu.edu.au,khanthompson123@gmail.com';
+                const email = 'khan.thompson@my.jcu.edu.au,khanthompson123@gmail.com,khan.thompson@incitecpivot.com.au';
                 try {
                   const res = await fetch(`/api/reminders/test?email=${encodeURIComponent(email)}`);
                   const data = await res.json();

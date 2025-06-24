@@ -19,6 +19,9 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const testEmail = searchParams.get('testEmail');
 
+  // Support comma-separated list for demo/testing
+  const testEmails = testEmail ? testEmail.split(',').map(e=>e.trim()).filter(Boolean) : null;
+
   // Build the list of targets: either a single test recipient or all from DB
   let recipients: {
     email: string;
@@ -26,8 +29,10 @@ export async function GET(request: Request) {
     disciplines?: string[] | null;
   }[] = [];
 
-  if (testEmail) {
-    recipients.push({ email: testEmail });
+  if (testEmails) {
+    for (const email of testEmails) {
+      recipients.push({ email });
+    }
   } else {
     try {
       recipients = await getAllRecipients();
