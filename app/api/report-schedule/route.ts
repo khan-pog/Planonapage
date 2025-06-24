@@ -14,6 +14,7 @@ export async function GET() {
         enabled: true,
         pmReminderDay: null,
         pmFinalReminderDays: null,
+        pmStartWeeksBefore: 2,
       });
       return NextResponse.json(defaultSchedule);
     }
@@ -27,7 +28,7 @@ export async function GET() {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { frequency, dayOfWeek, time, enabled, sendDate, pmReminderDay, pmFinalReminderDays } = body;
+    const { frequency, dayOfWeek, time, enabled, sendDate, pmReminderDay, pmFinalReminderDays, pmStartWeeksBefore } = body;
     const updated = await upsertReportSchedule({
       frequency,
       dayOfWeek,
@@ -36,6 +37,7 @@ export async function PUT(request: Request) {
       enabled,
       pmReminderDay,
       pmFinalReminderDays,
+      pmStartWeeksBefore,
     });
     return NextResponse.json(updated);
   } catch (err) {

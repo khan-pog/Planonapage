@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Mail, Calendar, Trash2, Send, Clock, ArrowLeft, Database, AlertCircle } from "lucide-react"
+import { Mail, Calendar, Trash2, Send, Clock, ArrowLeft, Database, AlertCircle, Bell } from "lucide-react"
 import Link from "next/link"
 import { SeedDatabaseButton } from "@/components/seed-database-button"
 import { MigrateDatabaseButton } from "@/components/migrate-database-button"
@@ -58,6 +58,7 @@ type ScheduleSettings = {
   sendDate?: string | null;
   pmReminderDay?: string | null;
   pmFinalReminderDays?: number | null;
+  pmStartWeeksBefore?: number | null;
 };
 
 export default function AdminReportsPage() {
@@ -75,6 +76,7 @@ export default function AdminReportsPage() {
     sendDate: null,
     pmReminderDay: "monday",
     pmFinalReminderDays: 1,
+    pmStartWeeksBefore: 2,
   })
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -216,6 +218,7 @@ export default function AdminReportsPage() {
           sendDate: data.sendDate ?? null,
           pmReminderDay: data.pmReminderDay ?? "monday",
           pmFinalReminderDays: data.pmFinalReminderDays ?? 1,
+          pmStartWeeksBefore: data.pmStartWeeksBefore ?? 2,
         });
       } catch (err) {
         console.error(err);
@@ -600,6 +603,17 @@ export default function AdminReportsPage() {
                       onChange={(e)=>persistSchedule({ pmFinalReminderDays: Number(e.target.value) })}
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pm-weeks">Start Reminders (weeks before send)</Label>
+                    <Input
+                      id="pm-weeks"
+                      type="number"
+                      min={1}
+                      max={12}
+                      value={reportSettings.pmStartWeeksBefore ?? 2}
+                      onChange={(e)=>persistSchedule({ pmStartWeeksBefore: Number(e.target.value) })}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -612,6 +626,18 @@ export default function AdminReportsPage() {
                     : "Disabled"}
                 </p>
               </div>
+
+              <Button onClick={async ()=>{
+                const email = prompt('Send test reminder to which email?')?.trim();
+                if(!email) return;
+                try {
+                  const res = await fetch(`/api/reminders/test?email=${encodeURIComponent(email)}`);
+                  if(!res.ok) throw new Error(await res.text());
+                  toast.success('Test reminder sent');
+                } catch(err:any){ toast.error(err.message); }
+              }} variant="outline" className="flex items-center gap-2">
+                <Bell className="h-4 w-4" /> Send Test PM Reminder
+              </Button>
             </CardContent>
           </Card>
 
