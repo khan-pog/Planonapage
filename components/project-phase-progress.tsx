@@ -25,8 +25,10 @@ export function ProjectPhaseProgress({ percentages }: ProjectPhaseProgressProps)
           <div className="flex h-4 w-full overflow-hidden rounded-full bg-muted">
             {phases.map((phase) => {
               const percent = percentages[phase.key as keyof PhasePercentages]
-              return percent > 0 ? (
-                <div key={phase.key} className={`${phase.color} transition-all`} style={{ width: `${percent}%` }} />
+              // Each phase contributes equally (1/6) to total bar; multiply by completion ratio
+              const widthFraction = (percent / 100) * (100 / phases.length)
+              return widthFraction > 0 ? (
+                <div key={phase.key} className={`${phase.color} transition-all`} style={{ width: `${widthFraction}%` }} />
               ) : null
             })}
           </div>
