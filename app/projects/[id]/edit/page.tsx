@@ -18,6 +18,8 @@ import { ProjectMilestones } from "@/components/project-milestones"
 import type { Project } from "@/lib/types"
 import { ProjectCostForm } from "@/components/project-cost-form"
 import { ImageUpload } from "@/components/image-upload"
+import { Checkbox } from "@/components/ui/checkbox"
+import { PLANTS, DISCIPLINES } from "@/lib/constants"
 
 export default function EditProjectPage() {
   const params = useParams()
@@ -291,6 +293,51 @@ export default function EditProjectPage() {
                       {errors.phase && (
                         <p className="text-sm text-red-500">{errors.phase}</p>
                       )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="plant-select">
+                        Plant <span className="text-red-500">*</span>
+                      </Label>
+                      <Select
+                        value={project.plant}
+                        onValueChange={(value: string) => {
+                          setProject({ ...project, plant: value as any })
+                        }}
+                      >
+                        <SelectTrigger id="plant-select">
+                          <SelectValue placeholder="Select plant" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PLANTS.map((p) => (
+                            <SelectItem key={p} value={p}>{p}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Disciplines</Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {DISCIPLINES.map((d) => {
+                          const checked = project.disciplines.includes(d as any)
+                          return (
+                            <div key={d} className="flex items-center gap-2">
+                              <Checkbox
+                                id={`discipline-${d}`}
+                                checked={checked}
+                                onCheckedChange={(val: boolean) => {
+                                  const updated = val
+                                    ? [...project.disciplines, d as any]
+                                    : project.disciplines.filter((disc) => disc !== d)
+                                  setProject({ ...project, disciplines: updated })
+                                }}
+                              />
+                              <Label htmlFor={`discipline-${d}`} className="text-sm font-normal">
+                                {d}
+                              </Label>
+                            </div>
+                          )
+                        })}
+                      </div>
                     </div>
                   </div>
                 </TabsContent>

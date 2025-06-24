@@ -84,6 +84,17 @@ export function ProjectCard({ project }: ProjectCardProps) {
           <Badge className={cn("mb-2", getPhaseBadgeColor(project.phase))}>{project.phase}</Badge>
           <h3 className="text-lg font-semibold line-clamp-2">{project.title}</h3>
           <p className="text-sm text-muted-foreground mt-1">#{project.number}</p>
+          <div className="mt-2 flex flex-wrap gap-1">
+            <Badge variant="outline" className="text-xs">{project.plant}</Badge>
+            {project.disciplines.slice(0,3).map((d) => (
+              <Badge key={d} variant="secondary" className="text-xs">
+                {d}
+              </Badge>
+            ))}
+            {project.disciplines.length > 3 && (
+              <Badge variant="secondary" className="text-xs">+{project.disciplines.length - 3}</Badge>
+            )}
+          </div>
         </CardContent>
         <CardFooter className="p-4 pt-0 flex flex-col items-start gap-2">
           <div className="flex items-center gap-2">

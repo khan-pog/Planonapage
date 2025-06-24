@@ -160,6 +160,17 @@ export default function ProjectDetailPage() {
                 <span className="text-sm text-muted-foreground">Report Month:</span>
                 <span>{project.reportMonth}</span>
               </div>
+              <Separator />
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Plant:</span>
+                <Badge variant="outline">{project.plant}</Badge>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm text-muted-foreground">Disciplines:</span>
+                {project.disciplines.map((d) => (
+                  <Badge key={d} variant="secondary" className="text-xs">{d}</Badge>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </div>
