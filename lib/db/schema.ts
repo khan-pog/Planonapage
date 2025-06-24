@@ -43,7 +43,7 @@ export const emailRecipients = pgTable('email_recipients', {
   plants: plantEnum('plants').array(),
   disciplines: disciplineEnum('disciplines').array(),
   isPm: boolean('is_pm').notNull().default(false),
-  projectId: integer('project_id'),
+  projectIds: integer('project_ids').array(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

@@ -17,6 +17,8 @@ import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Trash2, Plus, Pencil } from "lucide-react"
 import { toast } from "sonner"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface Recipient {
   id?: number
@@ -24,6 +26,7 @@ interface Recipient {
   plants: string[] | null
   disciplines: string[] | null
   isPm?: boolean
+  projectIds?: number[] | null
 }
 
 interface RecipientsManagerProps {
@@ -50,10 +53,19 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
   const [disciplines, setDisciplines] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
   const [isPm, setIsPm] = useState(false)
+  const [projectIds, setProjectIds] = useState<number[]>([])
+  const [projectsOptions, setProjectsOptions] = useState<{id:number,title:string}[]>([])
 
   useEffect(() => {
     fetchRecipients()
   }, [])
+
+  useEffect(()=>{
+    if(pmOnly){
+      fetch('/api/projects').then(r=>r.json()).then(data=>setProjectsOptions(data.map((p:any)=>({id:p.id,title:p.title}))))
+      .catch(()=>{})
+    }
+  },[pmOnly])
 
   const fetchRecipients = async () => {
     try {
@@ -76,6 +88,7 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
     setPlants([])
     setDisciplines([])
     setIsPm(false)
+    setProjectIds([])
     setDialogOpen(true)
   }
 
@@ -85,6 +98,7 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
     setPlants(r.plants || [])
     setDisciplines(r.disciplines || [])
     setIsPm(r.isPm ?? false)
+    setProjectIds(r.projectIds || [])
     setDialogOpen(true)
   }
 
@@ -103,7 +117,8 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
   const handleSave = async () => {
     try {
       setSaving(true)
-      const payload = { email, plants, disciplines, isPm }
+      const payload = pmOnly ? { email, isPm:true, projectIds } : { email, plants, disciplines, isPm }
+      if(pmOnly && projectIds.length===0){ toast.error('Select at least one project'); return; }
       let res: Response
       if (editingRecipient) {
         res = await fetch(`/api/recipients/${editingRecipient.id}`, {
@@ -166,11 +181,12 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
                   <th className="py-2 px-2">Plants</th>
                   <th className="py-2 px-2">Disciplines</th>
                   <th className="py-2 px-2">PM?</th>
+                  <th className="py-2 px-2">Projects</th>
                   <th className="py-2 px-2 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {recipients.map((r) => (
+                {recipients.map((r: Recipient) => (
                   <tr key={r.id} className="border-b hover:bg-muted/50">
                     <td className="py-2 px-2 whitespace-nowrap">{r.email}</td>
                     <td className="py-2 px-2">
@@ -180,6 +196,9 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
                       {(r.disciplines || []).join(", ")}
                     </td>
                     <td className="py-2 px-2">{r.isPm ? '✅' : ''}</td>
+                    <td className="py-2 px-2">
+                      { (r.projectIds ?? []).map((id:number)=> projectsOptions.find(p=>p.id===id)?.title).join(', ')}
+                    </td>
                     <td className="py-2 px-2 text-right space-x-1">
                       <Button
                         size="icon"
@@ -231,22 +250,40 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
               />
             </div>
 
-            <div>
-              <p className="text-sm font-medium mb-1">Plants</p>
-              <div className="grid grid-cols-2 gap-2">
-                {plantOptions.map((plant) => (
-                  <label key={plant} className="flex items-center space-x-2">
-                    <Checkbox
-                      checked={plants.includes(plant)}
-                      onCheckedChange={() =>
-                        toggleArrayValue(plant, plants, setPlants)
-                      }
-                    />
-                    <span className="text-sm">{plant}</span>
-                  </label>
-                ))}
+            {pmOnly ? (
+              <div>
+                <p className="text-sm font-medium mb-1">Projects</p>
+                <ScrollArea className="h-40 pr-2">
+                  <div className="space-y-1">
+                    {projectsOptions.map((p:{id:number,title:string}) => (
+                      <label key={p.id} className="flex items-center space-x-2">
+                        <Checkbox checked={projectIds.includes(p.id)} onCheckedChange={()=>{
+                          setProjectIds(projectIds.includes(p.id)? projectIds.filter(id=>id!==p.id): [...projectIds,p.id])
+                        }} />
+                        <span className="text-sm">{p.title}</span>
+                      </label>
+                    ))}
+                  </div>
+                </ScrollArea>
               </div>
-            </div>
+            ) : (
+              <div>
+                <p className="text-sm font-medium mb-1">Plants</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {plantOptions.map((plant) => (
+                    <label key={plant} className="flex items-center space-x-2">
+                      <Checkbox
+                        checked={plants.includes(plant)}
+                        onCheckedChange={() =>
+                          toggleArrayValue(plant, plants, setPlants)
+                        }
+                      />
+                      <span className="text-sm">{plant}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div>
               <p className="text-sm font-medium mb-1">Disciplines</p>
