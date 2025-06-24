@@ -17,12 +17,20 @@ import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Trash2, Plus, Pencil } from "lucide-react"
 import { toast } from "sonner"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface Recipient {
   id?: number
   email: string
   plants: string[] | null
   disciplines: string[] | null
+  isPm?: boolean
+  projectIds?: number[] | null
+}
+
+interface RecipientsManagerProps {
+  pmOnly?: boolean;
 }
 
 const plantOptions = [
@@ -35,7 +43,7 @@ const plantOptions = [
 
 const disciplineOptions = ["HSE", "Rotating", "Static", "EIC"]
 
-export default function RecipientsManager() {
+export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {}) {
   const [recipients, setRecipients] = useState<Recipient[]>([])
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -44,18 +52,31 @@ export default function RecipientsManager() {
   const [plants, setPlants] = useState<string[]>([])
   const [disciplines, setDisciplines] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
+  const [isPm] = useState(pmOnly)
+  const [projectIds, setProjectIds] = useState<number[]>([])
+  const [projectsOptions, setProjectsOptions] = useState<{id:number,title:string}[]>([])
 
   useEffect(() => {
     fetchRecipients()
   }, [])
+
+  useEffect(()=>{
+    if(pmOnly){
+      fetch('/api/projects')
+        .then((res)=>res.json())
+        .then((data:any[])=>setProjectsOptions(data.map((p)=>({id:p.id,title:p.title}))))
+      .catch(()=>{})
+    }
+  },[pmOnly])
 
   const fetchRecipients = async () => {
     try {
       setLoading(true)
       const res = await fetch("/api/recipients")
       if (!res.ok) throw new Error("Failed to fetch recipients")
-      const data = await res.json()
-      setRecipients(data || [])
+      const data: Recipient[] = await res.json()
+      const list: Recipient[] = data || []
+      setRecipients(pmOnly === undefined ? list : list.filter((rec)=>!!(rec.isPm) === pmOnly))
     } catch (err: any) {
       toast.error(`Failed to load recipients: ${err.message}`)
     } finally {
@@ -68,6 +89,7 @@ export default function RecipientsManager() {
     setEmail("")
     setPlants([])
     setDisciplines([])
+    setProjectIds([])
     setDialogOpen(true)
   }
 
@@ -76,6 +98,7 @@ export default function RecipientsManager() {
     setEmail(r.email)
     setPlants(r.plants || [])
     setDisciplines(r.disciplines || [])
+    setProjectIds(r.projectIds || [])
     setDialogOpen(true)
   }
 
@@ -94,7 +117,8 @@ export default function RecipientsManager() {
   const handleSave = async () => {
     try {
       setSaving(true)
-      const payload = { email, plants, disciplines }
+      const payload = pmOnly ? { email, isPm:true, projectIds } : { email, plants, disciplines }
+      if(pmOnly && projectIds.length===0){ toast.error('Select at least one project'); return; }
       let res: Response
       if (editingRecipient) {
         res = await fetch(`/api/recipients/${editingRecipient.id}`, {
@@ -154,20 +178,24 @@ export default function RecipientsManager() {
               <thead>
                 <tr className="border-b text-left">
                   <th className="py-2 px-2">Email</th>
-                  <th className="py-2 px-2">Plants</th>
-                  <th className="py-2 px-2">Disciplines</th>
+                  {!pmOnly && <th className="py-2 px-2">Plants</th>}
+                  {!pmOnly && <th className="py-2 px-2">Disciplines</th>}
+                  <th className="py-2 px-2">Projects</th>
                   <th className="py-2 px-2 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {recipients.map((r) => (
+                {recipients.map((r: Recipient) => (
                   <tr key={r.id} className="border-b hover:bg-muted/50">
                     <td className="py-2 px-2 whitespace-nowrap">{r.email}</td>
+                    {!pmOnly && (
+                      <>
+                        <td className="py-2 px-2">{(r.plants || []).join(", ")}</td>
+                        <td className="py-2 px-2">{(r.disciplines || []).join(", ")}</td>
+                      </>
+                    )}
                     <td className="py-2 px-2">
-                      {(r.plants || []).join(", ")}
-                    </td>
-                    <td className="py-2 px-2">
-                      {(r.disciplines || []).join(", ")}
+                      { (r.projectIds ?? []).map((id:number)=> projectsOptions.find(p=>p.id===id)?.title).join(', ')}
                     </td>
                     <td className="py-2 px-2 text-right space-x-1">
                       <Button
@@ -220,23 +248,42 @@ export default function RecipientsManager() {
               />
             </div>
 
-            <div>
-              <p className="text-sm font-medium mb-1">Plants</p>
-              <div className="grid grid-cols-2 gap-2">
-                {plantOptions.map((plant) => (
-                  <label key={plant} className="flex items-center space-x-2">
-                    <Checkbox
-                      checked={plants.includes(plant)}
-                      onCheckedChange={() =>
-                        toggleArrayValue(plant, plants, setPlants)
-                      }
-                    />
-                    <span className="text-sm">{plant}</span>
-                  </label>
-                ))}
+            {pmOnly ? (
+              <div>
+                <p className="text-sm font-medium mb-1">Projects</p>
+                <ScrollArea className="h-40 pr-2">
+                  <div className="space-y-1">
+                    {projectsOptions.map((p:{id:number,title:string}) => (
+                      <label key={p.id} className="flex items-center space-x-2">
+                        <Checkbox checked={projectIds.includes(p.id)} onCheckedChange={()=>{
+                          setProjectIds(projectIds.includes(p.id)? projectIds.filter(id=>id!==p.id): [...projectIds,p.id])
+                        }} />
+                        <span className="text-sm">{p.title}</span>
+                      </label>
+                    ))}
+                  </div>
+                </ScrollArea>
               </div>
-            </div>
+            ) : (
+              <div>
+                <p className="text-sm font-medium mb-1">Plants</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {plantOptions.map((plant) => (
+                    <label key={plant} className="flex items-center space-x-2">
+                      <Checkbox
+                        checked={plants.includes(plant)}
+                        onCheckedChange={() =>
+                          toggleArrayValue(plant, plants, setPlants)
+                        }
+                      />
+                      <span className="text-sm">{plant}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
 
+            {!pmOnly && (
             <div>
               <p className="text-sm font-medium mb-1">Disciplines</p>
               <div className="grid grid-cols-2 gap-2">
@@ -253,6 +300,7 @@ export default function RecipientsManager() {
                 ))}
               </div>
             </div>
+            )}
           </div>
 
           <DialogFooter>

@@ -42,6 +42,8 @@ export const emailRecipients = pgTable('email_recipients', {
   email: text('email').notNull().unique(),
   plants: plantEnum('plants').array(),
   disciplines: disciplineEnum('disciplines').array(),
+  isPm: boolean('is_pm').notNull().default(false),
+  projectIds: integer('project_ids').array(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -55,9 +57,13 @@ export const reportSchedules = pgTable('report_schedules', {
   frequency: varchar('frequency', { length: 10 }).notNull(), // daily | weekly | monthly
   dayOfWeek: varchar('day_of_week', { length: 10 }), // monday, tuesday, etc.
   time: varchar('time', { length: 5 }).notNull(), // HH:MM
+  sendDate: varchar('send_date', { length: 10 }), // YYYY-MM-DD
   enabled: boolean('enabled').notNull().default(true),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  pmReminderDay: varchar('pm_reminder_day', { length: 10 }),
+  pmFinalReminderDays: integer('pm_final_reminder_days'),
+  pmStartWeeksBefore: integer('pm_start_weeks_before'),
 });
 
 // History log for report sends

@@ -53,7 +53,7 @@ export async function updateProject(id: number, data: Partial<typeof schema.proj
 }
 
 export async function deleteProject(id: number) {
-  const result = await db.delete(schema.projects).where(sql`id = ${id}`).returning();
+  const result = await db.delete(schema.projects).where(eq(schema.projects.id, id)).returning();
   return result[0];
 }
 
@@ -83,7 +83,7 @@ export async function updateRecipient(id: number, data: Partial<typeof schema.em
 }
 
 export async function deleteRecipient(id: number) {
-  const result = await db.delete(schema.emailRecipients).where(sql`id = ${id}`).returning();
+  const result = await db.delete(schema.emailRecipients).where(eq(schema.emailRecipients.id, id)).returning();
   return result[0];
 }
 

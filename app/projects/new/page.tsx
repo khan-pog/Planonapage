@@ -76,6 +76,7 @@ export default function NewProjectPage() {
     plant: PLANTS[0],
     disciplines: [],
   })
+  const [pmEmail, setPmEmail] = useState("")
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -90,6 +91,10 @@ export default function NewProjectPage() {
     
     if (!project.projectManager.trim()) {
       newErrors.projectManager = "Project manager is required"
+    }
+    
+    if (!pmEmail.trim()) {
+      newErrors.pmEmail = "PM email is required"
     }
     
     if (!project.reportMonth) {
@@ -127,6 +132,14 @@ export default function NewProjectPage() {
       const data = await response.json()
       // Warm up the cache in the background
       fetch('/api/warm-cache', { method: 'POST' })
+      // Add PM recipient
+      if (pmEmail.trim()) {
+        fetch("/api/recipients", {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({ email: pmEmail.trim(), isPm: true, projectId: data.id }),
+        }).catch(()=>{});
+      }
       // Redirect to the new project's detail page
       router.push(`/projects/${data.id}`)
     } catch (error) {
@@ -228,6 +241,23 @@ export default function NewProjectPage() {
                       {errors.projectManager && (
                         <p className="text-sm text-red-500">{errors.projectManager}</p>
                       )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="pm-email">
+                        PM Email <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="pm-email"
+                        type="email"
+                        value={pmEmail}
+                        onChange={(e)=>{
+                          setPmEmail(e.target.value);
+                          if (errors.pmEmail) setErrors({...errors, pmEmail: ""});
+                        }}
+                        className={errors.pmEmail ? "border-red-500" : ""}
+                        required
+                      />
+                      {errors.pmEmail && <p className="text-sm text-red-500">{errors.pmEmail}</p>}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="report-month">

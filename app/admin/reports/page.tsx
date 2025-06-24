@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Mail, Download, Calendar, Trash2, Send, Clock, ArrowLeft, Database, AlertCircle } from "lucide-react"
+import { Mail, Calendar, Trash2, Send, Clock, ArrowLeft, Database, AlertCircle, Bell } from "lucide-react"
 import Link from "next/link"
 import { SeedDatabaseButton } from "@/components/seed-database-button"
 import { MigrateDatabaseButton } from "@/components/migrate-database-button"
@@ -25,8 +25,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import RecipientsManager from "@/components/recipients-manager"
 import ReportHistory from "@/components/report-history"
+import { DatePickerInput } from "@/components/date-picker-input"
 
 interface Project {
   id: number
@@ -55,30 +55,28 @@ type ScheduleSettings = {
   dayOfWeek: string;
   time: string;
   enabled: boolean;
+  sendDate?: string | null;
+  pmReminderDay?: string | null;
+  pmFinalReminderDays?: number | null;
+  pmStartWeeksBefore?: number | null;
 };
 
 export default function AdminReportsPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [isGenerating, setIsGenerating] = useState(false)
   // Read-only preview of DB-backed recipients list (for Settings tab)
   const [recipientsPreview, setRecipientsPreview] = useState<{ id?: number; email: string }[]>([])
-  // Information returned after the most recent send action
-  const [lastSentInfo, setLastSentInfo] = useState<
-    | {
-        sent: number
-        failed: number
-        timestamp: string
-      }
-    | null
-  >(null)
 
   const [reportSettings, setReportSettings] = useState<ScheduleSettings>({
     frequency: "weekly",
     dayOfWeek: "monday",
     time: "08:00",
     enabled: true,
+    sendDate: null,
+    pmReminderDay: "monday",
+    pmFinalReminderDays: 1,
+    pmStartWeeksBefore: 2,
   })
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -126,26 +124,6 @@ export default function AdminReportsPage() {
       }
     } catch (err: any) {
       toast.error(`Seeding validation failed: ${err.message}`)
-    }
-  }
-
-  // Trigger a one-off report to the full recipient list (no testEmail param)
-  const sendReportNow = async () => {
-    setIsGenerating(true)
-    try {
-      const res = await fetch('/api/reports/send')
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
-      const data: { sent: number; failed: number } = await res.json()
-
-      // Persist last-sent info so we can surface the feedback in the UI
-      setLastSentInfo({ ...data, timestamp: new Date().toISOString() })
-
-      toast.success(`Report sent! (sent: ${data.sent}, failed: ${data.failed})`)
-    } catch (err: any) {
-      console.error('Error sending report', err)
-      toast.error(`Failed to send report: ${err.message || err}`)
-    } finally {
-      setIsGenerating(false)
     }
   }
 
@@ -237,6 +215,10 @@ export default function AdminReportsPage() {
           dayOfWeek: data.dayOfWeek ?? "monday",
           time: data.time,
           enabled: data.enabled,
+          sendDate: data.sendDate ?? null,
+          pmReminderDay: data.pmReminderDay ?? "monday",
+          pmFinalReminderDays: data.pmFinalReminderDays ?? 1,
+          pmStartWeeksBefore: data.pmStartWeeksBefore ?? 2,
         });
       } catch (err) {
         console.error(err);
@@ -401,10 +383,9 @@ export default function AdminReportsPage() {
       )}
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="overview">Report Overview</TabsTrigger>
           <TabsTrigger value="settings">Email & Schedule</TabsTrigger>
-          <TabsTrigger value="recipients">Recipients</TabsTrigger>
           <TabsTrigger value="history">Report History</TabsTrigger>
         </TabsList>
 
@@ -476,37 +457,6 @@ export default function AdminReportsPage() {
                   </p>
                 )}
               </div>
-
-              <div className="flex gap-3">
-                <Button onClick={sendReportNow} disabled={isGenerating} className="flex items-center gap-2">
-                  {isGenerating ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4" />
-                      Send Report Now
-                    </>
-                  )}
-                </Button>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Download className="h-4 w-4" />
-                  Download PDF
-                </Button>
-                <Button onClick={fetchProjects} variant="outline" className="flex items-center gap-2">
-                  <Database className="h-4 w-4" />
-                  Refresh Data
-                </Button>
-              </div>
-
-              {/* Last-sent feedback */}
-              {lastSentInfo && (
-                <div className="text-sm text-muted-foreground">
-                  Last sent {new Date(lastSentInfo.timestamp).toLocaleString()} — sent {lastSentInfo.sent}, failed {lastSentInfo.failed}
-                </div>
-              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -611,6 +561,60 @@ export default function AdminReportsPage() {
                     onChange={(e) => persistSchedule({ time: e.target.value })}
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <Label>Date</Label>
+                  <DatePickerInput
+                    value={reportSettings.sendDate}
+                    onChange={(dateStr) => persistSchedule({ sendDate: dateStr })}
+                  />
+                </div>
+              </div>
+
+              <div className="border-t pt-4 space-y-4">
+                <h4 className="font-medium text-sm flex items-center gap-2">
+                  <Calendar className="h-4 w-4" /> PM Reminder Rules
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="pm-day">Weekly Reminder Day</Label>
+                    <Select
+                      value={reportSettings.pmReminderDay!}
+                      onValueChange={(v)=>persistSchedule({ pmReminderDay: v })}
+                    >
+                      <SelectTrigger id="pm-day"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="monday">Monday</SelectItem>
+                        <SelectItem value="tuesday">Tuesday</SelectItem>
+                        <SelectItem value="wednesday">Wednesday</SelectItem>
+                        <SelectItem value="thursday">Thursday</SelectItem>
+                        <SelectItem value="friday">Friday</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pm-final">Final Reminder (days before send)</Label>
+                    <Input
+                      id="pm-final"
+                      type="number"
+                      min={1}
+                      max={7}
+                      value={reportSettings.pmFinalReminderDays ?? 1}
+                      onChange={(e)=>persistSchedule({ pmFinalReminderDays: Number(e.target.value) })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pm-weeks">Start Reminders (weeks before send)</Label>
+                    <Input
+                      id="pm-weeks"
+                      type="number"
+                      min={1}
+                      max={12}
+                      value={reportSettings.pmStartWeeksBefore ?? 2}
+                      onChange={(e)=>persistSchedule({ pmStartWeeksBefore: Number(e.target.value) })}
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="p-4 bg-muted rounded-lg">
@@ -622,14 +626,22 @@ export default function AdminReportsPage() {
                     : "Disabled"}
                 </p>
               </div>
+
+              <Button onClick={async ()=>{
+                const email = prompt('Send test reminder to which email?')?.trim();
+                if(!email) return;
+                try {
+                  const res = await fetch(`/api/reminders/test?email=${encodeURIComponent(email)}`);
+                  if(!res.ok) throw new Error(await res.text());
+                  toast.success('Test reminder sent');
+                } catch(err:any){ toast.error(err.message); }
+              }} variant="outline" className="flex items-center gap-2">
+                <Bell className="h-4 w-4" /> Send Test PM Reminder
+              </Button>
             </CardContent>
           </Card>
 
           {/* Report Content Settings removed per Step 3 – now hard-coded in template */}
-        </TabsContent>
-
-        <TabsContent value="recipients" className="space-y-6">
-          <RecipientsManager />
         </TabsContent>
 
         <TabsContent value="history" className="space-y-6">

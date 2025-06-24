@@ -9,6 +9,10 @@ export default function Home() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Project Gallery</h1>
           <p className="text-muted-foreground mt-1">Browse all projects and their current status</p>
+          <p className="text-sm mt-1 text-primary">
+            Need to manage the email recipients list?{' '}
+            <Link href="/admin/recipients" className="underline hover:no-underline">Go to Email Recipients</Link>
+          </p>
         </div>
         <Link
           href="/projects/new"
