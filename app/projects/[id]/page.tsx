@@ -90,7 +90,24 @@ export default function ProjectDetailPage() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <Badge variant="outline">#{project.number}</Badge>
-                <Badge>{project.phase}</Badge>
+                <Badge className={(() => {
+                  switch (project.phase.toLowerCase()) {
+                    case 'fel0':
+                      return 'bg-violet-500/10 text-violet-600 hover:bg-violet-500/20'
+                    case 'fel2':
+                      return 'bg-blue-500/10 text-blue-600 hover:bg-blue-500/20'
+                    case 'fel3':
+                      return 'bg-cyan-500/10 text-cyan-600 hover:bg-cyan-500/20'
+                    case 'pre-execution':
+                      return 'bg-amber-500/10 text-amber-600 hover:bg-amber-500/20'
+                    case 'execution':
+                      return 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20'
+                    case 'close-out':
+                      return 'bg-teal-500/10 text-teal-600 hover:bg-teal-500/20'
+                    default:
+                      return 'bg-slate-500/10 text-slate-600 hover:bg-slate-500/20'
+                  }
+                })()}>{project.phase}</Badge>
               </div>
               <h1 className="text-3xl font-bold">{project.title}</h1>
             </div>

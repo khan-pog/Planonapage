@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllProjects, createProject, deleteAllProjects } from '@/lib/db';
 import { kv } from '@vercel/kv';
+import { matchesPlantAndDiscipline } from '@/lib/filter-utils';
 
 const CACHE_KEY = 'all_projects';
 const MONTHLY_CACHE_KEY = 'projects_monthly_version';
@@ -32,7 +33,20 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const projectsArray = projects as any[];
+    let projectsArray = projects as any[];
+
+    // Apply plant / discipline filtering if query params provided
+    const plantParam = url.searchParams.get('plant');
+    const disciplinesParam = url.searchParams.get('disciplines');
+    const disciplineArray = disciplinesParam
+      ? disciplinesParam.split(',').map((d) => d.trim()).filter(Boolean)
+      : null;
+
+    if (plantParam || (disciplineArray && disciplineArray.length > 0)) {
+      projectsArray = projectsArray.filter((project: any) =>
+        matchesPlantAndDiscipline(project, plantParam, disciplineArray)
+      );
+    }
 
     if (url.searchParams.get('summary') === 'true') {
       const summaryProjects = projectsArray.map((project: any) => ({

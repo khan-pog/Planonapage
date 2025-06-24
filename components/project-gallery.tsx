@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ProjectCard } from "@/components/project-card"
 import type { Project } from "@/lib/types"
+import { matchesPlantAndDiscipline } from "@/lib/filter-utils"
 
 const ITEMS_PER_PAGE = 12
 
@@ -25,6 +26,10 @@ export function ProjectGallery() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+
+  // URL-based filters
+  const [plantFilter, setPlantFilter] = useState<string | null>(null)
+  const [disciplineFilters, setDisciplineFilters] = useState<string[] | null>(null)
 
   useEffect(() => {
     let ignore = false;
@@ -41,6 +46,19 @@ export function ProjectGallery() {
         if (!ignore) setLoading(false);
       }
     }
+
+    // Parse URL params on first render
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search)
+      const plant = params.get("plant")
+      const disciplinesParam = params.get("disciplines")
+      const discArr = disciplinesParam
+        ? disciplinesParam.split(",").map((d) => d.trim()).filter(Boolean)
+        : null
+      setPlantFilter(plant)
+      setDisciplineFilters(discArr)
+    }
+
     fetchProjects();
     // Listen for refresh-projects event
     const handler = () => {
@@ -54,7 +72,7 @@ export function ProjectGallery() {
     };
   }, []);
 
-  // Filter projects based on search query and phase filter
+  // Filter projects based on search query, phase filter, and URL plant/discipline filters
   const filteredProjects = projects.filter((project) => {
     const matchesSearch =
       searchQuery === "" ||
@@ -63,7 +81,9 @@ export function ProjectGallery() {
 
     const matchesPhase = phaseFilter === null || project.phase === phaseFilter
 
-    return matchesSearch && matchesPhase
+    const matchesPlantDiscipline = matchesPlantAndDiscipline(project, plantFilter, disciplineFilters)
+
+    return matchesSearch && matchesPhase && matchesPlantDiscipline
   })
 
   // Sort projects based on sort option
