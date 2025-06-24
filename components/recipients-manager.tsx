@@ -62,7 +62,9 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
 
   useEffect(()=>{
     if(pmOnly){
-      fetch('/api/projects').then(r=>r.json()).then(data=>setProjectsOptions(data.map((p:any)=>({id:p.id,title:p.title}))))
+      fetch('/api/projects')
+        .then((res)=>res.json())
+        .then((data:any[])=>setProjectsOptions(data.map((p)=>({id:p.id,title:p.title}))))
       .catch(()=>{})
     }
   },[pmOnly])
@@ -72,9 +74,9 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
       setLoading(true)
       const res = await fetch("/api/recipients")
       if (!res.ok) throw new Error("Failed to fetch recipients")
-      const data = await res.json()
-      const list = data || []
-      setRecipients(pmOnly === undefined ? list : list.filter(r=>!!(r.isPm) === pmOnly))
+      const data: Recipient[] = await res.json()
+      const list: Recipient[] = data || []
+      setRecipients(pmOnly === undefined ? list : list.filter((rec)=>!!(rec.isPm) === pmOnly))
     } catch (err: any) {
       toast.error(`Failed to load recipients: ${err.message}`)
     } finally {
@@ -176,8 +178,8 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
               <thead>
                 <tr className="border-b text-left">
                   <th className="py-2 px-2">Email</th>
-                  <th className="py-2 px-2">Plants</th>
-                  <th className="py-2 px-2">Disciplines</th>
+                  {!pmOnly && <th className="py-2 px-2">Plants</th>}
+                  {!pmOnly && <th className="py-2 px-2">Disciplines</th>}
                   <th className="py-2 px-2">Projects</th>
                   <th className="py-2 px-2 text-right">Actions</th>
                 </tr>
@@ -186,12 +188,12 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
                 {recipients.map((r: Recipient) => (
                   <tr key={r.id} className="border-b hover:bg-muted/50">
                     <td className="py-2 px-2 whitespace-nowrap">{r.email}</td>
-                    <td className="py-2 px-2">
-                      {(r.plants || []).join(", ")}
-                    </td>
-                    <td className="py-2 px-2">
-                      {(r.disciplines || []).join(", ")}
-                    </td>
+                    {!pmOnly && (
+                      <>
+                        <td className="py-2 px-2">{(r.plants || []).join(", ")}</td>
+                        <td className="py-2 px-2">{(r.disciplines || []).join(", ")}</td>
+                      </>
+                    )}
                     <td className="py-2 px-2">
                       { (r.projectIds ?? []).map((id:number)=> projectsOptions.find(p=>p.id===id)?.title).join(', ')}
                     </td>
@@ -281,6 +283,7 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
               </div>
             )}
 
+            {!pmOnly && (
             <div>
               <p className="text-sm font-medium mb-1">Disciplines</p>
               <div className="grid grid-cols-2 gap-2">
@@ -297,6 +300,7 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
                 ))}
               </div>
             </div>
+            )}
           </div>
 
           <DialogFooter>
