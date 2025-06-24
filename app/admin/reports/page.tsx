@@ -25,7 +25,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import RecipientsManager from "@/components/recipients-manager"
 import ReportHistory from "@/components/report-history"
 
 interface Project {
@@ -231,22 +230,6 @@ export default function AdminReportsPage() {
     }
   };
 
-  const importDefaultRecipients = async () => {
-    try {
-      const res = await fetch('/api/recipients/seed', { method: 'POST' })
-      if (!res.ok) throw new Error(await res.text())
-      const data = await res.json()
-      toast.success(`Recipients imported: ${data.inserted} added, ${data.updated} updated`)
-      // Refresh preview list
-      const previewRes = await fetch('/api/recipients')
-      if (previewRes.ok) {
-        setRecipientsPreview(await previewRes.json())
-      }
-    } catch (err: any) {
-      toast.error(`Import failed: ${err.message || err}`)
-    }
-  }
-
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -387,10 +370,9 @@ export default function AdminReportsPage() {
       )}
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="overview">Report Overview</TabsTrigger>
           <TabsTrigger value="settings">Email & Schedule</TabsTrigger>
-          <TabsTrigger value="recipients">Recipients</TabsTrigger>
           <TabsTrigger value="history">Report History</TabsTrigger>
         </TabsList>
 
@@ -493,10 +475,6 @@ export default function AdminReportsPage() {
                 <Send className="h-4 w-4" />
                 Send Demo Email
               </Button>
-              <Button onClick={importDefaultRecipients} className="flex items-center gap-2" variant="secondary">
-                <Database className="h-4 w-4" />
-                Import Default Recipients
-              </Button>
             </CardContent>
           </Card>
 
@@ -585,10 +563,6 @@ export default function AdminReportsPage() {
           </Card>
 
           {/* Report Content Settings removed per Step 3 – now hard-coded in template */}
-        </TabsContent>
-
-        <TabsContent value="recipients" className="space-y-6">
-          <RecipientsManager />
         </TabsContent>
 
         <TabsContent value="history" className="space-y-6">
