@@ -628,8 +628,10 @@ export default function AdminReportsPage() {
               </div>
 
               <Button onClick={async ()=>{
+                const email = window.prompt('Enter test email address');
+                if(!email){ toast.error('Cancelled'); return; }
                 try {
-                  const res = await fetch('/api/reminders/test');
+                  const res = await fetch(`/api/reminders/test?email=${encodeURIComponent(email)}`);
                   const data = await res.json();
                   if(!res.ok) throw new Error(data.error || 'Failed');
                   toast.success(`Reminder email sent! (sent: ${data.sent}, failed: ${data.failed})`);
