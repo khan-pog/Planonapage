@@ -19,7 +19,7 @@ export async function sendFilteredGalleryEmail(recipientEmail: string, link: str
     return { success: false, error: "Email API key not configured" }
   }
 
-  const fromAddress = process.env.REPORTS_FROM_EMAIL || "Plan on a Page <no-reply@planonapage.com>"
+  const fromAddress = process.env.REPORTS_FROM_EMAIL || "Plan on a Page <reports@planonapage.com>"
   const replyToAddress = process.env.REPLY_TO_EMAIL || undefined
 
   // Build a friendly, dated subject
@@ -56,6 +56,9 @@ export async function sendFilteredGalleryEmail(recipientEmail: string, link: str
         html,
         text,
         reply_to: replyToAddress,
+        headers: {
+          'List-Unsubscribe': '<mailto:unsubscribe@planonapage.com>'
+        }
       }),
     })
 
