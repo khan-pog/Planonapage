@@ -86,3 +86,39 @@ export async function deleteRecipient(id: number) {
   const result = await db.delete(schema.emailRecipients).where(sql`id = ${id}`).returning();
   return result[0];
 }
+
+// ---------------- Report Schedule -----------------
+export async function getReportSchedule() {
+  const rows = await db.select().from(schema.reportSchedules).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function upsertReportSchedule(data: Partial<typeof schema.reportSchedules.$inferInsert>) {
+  const existing = await getReportSchedule();
+  if (existing) {
+    const result = await db
+      .update(schema.reportSchedules)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(schema.reportSchedules.id, existing.id))
+      .returning();
+    return result[0];
+  } else {
+    const result = await db.insert(schema.reportSchedules).values(data).returning();
+    return result[0];
+  }
+}
+
+// ---------------- Report History ------------------
+
+export async function insertReportHistory(record: Omit<typeof schema.reportHistory.$inferInsert, 'id'>) {
+  await db.insert(schema.reportHistory).values(record);
+}
+
+export async function getReportHistory({ limit = 20, offset = 0 } = {}) {
+  return await db
+    .select()
+    .from(schema.reportHistory)
+    .orderBy(sql`sent_at DESC`)
+    .limit(limit)
+    .offset(offset);
+}
