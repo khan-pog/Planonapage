@@ -4,6 +4,8 @@ import * as schema from "@/lib/db/schema";
 import { sendPmReminderEmail } from "@/lib/mailer-reminder";
 import { insertReportHistory } from "@/lib/db";
 
+const sleep = (ms:number)=>new Promise(res=>setTimeout(res,ms));
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const raw = searchParams.get('email');
@@ -17,7 +19,8 @@ export async function GET(request: Request) {
   const projectItems = shuffled.map(p=>({ id:p.id, title:p.title, link:`${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/projects/${p.id}/edit`}));
 
   let sent=0, failed=0, lastError:unknown;
-  for(const em of emails){
+  for(const [idx, em] of emails.entries()){
+    if(idx>0) await sleep(600); // throttle to <=2 req/sec
     const { success, error } = await sendPmReminderEmail(em, projectItems);
     if(success) sent++; else { failed++; lastError = error; }
   }

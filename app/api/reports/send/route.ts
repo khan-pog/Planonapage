@@ -55,7 +55,10 @@ export async function GET(request: Request) {
     ? 'cron'
     : 'manual';
 
-  for (const recipient of recipients) {
+  const sleep = (ms:number)=>new Promise(res=>setTimeout(res,ms));
+
+  for (const [idx, recipient] of recipients.entries()) {
+    if(testEmails && idx>0) await sleep(600); // throttle only in demo mode to avoid rate limit
     const link = buildFilteredGalleryURL({
       plants: recipient.plants ?? undefined,
       disciplines: recipient.disciplines ?? undefined,
