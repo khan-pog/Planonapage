@@ -76,7 +76,9 @@ export const mockProjects = [
       costStatus: "On Track",
       variance: 2.5,
       forecastCompletion: 2450000
-    }
+    },
+    plant: "Granulation",
+    disciplines: ["HSE", "Static"]
   },
   {
     id: "2",
@@ -155,7 +157,9 @@ export const mockProjects = [
       costStatus: "Under Budget",
       variance: -3.0,
       forecastCompletion: 2300000
-    }
+    },
+    plant: "Mineral Acid",
+    disciplines: ["EIC", "Static"]
   },
   {
     id: "3",
@@ -245,7 +249,9 @@ export const mockProjects = [
       costStatus: "Monitor",
       variance: 5.0,
       forecastCompletion: 2600000,
-    }
+    },
+    plant: "Ammonia & Laboratory",
+    disciplines: ["Rotating"]
   },
   {
     id: "4",
@@ -335,6 +341,8 @@ export const mockProjects = [
       costStatus: "Over Budget",
       variance: 7.5,
       forecastCompletion: 2700000,
-    }
+    },
+    plant: "Camp",
+    disciplines: ["Rotating", "Static", "HSE"]
   },
 ]

@@ -32,7 +32,8 @@ export function validateProjectSchema(project: any): ValidationResult {
   const requiredFields = [
     'title', 'number', 'projectManager', 'reportMonth', 'phase',
     'status', 'phasePercentages', 'narrative', 'milestones',
-    'images', 'pmReporting', 'costTracking'
+    'images', 'pmReporting', 'costTracking',
+    'plant', 'disciplines'
   ]
 
   requiredFields.forEach(field => {
@@ -124,6 +125,29 @@ export function validateProjectSchema(project: any): ValidationResult {
         result.isValid = false
       }
     })
+  }
+
+  // Plant and disciplines validation
+  const allowedPlants = ['Granulation', 'Mineral Acid', 'Ammonia & Laboratory', 'Camp', 'Power & Utilities']
+  const allowedDisciplines = ['HSE', 'Rotating', 'Static', 'EIC']
+
+  if (project.plant && !allowedPlants.includes(project.plant)) {
+    result.errors.push(`Invalid plant value: ${project.plant}`)
+    result.isValid = false
+  }
+
+  if (project.disciplines) {
+    if (!Array.isArray(project.disciplines)) {
+      result.errors.push('Field "disciplines" must be an array')
+      result.isValid = false
+    } else {
+      project.disciplines.forEach((d: any, index: number) => {
+        if (!allowedDisciplines.includes(d)) {
+          result.errors.push(`Invalid discipline value at index ${index}: ${d}`)
+          result.isValid = false
+        }
+      })
+    }
   }
 
   return result

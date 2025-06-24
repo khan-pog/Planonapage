@@ -12,6 +12,8 @@ export interface Project {
   milestones: ProjectMilestone[]
   images: string[]
   costTracking: CostTracking
+  plant: 'Granulation' | 'Mineral Acid' | 'Ammonia & Laboratory' | 'Camp' | 'Power & Utilities'
+  disciplines: ('HSE' | 'Rotating' | 'Static' | 'EIC')[]
   updatedAt: string
   ownerId: string
 }

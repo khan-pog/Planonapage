@@ -161,7 +161,9 @@ describe('Database Operations', () => {
         milestones: [],
         images: [],
         pmReporting: [],
-        costTracking: { totalBudget: 100000, currency: 'AUD' }
+        costTracking: { totalBudget: 100000, currency: 'AUD' },
+        plant: 'Granulation',
+        disciplines: ['HSE']
       }
 
       const mockResult = [{ id: 1, ...testProject }]

@@ -61,3 +61,28 @@ export async function deleteAllProjects() {
   const result = await db.delete(schema.projects).returning();
   return result;
 }
+
+// Email Recipient CRUD Operations
+export async function createRecipient(data: Omit<typeof schema.emailRecipients.$inferInsert, 'id' | 'createdAt' | 'updatedAt'>) {
+  const result = await db.insert(schema.emailRecipients).values(data).returning();
+  return result[0];
+}
+
+export async function getAllRecipients() {
+  return await db.select().from(schema.emailRecipients);
+}
+
+export async function updateRecipient(id: number, data: Partial<typeof schema.emailRecipients.$inferInsert>) {
+  const { id: _, ...updateData } = data;
+  const result = await db
+    .update(schema.emailRecipients)
+    .set({ ...updateData, updatedAt: new Date() })
+    .where(eq(schema.emailRecipients.id, id))
+    .returning();
+  return result[0];
+}
+
+export async function deleteRecipient(id: number) {
+  const result = await db.delete(schema.emailRecipients).where(sql`id = ${id}`).returning();
+  return result[0];
+}
