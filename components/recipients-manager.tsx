@@ -19,6 +19,7 @@ import { Trash2, Plus, Pencil } from "lucide-react"
 import { toast } from "sonner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog"
 
 interface Recipient {
   id?: number
@@ -55,6 +56,7 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
   const [isPm] = useState(pmOnly)
   const [projectIds, setProjectIds] = useState<number[]>([])
   const [projectsOptions, setProjectsOptions] = useState<{id:number,title:string}[]>([])
+  const [toDelete, setToDelete] = useState<number | null>(null)
 
   useEffect(() => {
     fetchRecipients()
@@ -205,14 +207,23 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleDelete(r.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button size="icon" variant="ghost" className="text-red-600 hover:text-red-700" onClick={()=>setToDelete(r.id!)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete recipient?</AlertDialogTitle>
+                            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={()=>{ if(toDelete) handleDelete(toDelete); setToDelete(null); }}>Delete</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </td>
                   </tr>
                 ))}

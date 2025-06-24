@@ -628,10 +628,8 @@ export default function AdminReportsPage() {
               </div>
 
               <Button onClick={async ()=>{
-                const email = prompt('Send test reminder to which email?')?.trim();
-                if(!email) return;
                 try {
-                  const res = await fetch(`/api/reminders/test?email=${encodeURIComponent(email)}`);
+                  const res = await fetch('/api/reminders/test');
                   if(!res.ok) throw new Error(await res.text());
                   toast.success('Test reminder sent');
                 } catch(err:any){ toast.error(err.message); }
