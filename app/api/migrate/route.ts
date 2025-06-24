@@ -31,12 +31,14 @@ export async function POST() {
           enabled BOOLEAN NOT NULL DEFAULT TRUE,
           pm_reminder_day VARCHAR(10),
           pm_final_reminder_days INTEGER,
+          pm_start_weeks_before INTEGER,
           created_at TIMESTAMP NOT NULL DEFAULT NOW(),
           updated_at TIMESTAMP NOT NULL DEFAULT NOW()
        );`,
       `ALTER TABLE IF EXISTS report_schedules ADD COLUMN IF NOT EXISTS send_date VARCHAR(10);`,
       `ALTER TABLE IF EXISTS report_schedules ADD COLUMN IF NOT EXISTS pm_reminder_day VARCHAR(10);`,
       `ALTER TABLE IF EXISTS report_schedules ADD COLUMN IF NOT EXISTS pm_final_reminder_days INTEGER;`,
+      `ALTER TABLE IF EXISTS report_schedules ADD COLUMN IF NOT EXISTS pm_start_weeks_before INTEGER;`,
       `CREATE TABLE IF NOT EXISTS report_history (
           id SERIAL PRIMARY KEY,
           sent_at TIMESTAMP NOT NULL DEFAULT NOW(),

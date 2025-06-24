@@ -63,6 +63,7 @@ export const reportSchedules = pgTable('report_schedules', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   pmReminderDay: varchar('pm_reminder_day', { length: 10 }),
   pmFinalReminderDays: integer('pm_final_reminder_days'),
+  pmStartWeeksBefore: integer('pm_start_weeks_before'),
 });
 
 // History log for report sends
