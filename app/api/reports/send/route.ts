@@ -1,89 +1,61 @@
 import { NextResponse } from 'next/server';
-import { getAllProjects } from '@/lib/db';
+import { getAllRecipients } from '@/lib/db';
+import { buildFilteredGalleryURL } from '@/lib/report-link';
+import { sendFilteredGalleryEmail } from '@/lib/mailer';
 
-// In a real implementation, you would use a service like Resend, SendGrid, or Nodemailer
-// For now, this simulates the email sending process
+/**
+ * GET /api/reports/send
+ *
+ * Behaviour:
+ *  - When `testEmail` query param is supplied, a single email will be sent to
+ *    that address using a generic link (no plant / discipline filters).
+ *  - Otherwise, all rows from the `email_recipients` table are fetched. Each
+ *    recipient receives exactly one personalised gallery link filtered by their
+ *    configured `plants` / `disciplines` preference.
+ *
+ * Response JSON shape: { sent: number, failed: number }
+ */
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const testEmail = searchParams.get('testEmail');
 
-export async function POST(request: Request) {
-  try {
-    const { emailList, reportSettings } = await request.json();
-    
-    // Get all projects for the report
-    const projects = await getAllProjects();
-    
-    // Generate report content
-    const totalProjects = projects.length;
-    const underBudget = projects.filter((p: any) => p.costTracking?.costStatus === "Under Budget").length;
-    const onTrackCost = projects.filter((p: any) => p.costTracking?.costStatus === "On Track").length;
-    const monitorCost = projects.filter((p: any) => p.costTracking?.costStatus === "Monitor").length;
-    const overBudget = projects.filter((p: any) => p.costTracking?.costStatus === "Over Budget").length;
-    
-    const projectsNeedingAttention = projects.filter((p: any) => 
-      p.costTracking?.costStatus && 
-      p.costTracking.costStatus !== "On Track" && 
-      p.costTracking.costStatus !== "Under Budget"
-    );
+  // Build the list of targets: either a single test recipient or all from DB
+  let recipients: {
+    email: string;
+    plants?: string[] | null;
+    disciplines?: string[] | null;
+  }[] = [];
 
-    // In a real implementation, you would format and send the email here
-    // For example, using Resend:
-    // 
-    // import { Resend } from 'resend';
-    // const resend = new Resend(process.env.RESEND_API_KEY);
-    // 
-    // const emailContent = `
-    //   <h1>Weekly Project Report</h1>
-    //   <h2>Summary</h2>
-    //   <p>Total Projects: ${totalProjects}</p>
-    //   <p>Under Budget: ${underBudget}</p>
-    //   <p>On Track: ${onTrackCost}</p>
-    //   <p>Monitor: ${monitorCost}</p>
-    //   <p>Over Budget: ${overBudget}</p>
-    //   
-    //   <h2>Projects Requiring Attention</h2>
-    //   ${projectsNeedingAttention.map(p => `
-    //     <div>
-    //       <strong>${p.title}</strong> (${p.number}) - ${p.costTracking?.costStatus}
-    //       <br>PM: ${p.projectManager}
-    //     </div>
-    //   `).join('')}
-    // `;
-    // 
-    // for (const email of emailList) {
-    //   await resend.emails.send({
-    //     from: 'reports@yourcompany.com',
-    //     to: email,
-    //     subject: `Weekly Project Cost Report - ${new Date().toLocaleDateString()}`,
-    //     html: emailContent,
-    //   });
-    // }
-
-    // Simulate email sending delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    console.log('Report sent to emails:', emailList);
-    console.log('Report summary:', {
-      totalProjects,
-      underBudget,
-      onTrackCost,
-      monitorCost,
-      overBudget,
-      projectsNeedingAttention: projectsNeedingAttention.length
-    });
-
-    return NextResponse.json({ 
-      success: true, 
-      message: `Report sent to ${emailList.length} recipients`,
-      summary: {
-        totalProjects,
-        underBudget,
-        onTrackCost,
-        monitorCost,
-        overBudget,
-        projectsNeedingAttention: projectsNeedingAttention.length
-      }
-    });
-  } catch (error) {
-    console.error('Error sending report:', error);
-    return new NextResponse('Failed to send report', { status: 500 });
+  if (testEmail) {
+    recipients.push({ email: testEmail });
+  } else {
+    try {
+      recipients = await getAllRecipients();
+    } catch (err) {
+      console.error('[reports/send] Failed to fetch recipients', err);
+      return NextResponse.json(
+        { error: 'Unable to fetch recipients' },
+        { status: 500 },
+      );
+    }
   }
+
+  let sent = 0;
+  let failed = 0;
+
+  for (const recipient of recipients) {
+    const link = buildFilteredGalleryURL({
+      plants: recipient.plants ?? undefined,
+      disciplines: recipient.disciplines ?? undefined,
+    });
+
+    const { success } = await sendFilteredGalleryEmail(recipient.email, link);
+    if (success) {
+      sent += 1;
+    } else {
+      failed += 1;
+    }
+  }
+
+  return NextResponse.json({ sent, failed });
 }

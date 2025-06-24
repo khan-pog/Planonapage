@@ -147,6 +147,19 @@ export default function AdminReportsPage() {
     }
   }
 
+  // Sends a one-off demo email to Khan via the public API.
+  const sendDemoEmail = async () => {
+    try {
+      const res = await fetch('/api/reports/send?testEmail=khanthompson123@gmail.com')
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+      const data = await res.json()
+      toast.success(`Demo email sent! (sent: ${data.sent}, failed: ${data.failed})`)
+    } catch (err: any) {
+      console.error('Error sending demo email', err)
+      toast.error(`Demo email failed: ${err.message || err}`)
+    }
+  }
+
   const addEmail = () => {
     if (newEmail && !emailList.includes(newEmail)) {
       setEmailList([...emailList, newEmail])
@@ -474,14 +487,11 @@ export default function AdminReportsPage() {
                   Add
                 </Button>
                 <Button 
-                  onClick={() => {
-                    setEmailList([...emailList, "khanthompson123@gmail.com"]);
-                    generateWeeklyReport();
-                  }} 
+                  onClick={sendDemoEmail}
                   className="flex items-center gap-2"
                 >
                   <Send className="h-4 w-4" />
-                  Send to Khan
+                  Send Demo Email
                 </Button>
               </div>
 

@@ -1,0 +1,20 @@
+name: Send weekly project report
+
+on:
+  schedule:
+    # Every Monday at 09:00 UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  send-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call production API
+        env:
+          PROD_URL: ${{ secrets.PRODUCTION_URL }}
+        run: |
+          if [ -z "$PROD_URL" ]; then
+            echo "PRODUCTION_URL secret not set, skipping" && exit 0
+          fi
+          curl -sSf "${PROD_URL}/api/reports/send" 
