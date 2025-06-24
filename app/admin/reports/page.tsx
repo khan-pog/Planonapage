@@ -69,7 +69,7 @@ export default function AdminReportsPage() {
   const [recipientsPreview, setRecipientsPreview] = useState<{ id?: number; email: string }[]>([])
 
   const [reportSettings, setReportSettings] = useState<ScheduleSettings>({
-    frequency: "weekly",
+    frequency: "monthly",
     dayOfWeek: "monday",
     time: "08:00",
     enabled: true,
@@ -211,7 +211,7 @@ export default function AdminReportsPage() {
         if (!res.ok) throw new Error("Failed to fetch schedule");
         const data = await res.json();
         setReportSettings({
-          frequency: data.frequency,
+          frequency: "monthly",
           dayOfWeek: data.dayOfWeek ?? "monday",
           time: data.time,
           enabled: data.enabled,
@@ -514,43 +514,11 @@ export default function AdminReportsPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Frequency is fixed to monthly */}
                 <div className="space-y-2">
-                  <Label htmlFor="frequency">Frequency</Label>
-                  <Select
-                    value={reportSettings.frequency}
-                    onValueChange={(value) => persistSchedule({ frequency: value })}
-                  >
-                    <SelectTrigger id="frequency">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="daily">Daily</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Frequency</Label>
+                  <p className="text-sm">Monthly</p>
                 </div>
-
-                {reportSettings.frequency === "weekly" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="day-of-week">Day of Week</Label>
-                    <Select
-                      value={reportSettings.dayOfWeek}
-                      onValueChange={(value) => persistSchedule({ dayOfWeek: value })}
-                    >
-                      <SelectTrigger id="day-of-week">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="monday">Monday</SelectItem>
-                        <SelectItem value="tuesday">Tuesday</SelectItem>
-                        <SelectItem value="wednesday">Wednesday</SelectItem>
-                        <SelectItem value="thursday">Thursday</SelectItem>
-                        <SelectItem value="friday">Friday</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="time">Time</Label>
@@ -622,7 +590,7 @@ export default function AdminReportsPage() {
                   <Calendar className="h-4 w-4 inline mr-2" />
                   Next scheduled report:{" "}
                   {reportSettings.enabled
-                    ? `Every ${reportSettings.frequency === "weekly" ? reportSettings.dayOfWeek : reportSettings.frequency} at ${reportSettings.time}`
+                    ? `Every month on the ${new Date(reportSettings.sendDate ?? '1970-01-01').getDate()} at ${reportSettings.time}`
                     : "Disabled"}
                 </p>
               </div>

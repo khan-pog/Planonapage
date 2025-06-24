@@ -8,22 +8,38 @@ export async function resolveReportSchedule(): Promise<ResolvedSchedule|null>{
   if(!sched) return null;
 
   let sendDate: Date;
-  if(sched.sendDate){
+  const [hour, minute] = sched.time.split(':').map(Number);
+  const now = new Date();
+
+  if(sched.frequency === 'monthly'){
+    // Use the day component from sendDate (if provided) or default to 1
+    const dayOfMonth = sched.sendDate ? parseISO(sched.sendDate).getDate() : 1;
+
+    const candidateThisMonth = new Date(now.getFullYear(), now.getMonth(), dayOfMonth);
+    sendDate = setMinutes(setHours(startOfDay(candidateThisMonth), hour), minute);
+
+    // If we've already passed the target day/time this month, roll to next month
+    if(sendDate <= now){
+      const nextMonthDate = new Date(now.getFullYear(), now.getMonth()+1, dayOfMonth);
+      // Clamp for short months
+      if(nextMonthDate.getDate() !== dayOfMonth){
+        const lastDay = new Date(nextMonthDate.getFullYear(), nextMonthDate.getMonth()+1, 0).getDate();
+        nextMonthDate.setDate(lastDay);
+      }
+      sendDate = setMinutes(setHours(startOfDay(nextMonthDate), hour), minute);
+    }
+  } else if(sched.sendDate){
+    // One-off explicit date
     sendDate = parseISO(sched.sendDate);
   } else {
-    // compute based on frequency/dayOfWeek/time
-    const [hour, minute] = sched.time.split(':').map(Number);
-    const now = new Date();
+    // Compute based on frequency + day/time
     const todayAtTime = setMinutes(setHours(startOfDay(now), hour), minute);
     if(sched.frequency === 'daily'){
       sendDate = todayAtTime > now ? todayAtTime : addDays(todayAtTime,1);
-    } else if(sched.frequency === 'weekly'){
+    } else { // weekly
       const targetDow = sched.dayOfWeek ?? 'monday';
       const targetDate = nextDay(now, toWeekdayNumber(targetDow));
       sendDate = setMinutes(setHours(startOfDay(targetDate), hour), minute);
-    } else { // monthly
-      const nextMonth = new Date(now.getFullYear(), now.getMonth()+1, 1);
-      sendDate = setMinutes(setHours(startOfDay(nextMonth), hour), minute);
     }
   }
 
