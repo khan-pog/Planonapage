@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
 
-interface ProjectItem { id:number; title:string; link:string }
+interface ProjectItem { id:number; title:string; link:string; lastUpdated: Date }
 
 export async function sendPmReminderEmail(recipientEmail:string, projects:ProjectItem[], dueDate?:Date): Promise<{success:boolean; error?:unknown}> {
   const apiKey = process.env.RESEND_API_KEY || process.env.EMAIL_API_KEY;
@@ -19,8 +19,8 @@ export async function sendPmReminderEmail(recipientEmail:string, projects:Projec
 
   const preheader = dueStr ? `Please update before ${dueStr}.` : "A quick reminder to update your project status before the next cost report.";
 
-  const listHtml = projects.map(p=>`<li><a href="${p.link}">${p.title}</a></li>`).join('');
-  const listText = projects.map(p=>`• ${p.title}: ${p.link}`).join('\n');
+  const listHtml = projects.map(p=>`<li><a href="${p.link}">${p.title}</a> <span style="color:#666;font-size:12px;">(last updated ${format(p.lastUpdated,'d MMM yyyy')})</span></li>`).join('');
+  const listText = projects.map(p=>`• ${p.title} (last updated ${format(p.lastUpdated,'d MMM yyyy')}): ${p.link}`).join('\n');
 
   const html = /* html */ `
     <div style="display:none;font-size:1px;color:#fff;max-height:0;opacity:0;overflow:hidden">${preheader}</div>

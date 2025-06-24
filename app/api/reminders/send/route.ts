@@ -25,7 +25,7 @@ export async function POST() {
       const projects = await db.select().from(schema.projects).where(inArray(schema.projects.id, ids));
       // determine outstanding
       const cutoffStart = sched.windowOpen;
-      const pending = projects.filter(p=> new Date(p.updatedAt) < cutoffStart).map(p=>({id:p.id, title:p.title, link:`${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/projects/${p.id}/edit`}));
+      const pending = projects.filter(p=> new Date(p.updatedAt) < cutoffStart).map(p=>({id:p.id, title:p.title, link:`${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/projects/${p.id}/edit`, lastUpdated: new Date(p.updatedAt)}));
       if(pending.length===0) continue;
       const { success } = await sendPmReminderEmail(rec.email, pending, sched.windowClose);
       if(success) sent++; else failed++;

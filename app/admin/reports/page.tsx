@@ -596,9 +596,8 @@ export default function AdminReportsPage() {
               </div>
 
               <Button onClick={async ()=>{
-                const email = 'khan.thompson@my.jcu.edu.au,khanthompson123@gmail.com,khan.thompson@incitecpivot.com.au';
                 try {
-                  const res = await fetch(`/api/reminders/test?email=${encodeURIComponent(email)}`);
+                  const res = await fetch('/api/reminders/test');
                   const data = await res.json();
                   if(!res.ok) throw new Error(data.error || 'Failed');
                   toast.success(`Reminder email sent! (sent: ${data.sent}, failed: ${data.failed})`);

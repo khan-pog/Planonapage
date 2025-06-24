@@ -4,32 +4,44 @@ import * as schema from "@/lib/db/schema";
 import { sendPmReminderEmail } from "@/lib/mailer-reminder";
 import { insertReportHistory } from "@/lib/db";
 import { resolveReportSchedule } from "@/lib/schedule-utils";
+import { eq, inArray } from "drizzle-orm";
 
 const sleep = (ms:number)=>new Promise(res=>setTimeout(res,ms));
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const raw = searchParams.get('email');
-  if(!raw){ return new NextResponse('Missing ?email param', {status:400}); }
-  const emails = raw.split(',').map(e=>e.trim()).filter(Boolean);
-  console.log('Sending test PM reminder to', emails);
+  let targetEmails: string[];
+  if(raw){
+    targetEmails = raw.split(',').map(e=>e.trim()).filter(Boolean);
+  } else {
+    // use real PM list
+    const pmRecipients = await db.select().from(schema.emailRecipients).where(eq(schema.emailRecipients.isPm, true));
+    targetEmails = pmRecipients.map(r=>r.email);
+  }
+  console.log('Sending test PM reminder to', targetEmails);
 
-  // pick up to 3 random projects for demo
-  const projects = await db.select().from(schema.projects);
-  const shuffled = projects.sort(()=>0.5 - Math.random()).slice(0, Math.min(3, projects.length));
-  const projectItems = shuffled.map(p=>({ id:p.id, title:p.title, link:`${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/projects/${p.id}/edit`}));
-
-  let sent=0, failed=0, lastError:unknown;
   const sched = await resolveReportSchedule();
-  const dueDate = sched?.windowClose ?? undefined;
+  if(!sched){ return NextResponse.json({error:'No schedule configured'}, {status:500}); }
+  const dueDate = sched.windowClose;
 
-  for(const [idx, em] of emails.entries()){
-    if(idx>0) await sleep(600); // throttle to <=2 req/sec
-    const { success, error } = await sendPmReminderEmail(em, projectItems, dueDate);
-    if(success) sent++; else { failed++; lastError = error; }
+  let sent = 0, failed = 0, lastError: unknown;
+  for(const [idx, email] of targetEmails.entries()){
+    // find this PM's projects if in DB
+    const recArr = await db.select().from(schema.emailRecipients).where(eq(schema.emailRecipients.email, email));
+    const rec = recArr[0];
+    const ids = rec?.projectIds ?? [];
+    if(ids.length===0) continue;
+    const projects = await db.select().from(schema.projects).where(inArray(schema.projects.id, ids));
+    const pending = projects.filter(p=> new Date(p.updatedAt) < sched.windowOpen).map(p=>({id:p.id, title:p.title, link:`${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/projects/${p.id}/edit`, lastUpdated: new Date(p.updatedAt)}));
+    if(pending.length===0) continue;
+
+    if(idx>0) await sleep(600);
+    const { success, error } = await sendPmReminderEmail(email, pending, dueDate);
+    if(success) sent++; else { failed++; lastError=error; }
   }
 
-  await insertReportHistory({ sentAt:new Date(), recipients: sent, failures: failed, triggeredBy:'demo', testEmail: raw });
+  await insertReportHistory({ sentAt:new Date(), recipients: sent, failures: failed, triggeredBy:'demo', testEmail: raw ?? null });
   if(failed>0){
     return NextResponse.json({sent, failed, error:lastError}, {status:500});
   }
