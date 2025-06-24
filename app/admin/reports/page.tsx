@@ -630,8 +630,9 @@ export default function AdminReportsPage() {
               <Button onClick={async ()=>{
                 try {
                   const res = await fetch('/api/reminders/test');
-                  if(!res.ok) throw new Error(await res.text());
-                  toast.success('Test reminder sent');
+                  const data = await res.json();
+                  if(!res.ok) throw new Error(data.error || 'Failed');
+                  toast.success(`Reminder email sent! (sent: ${data.sent}, failed: ${data.failed})`);
                 } catch(err:any){ toast.error(err.message); }
               }} variant="outline" className="flex items-center gap-2">
                 <Bell className="h-4 w-4" /> Send Test PM Reminder

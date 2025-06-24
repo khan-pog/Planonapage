@@ -10,6 +10,8 @@ export async function GET(request: Request) {
   const link = buildFilteredGalleryURL({});
   const { success, error } = await sendFilteredGalleryEmail(email, link);
   await insertReportHistory({ sentAt:new Date(), recipients: success?1:0, failures: success?0:1, triggeredBy:'demo', testEmail: email });
-  if(!success) return new NextResponse(String(error),{status:500});
-  return NextResponse.json({sent:true});
+  if(!success) {
+    return NextResponse.json({sent:0, failed:1, error}, {status:500});
+  }
+  return NextResponse.json({sent:1, failed:0});
 } 
