@@ -231,6 +231,22 @@ export default function AdminReportsPage() {
     }
   };
 
+  const importDefaultRecipients = async () => {
+    try {
+      const res = await fetch('/api/recipients/seed', { method: 'POST' })
+      if (!res.ok) throw new Error(await res.text())
+      const data = await res.json()
+      toast.success(`Recipients imported: ${data.inserted} added, ${data.updated} updated`)
+      // Refresh preview list
+      const previewRes = await fetch('/api/recipients')
+      if (previewRes.ok) {
+        setRecipientsPreview(await previewRes.json())
+      }
+    } catch (err: any) {
+      toast.error(`Import failed: ${err.message || err}`)
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -476,6 +492,10 @@ export default function AdminReportsPage() {
               <Button onClick={sendDemoEmail} className="flex items-center gap-2" variant="outline">
                 <Send className="h-4 w-4" />
                 Send Demo Email
+              </Button>
+              <Button onClick={importDefaultRecipients} className="flex items-center gap-2" variant="secondary">
+                <Database className="h-4 w-4" />
+                Import Default Recipients
               </Button>
             </CardContent>
           </Card>
