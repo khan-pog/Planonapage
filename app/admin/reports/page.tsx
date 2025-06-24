@@ -628,7 +628,7 @@ export default function AdminReportsPage() {
               </div>
 
               <Button onClick={async ()=>{
-                const email = 'khan.thompson@my.jcu.edu.au';
+                const email = 'khan.thompson@my.jcu.edu.au,khanthompson123@gmail.com';
                 try {
                   const res = await fetch(`/api/reminders/test?email=${encodeURIComponent(email)}`);
                   const data = await res.json();
