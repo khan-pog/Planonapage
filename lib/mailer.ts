@@ -19,18 +19,28 @@ export async function sendFilteredGalleryEmail(recipientEmail: string, link: str
     return { success: false, error: "Email API key not configured" }
   }
 
-  const fromAddress = process.env.REPORTS_FROM_EMAIL || "reports@example.com"
+  const fromAddress = process.env.REPORTS_FROM_EMAIL || "Plan on a Page <no-reply@planonapage.com>"
   const replyToAddress = process.env.REPLY_TO_EMAIL || undefined
 
+  // Build a friendly, dated subject
+  const subjectDate = new Date().toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })
+  const subject = `Project Cost Report – ${subjectDate}`
+
+  // Pre-header text (first in body, hidden in most clients)
+  const preheader = "Your latest project status is ready – click to view the live dashboard.";
+
   const html = /* html */ `
-    <p style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.45;margin:0 0 16px;">Hello,</p>
-    <p style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.45;margin:0 0 24px;">Your weekly project update is ready. Click the button below to view the latest status of the projects relevant to you.</p>
+    <div style="display:none;font-size:1px;color:#fff;max-height:0;opacity:0;overflow:hidden">${preheader}</div>
+    <p style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.45;margin:0 0 16px;">Hi there,</p>
+    <p style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.45;margin:0 0 24px;">Your latest project cost update is ready. Tap the button below to open the live dashboard.</p>
     <p style="text-align:center;margin:0 0 32px;">
-      <a href="${link}" style="display:inline-block;padding:12px 24px;background:#2563EB;color:#ffffff;border-radius:6px;text-decoration:none;font-weight:600;font-family:Arial,Helvetica,sans-serif;">View Project Update</a>
+      <a href="${link}" style="display:inline-block;padding:12px 24px;background:#2563EB;color:#ffffff;border-radius:6px;text-decoration:none;font-weight:600;font-family:Arial,Helvetica,sans-serif;">View Report</a>
     </p>
-    <p style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#666;margin:0">If you have any questions, please reply to this email.</p>
-    <p style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#666;margin:24px 0 0;">Regards,<br/>Plan on a Page</p>
+    <p style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#666;margin:0">Questions or feedback? Just reply to this email.</p>
+    <p style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#666;margin:24px 0 0;">Regards,<br/>The Plan on a Page Team</p>
   `
+
+  const text = `Hi there,\n\nYour latest project cost update is ready. Open the link below to view it:\n${link}\n\nRegards,\nPlan on a Page`;
 
   try {
     const response = await fetch("https://api.resend.com/emails", {
@@ -42,8 +52,9 @@ export async function sendFilteredGalleryEmail(recipientEmail: string, link: str
       body: JSON.stringify({
         from: fromAddress,
         to: recipientEmail,
-        subject: "Weekly Project Update",
+        subject,
         html,
+        text,
         reply_to: replyToAddress,
       }),
     })
