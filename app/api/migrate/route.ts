@@ -19,6 +19,7 @@ export async function POST() {
           is_pm BOOLEAN NOT NULL DEFAULT FALSE
        );`,
       `ALTER TABLE IF EXISTS email_recipients ADD COLUMN IF NOT EXISTS is_pm BOOLEAN NOT NULL DEFAULT FALSE;`,
+      `ALTER TABLE IF EXISTS email_recipients ADD COLUMN IF NOT EXISTS project_id INTEGER;`,
       `DO $$ BEGIN CREATE TYPE report_trigger_enum AS ENUM ('cron', 'manual', 'demo'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;`,
       `CREATE TABLE IF NOT EXISTS report_schedules (
           id SERIAL PRIMARY KEY,
@@ -27,10 +28,14 @@ export async function POST() {
           time VARCHAR(5) NOT NULL,
           send_date VARCHAR(10),
           enabled BOOLEAN NOT NULL DEFAULT TRUE,
+          pm_reminder_day VARCHAR(10),
+          pm_final_reminder_days INTEGER,
           created_at TIMESTAMP NOT NULL DEFAULT NOW(),
           updated_at TIMESTAMP NOT NULL DEFAULT NOW()
        );`,
       `ALTER TABLE IF EXISTS report_schedules ADD COLUMN IF NOT EXISTS send_date VARCHAR(10);`,
+      `ALTER TABLE IF EXISTS report_schedules ADD COLUMN IF NOT EXISTS pm_reminder_day VARCHAR(10);`,
+      `ALTER TABLE IF EXISTS report_schedules ADD COLUMN IF NOT EXISTS pm_final_reminder_days INTEGER;`,
       `CREATE TABLE IF NOT EXISTS report_history (
           id SERIAL PRIMARY KEY,
           sent_at TIMESTAMP NOT NULL DEFAULT NOW(),

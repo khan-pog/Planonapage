@@ -121,7 +121,7 @@ export default function EditProjectPage() {
         fetch("/api/recipients", {
           method: "POST",
           headers: { "Content-Type":"application/json" },
-          body: JSON.stringify({ email: pmEmail.trim(), isPm: true }),
+          body: JSON.stringify({ email: pmEmail.trim(), isPm: true, projectId: projectId }),
         }).catch(()=>{});
       }
 

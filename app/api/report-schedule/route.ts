@@ -12,6 +12,8 @@ export async function GET() {
         time: "08:00",
         sendDate: null,
         enabled: true,
+        pmReminderDay: null,
+        pmFinalReminderDays: null,
       });
       return NextResponse.json(defaultSchedule);
     }
@@ -25,13 +27,15 @@ export async function GET() {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { frequency, dayOfWeek, time, enabled, sendDate } = body;
+    const { frequency, dayOfWeek, time, enabled, sendDate, pmReminderDay, pmFinalReminderDays } = body;
     const updated = await upsertReportSchedule({
       frequency,
       dayOfWeek,
       time,
       sendDate,
       enabled,
+      pmReminderDay,
+      pmFinalReminderDays,
     });
     return NextResponse.json(updated);
   } catch (err) {

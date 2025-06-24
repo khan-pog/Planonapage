@@ -137,7 +137,7 @@ export default function NewProjectPage() {
         fetch("/api/recipients", {
           method: "POST",
           headers: {"Content-Type":"application/json"},
-          body: JSON.stringify({ email: pmEmail.trim(), isPm: true }),
+          body: JSON.stringify({ email: pmEmail.trim(), isPm: true, projectId: data.id }),
         }).catch(()=>{});
       }
       // Redirect to the new project's detail page

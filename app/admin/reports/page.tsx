@@ -56,6 +56,8 @@ type ScheduleSettings = {
   time: string;
   enabled: boolean;
   sendDate?: string | null;
+  pmReminderDay?: string | null;
+  pmFinalReminderDays?: number | null;
 };
 
 export default function AdminReportsPage() {
@@ -71,6 +73,8 @@ export default function AdminReportsPage() {
     time: "08:00",
     enabled: true,
     sendDate: null,
+    pmReminderDay: "monday",
+    pmFinalReminderDays: 1,
   })
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -210,6 +214,8 @@ export default function AdminReportsPage() {
           time: data.time,
           enabled: data.enabled,
           sendDate: data.sendDate ?? null,
+          pmReminderDay: data.pmReminderDay ?? "monday",
+          pmFinalReminderDays: data.pmFinalReminderDays ?? 1,
         });
       } catch (err) {
         console.error(err);
@@ -559,6 +565,41 @@ export default function AdminReportsPage() {
                     value={reportSettings.sendDate}
                     onChange={(dateStr) => persistSchedule({ sendDate: dateStr })}
                   />
+                </div>
+              </div>
+
+              <div className="border-t pt-4 space-y-4">
+                <h4 className="font-medium text-sm flex items-center gap-2">
+                  <Calendar className="h-4 w-4" /> PM Reminder Rules
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="pm-day">Weekly Reminder Day</Label>
+                    <Select
+                      value={reportSettings.pmReminderDay!}
+                      onValueChange={(v)=>persistSchedule({ pmReminderDay: v })}
+                    >
+                      <SelectTrigger id="pm-day"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="monday">Monday</SelectItem>
+                        <SelectItem value="tuesday">Tuesday</SelectItem>
+                        <SelectItem value="wednesday">Wednesday</SelectItem>
+                        <SelectItem value="thursday">Thursday</SelectItem>
+                        <SelectItem value="friday">Friday</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pm-final">Final Reminder (days before send)</Label>
+                    <Input
+                      id="pm-final"
+                      type="number"
+                      min={1}
+                      max={7}
+                      value={reportSettings.pmFinalReminderDays ?? 1}
+                      onChange={(e)=>persistSchedule({ pmFinalReminderDays: Number(e.target.value) })}
+                    />
+                  </div>
                 </div>
               </div>
 
