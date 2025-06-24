@@ -59,6 +59,20 @@ export default function AdminReportsPage() {
     "michael.johnson@company.com",
     "amanda.lee@company.com",
   ])
+  // Primary admin email – used for one-off test sends.
+  const [adminEmail, setAdminEmail] = useState<string>(
+    (typeof emailList !== "undefined" && emailList.length > 0 ? emailList[0] : "") ?? "",
+  )
+
+  // Information returned after the most recent send action
+  const [lastSentInfo, setLastSentInfo] = useState<
+    | {
+        sent: number
+        failed: number
+        timestamp: string
+      }
+    | null
+  >(null)
   const [newEmail, setNewEmail] = useState("")
   const [reportSettings, setReportSettings] = useState({
     frequency: "weekly",
@@ -118,36 +132,32 @@ export default function AdminReportsPage() {
     }
   }
 
-  const generateWeeklyReport = async () => {
+  // Trigger a one-off report send to the admin email using the new public endpoint.
+  const sendReportNow = async () => {
+    if (!adminEmail) {
+      toast.error('Admin email is not set')
+      return
+    }
+
     setIsGenerating(true)
     try {
-      const response = await fetch('/api/reports/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          emailList,
-          reportSettings,
-        }),
-      })
+      const res = await fetch(`/api/reports/send?testEmail=${encodeURIComponent(adminEmail)}`)
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+      const data: { sent: number; failed: number } = await res.json()
 
-      if (!response.ok) {
-        throw new Error('Failed to send report')
-      }
+      // Persist last-sent info so we can surface the feedback in the UI
+      setLastSentInfo({ ...data, timestamp: new Date().toISOString() })
 
-      const result = await response.json()
-      console.log('Report sent successfully:', result)
-      toast.success(`Report sent successfully to ${result.message}`)
-    } catch (error: any) {
-      console.error('Error sending report:', error)
-      toast.error('Failed to send report. Please try again.')
+      toast.success(`Report sent! (sent: ${data.sent}, failed: ${data.failed})`)
+    } catch (err: any) {
+      console.error('Error sending report', err)
+      toast.error(`Failed to send report: ${err.message || err}`)
     } finally {
       setIsGenerating(false)
     }
   }
 
-  // Sends a one-off demo email to Khan via the public API.
+  // Sends a one-off demo email to a hard-coded address for testing.
   const sendDemoEmail = async () => {
     try {
       const res = await fetch('/api/reports/send?testEmail=khanthompson123@gmail.com')
@@ -438,7 +448,7 @@ export default function AdminReportsPage() {
               </div>
 
               <div className="flex gap-3">
-                <Button onClick={generateWeeklyReport} disabled={isGenerating} className="flex items-center gap-2">
+                <Button onClick={sendReportNow} disabled={isGenerating} className="flex items-center gap-2">
                   {isGenerating ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -460,6 +470,13 @@ export default function AdminReportsPage() {
                   Refresh Data
                 </Button>
               </div>
+
+              {/* Last-sent feedback */}
+              {lastSentInfo && (
+                <div className="text-sm text-muted-foreground">
+                  Last sent {new Date(lastSentInfo.timestamp).toLocaleString()} — sent {lastSentInfo.sent}, failed {lastSentInfo.failed}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

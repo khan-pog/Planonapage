@@ -20,6 +20,7 @@ export async function sendFilteredGalleryEmail(recipientEmail: string, link: str
   }
 
   const fromAddress = process.env.REPORTS_FROM_EMAIL || "reports@example.com"
+  const replyToAddress = process.env.REPLY_TO_EMAIL || undefined
 
   const html = /* html */ `
     <p style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.45;margin:0 0 16px;">Hello,</p>
@@ -43,6 +44,7 @@ export async function sendFilteredGalleryEmail(recipientEmail: string, link: str
         to: recipientEmail,
         subject: "Weekly Project Update",
         html,
+        reply_to: replyToAddress,
       }),
     })
 
