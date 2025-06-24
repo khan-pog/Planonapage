@@ -3,8 +3,24 @@ import { getAllRecipients, createRecipient, db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const projectId = searchParams.get("projectId");
+    const isPm = searchParams.get("isPm");
+
+    if (projectId) {
+      // Filter by project id (array contains) and optional isPm flag
+      const pid = Number(projectId);
+      const rows = await db.select().from(schema.emailRecipients);
+      const filtered = rows.filter((r) => {
+        const matchProject = (r.projectIds ?? []).includes(pid);
+        const matchPm = isPm ? r.isPm === (isPm === "true") : true;
+        return matchProject && matchPm;
+      });
+      return NextResponse.json(filtered, { headers: { "Cache-Control": "no-store" } });
+    }
+
     const recipients = await getAllRecipients();
     return NextResponse.json(recipients, {
       headers: {
