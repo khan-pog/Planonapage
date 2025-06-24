@@ -4,7 +4,7 @@ import * as schema from "@/lib/db/schema";
 import { sendPmReminderEmail } from "@/lib/mailer-reminder";
 import { insertReportHistory } from "@/lib/db";
 import { eq, and } from "drizzle-orm";
-import { startOfMonth } from "date-fns";
+import { startOfMonth, subMonths, subDays, subWeeks } from "date-fns";
 import { inArray } from "drizzle-orm";
 import { resolveReportSchedule } from "@/lib/schedule-utils";
 
@@ -23,9 +23,17 @@ export async function POST() {
       if(ids.length===0) continue;
       // fetch projects
       const projects = await db.select().from(schema.projects).where(inArray(schema.projects.id, ids));
-      // determine outstanding
-      const cutoffStart = sched.windowOpen;
-      const pending = projects.filter(p=> new Date(p.updatedAt) < cutoffStart).map(p=>({id:p.id, title:p.title, link:`${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/projects/${p.id}/edit`, lastUpdated: new Date(p.updatedAt)}));
+      // determine outstanding – project not updated since last report
+      let lastSend: Date;
+      if(sched.frequency === 'monthly'){
+        lastSend = subMonths(sched.nextSend, 1);
+      } else if(sched.frequency === 'weekly'){
+        lastSend = subWeeks(sched.nextSend, 1);
+      } else {
+        lastSend = subDays(sched.nextSend, 1);
+      }
+
+      const pending = projects.filter(p=> new Date(p.updatedAt) < lastSend).map(p=>({id:p.id, title:p.title, link:`${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/projects/${p.id}/edit`, lastUpdated: new Date(p.updatedAt)}));
       if(pending.length===0) continue;
       const { success } = await sendPmReminderEmail(rec.email, pending, sched.windowClose);
       if(success) sent++; else failed++;

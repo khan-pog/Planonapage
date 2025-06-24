@@ -5,6 +5,7 @@ import { sendPmReminderEmail } from "@/lib/mailer-reminder";
 import { insertReportHistory } from "@/lib/db";
 import { resolveReportSchedule } from "@/lib/schedule-utils";
 import { eq, inArray } from "drizzle-orm";
+import { subMonths, subWeeks, subDays } from "date-fns";
 
 const sleep = (ms:number)=>new Promise(res=>setTimeout(res,ms));
 
@@ -33,7 +34,15 @@ export async function GET(request: Request) {
     const ids = rec?.projectIds ?? [];
     if(ids.length===0) continue;
     const projects = await db.select().from(schema.projects).where(inArray(schema.projects.id, ids));
-    const pending = projects.filter(p=> new Date(p.updatedAt) < sched.windowOpen).map(p=>({id:p.id, title:p.title, link:`${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/projects/${p.id}/edit`, lastUpdated: new Date(p.updatedAt)}));
+    let lastSend: Date;
+    if(sched.frequency === 'monthly'){
+      lastSend = subMonths(sched.nextSend, 1);
+    } else if(sched.frequency === 'weekly'){
+      lastSend = subWeeks(sched.nextSend, 1);
+    } else {
+      lastSend = subDays(sched.nextSend, 1);
+    }
+    const pending = projects.filter(p=> new Date(p.updatedAt) < lastSend).map(p=>({id:p.id, title:p.title, link:`${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/projects/${p.id}/edit`, lastUpdated: new Date(p.updatedAt)}));
     if(pending.length===0) continue;
 
     if(idx>0) await sleep(600);
