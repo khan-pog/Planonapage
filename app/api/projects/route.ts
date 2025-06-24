@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllProjects, createProject, deleteAllProjects } from '@/lib/db';
+import { getAllProjects, createProject, deleteAllProjects, updateProject } from '@/lib/db';
 import { kv } from '@vercel/kv';
 import { matchesPlantAndDiscipline } from '@/lib/filter-utils';
 
@@ -80,14 +80,30 @@ export async function GET(request: NextRequest) {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    // Remove createdAt and updatedAt if present
-    const { createdAt, updatedAt, ...rest } = data;
-    const project = await createProject(rest);
-    
+    // strip out timestamps / pmReporting coming from the client
+    const { createdAt: _c, updatedAt: _u, pmReporting: _p, ...rest } = data;
+
+    // First create the project (pmReporting empty for now so we can get DB timestamp)
+    let project = await createProject({ ...rest, pmReporting: [] });
+
+    // Build initial PoAP Created entry using the DB-created timestamp
+    const createdDate = new Date(project.createdAt).toISOString().split('T')[0];
+    const initialReporting = [
+      {
+        type: 'PoAP Created',
+        complete: true,
+        date: createdDate,
+        signatory: project.projectManager,
+      },
+    ];
+
+    // Persist the initial pmReporting array (this also sets updated_at, but that is fine)
+    project = await updateProject(project.id, { pmReporting: initialReporting });
+
     // Invalidate both caches after creating new project
     await kv.del(CACHE_KEY);
     await kv.del(MONTHLY_CACHE_KEY);
-    
+
     return NextResponse.json(project);
   } catch (error) {
     console.error('Error creating project:', error);

@@ -40,9 +40,30 @@ export async function PATCH(
       return new NextResponse('Invalid project ID', { status: 400 });
     }
 
+    // Fetch the current project to access existing pmReporting array
+    const current = await getProject(id);
+    if (!current) {
+      return new NextResponse('Project not found', { status: 404 });
+    }
+
     const data = await request.json();
-    const { updatedAt, createdAt, ...updateData } = data;
-    const project = await updateProject(id, updateData);
+    // Exclude timestamps / pmReporting provided by client
+    const { updatedAt: _u, createdAt: _c, pmReporting: _p, ...updateData } = data;
+
+    // Prepare new PoAP Report entry using upcoming updated timestamp
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0];
+    const signatory = (updateData as any).projectManager ?? current.projectManager;
+    const newEntry = {
+      type: 'PoAP Report',
+      complete: true,
+      date: dateStr,
+      signatory,
+    };
+
+    const updatedReporting = [...current.pmReporting, newEntry];
+
+    const project = await updateProject(id, { ...updateData, pmReporting: updatedReporting });
     if (!project) {
       return new NextResponse('Project not found', { status: 404 });
     }

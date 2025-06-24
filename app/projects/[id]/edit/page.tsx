@@ -98,24 +98,10 @@ export default function EditProjectPage() {
     setIsSubmitting(true)
 
     try {
-      // Add new reporting entry
-      const newReportingEntry = {
-        type: "PoAP Report",
-        complete: true,
-        date: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
-        signatory: project.projectManager
-      }
-
-      // Add the new entry to the beginning of the pmReporting array
-      const updatedProject = {
-        ...project,
-        pmReporting: [newReportingEntry, ...project.pmReporting]
-      }
-
       const response = await fetch(`/api/projects/${projectId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedProject),
+        body: JSON.stringify(project),
       })
 
       if (!response.ok) {
