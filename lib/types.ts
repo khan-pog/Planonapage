@@ -28,7 +28,7 @@ export interface ProjectStatus {
 }
 
 export interface PMReportingItem {
-  type: "PoAP Report" | "Schedule" | "Forecast" | "Execution Readiness"
+  type: "PoAP Created" | "PoAP Report" | "Final Report" | "Budget Review" | "Schedule" | "Forecast" | "Execution Readiness"
   complete: boolean
   date: string
   signatory: string

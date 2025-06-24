@@ -25,6 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import RecipientsManager from "@/components/recipients-manager"
 
 interface Project {
   id: number
@@ -347,9 +348,10 @@ export default function AdminReportsPage() {
       )}
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Report Overview</TabsTrigger>
           <TabsTrigger value="settings">Email & Schedule</TabsTrigger>
+          <TabsTrigger value="recipients">Recipients</TabsTrigger>
           <TabsTrigger value="history">Report History</TabsTrigger>
         </TabsList>
 
@@ -632,6 +634,10 @@ export default function AdminReportsPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="recipients" className="space-y-6">
+          <RecipientsManager />
         </TabsContent>
 
         <TabsContent value="history" className="space-y-6">

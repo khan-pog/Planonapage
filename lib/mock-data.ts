@@ -38,11 +38,29 @@ export const mockProjects = [
     images: [],
     pmReporting: [
       {
+        type: "PoAP Created",
+        complete: true,
+        date: "2024-02-28",
+        signatory: "Alice Smith",
+      },
+      {
         type: "PoAP Report",
         complete: true,
         date: "2024-03-01",
-        signatory: "Alice Smith"
-      }
+        signatory: "Alice Smith",
+      },
+      {
+        type: "PoAP Report",
+        complete: true,
+        date: "2024-03-20",
+        signatory: "Alice Smith",
+      },
+      {
+        type: "PoAP Report",
+        complete: true,
+        date: "2024-03-24",
+        signatory: "Alice Smith",
+      },
     ],
     costTracking: {
       totalBudget: 2500000,
@@ -119,11 +137,29 @@ export const mockProjects = [
     images: [],
     pmReporting: [
       {
+        type: "PoAP Created",
+        complete: true,
+        date: "2024-02-25",
+        signatory: "Charlie Brown",
+      },
+      {
         type: "PoAP Report",
         complete: true,
         date: "2024-03-01",
-        signatory: "Charlie Brown"
-      }
+        signatory: "Charlie Brown",
+      },
+      {
+        type: "PoAP Report",
+        complete: true,
+        date: "2024-03-20",
+        signatory: "Charlie Brown",
+      },
+      {
+        type: "PoAP Report",
+        complete: true,
+        date: "2024-03-24",
+        signatory: "Charlie Brown",
+      },
     ],
     costTracking: {
       totalBudget: 2500000,
@@ -205,17 +241,29 @@ export const mockProjects = [
     images: [],
     pmReporting: [
       {
+        type: "PoAP Created",
+        complete: true,
+        date: "2024-01-10",
+        signatory: "Eve Davis",
+      },
+      {
+        type: "PoAP Report",
+        complete: true,
+        date: "2024-02-20",
+        signatory: "Eve Davis",
+      },
+      {
         type: "PoAP Report",
         complete: true,
         date: "2024-03-01",
-        signatory: "Eve Davis"
+        signatory: "Eve Davis",
       },
       {
         type: "Final Report",
         complete: false,
         date: "2024-03-15",
-        signatory: "Eve Davis"
-      }
+        signatory: "Eve Davis",
+      },
     ],
     costTracking: {
       totalBudget: 2500000,
@@ -297,17 +345,29 @@ export const mockProjects = [
     images: [],
     pmReporting: [
       {
+        type: "PoAP Created",
+        complete: true,
+        date: "2024-02-15",
+        signatory: "Grace Green",
+      },
+      {
+        type: "PoAP Report",
+        complete: true,
+        date: "2024-02-28",
+        signatory: "Grace Green",
+      },
+      {
         type: "PoAP Report",
         complete: true,
         date: "2024-03-01",
-        signatory: "Grace Green"
+        signatory: "Grace Green",
       },
       {
         type: "Budget Review",
         complete: true,
         date: "2024-03-05",
-        signatory: "Grace Green"
-      }
+        signatory: "Grace Green",
+      },
     ],
     costTracking: {
       totalBudget: 2500000,
