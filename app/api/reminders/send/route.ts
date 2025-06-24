@@ -13,6 +13,21 @@ export async function POST() {
     const sched = await resolveReportSchedule();
     if(!sched){ return NextResponse.json({error:'No schedule'}, {status:500}); }
 
+    const now = new Date();
+
+    // Check if we are within reminder window
+    if(now < sched.windowOpen || now > sched.windowClose){
+      return NextResponse.json({skipped:true, reason:'Outside reminder window'});
+    }
+
+    // Check weekly reminder day unless it is final reminder day
+    const dowNames=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+    const todayName = dowNames[now.getUTCDay()];
+    const isFinalDay = now >= sched.windowClose;
+    if(!isFinalDay && sched.pmReminderDay && sched.pmReminderDay.toLowerCase()!==todayName){
+      return NextResponse.json({skipped:true, reason:'Not reminder day'});
+    }
+
     // get PM recipients
     const pmRecipients = await db.select().from(schema.emailRecipients).where(eq(schema.emailRecipients.isPm, true));
 

@@ -521,13 +521,8 @@ export default function AdminReportsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="time">Time</Label>
-                  <Input
-                    id="time"
-                    type="time"
-                    value={reportSettings.time}
-                    onChange={(e) => persistSchedule({ time: e.target.value })}
-                  />
+                  <Label>Time</Label>
+                  <p className="text-sm">08:00 AEST (fixed)</p>
                 </div>
 
                 <div className="space-y-2">
@@ -590,7 +585,7 @@ export default function AdminReportsPage() {
                   <Calendar className="h-4 w-4 inline mr-2" />
                   Next scheduled report:{" "}
                   {reportSettings.enabled
-                    ? `Every month on the ${new Date(reportSettings.sendDate ?? '1970-01-01').getDate()} at ${reportSettings.time}`
+                    ? `Every month on the ${new Date(reportSettings.sendDate ?? '1970-01-01').getDate()} at 08:00 AEST`
                     : "Disabled"}
                 </p>
               </div>
