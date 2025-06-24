@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 import { sendPmReminderEmail } from "@/lib/mailer-reminder";
 import { insertReportHistory } from "@/lib/db";
+import { resolveReportSchedule } from "@/lib/schedule-utils";
 
 const sleep = (ms:number)=>new Promise(res=>setTimeout(res,ms));
 
@@ -19,9 +20,12 @@ export async function GET(request: Request) {
   const projectItems = shuffled.map(p=>({ id:p.id, title:p.title, link:`${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/projects/${p.id}/edit`}));
 
   let sent=0, failed=0, lastError:unknown;
+  const sched = await resolveReportSchedule();
+  const dueDate = sched?.windowClose ?? undefined;
+
   for(const [idx, em] of emails.entries()){
     if(idx>0) await sleep(600); // throttle to <=2 req/sec
-    const { success, error } = await sendPmReminderEmail(em, projectItems);
+    const { success, error } = await sendPmReminderEmail(em, projectItems, dueDate);
     if(success) sent++; else { failed++; lastError = error; }
   }
 
