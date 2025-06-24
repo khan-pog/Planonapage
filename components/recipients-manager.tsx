@@ -52,7 +52,7 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
   const [plants, setPlants] = useState<string[]>([])
   const [disciplines, setDisciplines] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
-  const [isPm, setIsPm] = useState(false)
+  const [isPm] = useState(pmOnly)
   const [projectIds, setProjectIds] = useState<number[]>([])
   const [projectsOptions, setProjectsOptions] = useState<{id:number,title:string}[]>([])
 
@@ -87,7 +87,6 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
     setEmail("")
     setPlants([])
     setDisciplines([])
-    setIsPm(false)
     setProjectIds([])
     setDialogOpen(true)
   }
@@ -97,7 +96,6 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
     setEmail(r.email)
     setPlants(r.plants || [])
     setDisciplines(r.disciplines || [])
-    setIsPm(r.isPm ?? false)
     setProjectIds(r.projectIds || [])
     setDialogOpen(true)
   }
@@ -117,7 +115,7 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
   const handleSave = async () => {
     try {
       setSaving(true)
-      const payload = pmOnly ? { email, isPm:true, projectIds } : { email, plants, disciplines, isPm }
+      const payload = pmOnly ? { email, isPm:true, projectIds } : { email, plants, disciplines }
       if(pmOnly && projectIds.length===0){ toast.error('Select at least one project'); return; }
       let res: Response
       if (editingRecipient) {
@@ -180,7 +178,6 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
                   <th className="py-2 px-2">Email</th>
                   <th className="py-2 px-2">Plants</th>
                   <th className="py-2 px-2">Disciplines</th>
-                  <th className="py-2 px-2">PM?</th>
                   <th className="py-2 px-2">Projects</th>
                   <th className="py-2 px-2 text-right">Actions</th>
                 </tr>
@@ -195,7 +192,6 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
                     <td className="py-2 px-2">
                       {(r.disciplines || []).join(", ")}
                     </td>
-                    <td className="py-2 px-2">{r.isPm ? '✅' : ''}</td>
                     <td className="py-2 px-2">
                       { (r.projectIds ?? []).map((id:number)=> projectsOptions.find(p=>p.id===id)?.title).join(', ')}
                     </td>
@@ -300,11 +296,6 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
                   </label>
                 ))}
               </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox checked={isPm} onCheckedChange={(v)=>setIsPm(v as boolean)} />
-              <span className="text-sm">Project Manager reminder recipient</span>
             </div>
           </div>
 
