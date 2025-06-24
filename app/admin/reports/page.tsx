@@ -26,6 +26,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import ReportHistory from "@/components/report-history"
+import { DatePickerInput } from "@/components/date-picker-input"
 
 interface Project {
   id: number
@@ -54,6 +55,7 @@ type ScheduleSettings = {
   dayOfWeek: string;
   time: string;
   enabled: boolean;
+  sendDate?: string | null;
 };
 
 export default function AdminReportsPage() {
@@ -68,6 +70,7 @@ export default function AdminReportsPage() {
     dayOfWeek: "monday",
     time: "08:00",
     enabled: true,
+    sendDate: null,
   })
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -206,6 +209,7 @@ export default function AdminReportsPage() {
           dayOfWeek: data.dayOfWeek ?? "monday",
           time: data.time,
           enabled: data.enabled,
+          sendDate: data.sendDate ?? null,
         });
       } catch (err) {
         console.error(err);
@@ -546,6 +550,14 @@ export default function AdminReportsPage() {
                     type="time"
                     value={reportSettings.time}
                     onChange={(e) => persistSchedule({ time: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Date</Label>
+                  <DatePickerInput
+                    value={reportSettings.sendDate}
+                    onChange={(dateStr) => persistSchedule({ sendDate: dateStr })}
                   />
                 </div>
               </div>

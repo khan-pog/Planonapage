@@ -11,11 +11,11 @@ export default function AdminRecipientsPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <Link
-            href="/admin/reports"
+            href="/"
             className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Reports Dashboard
+            Back to Gallery
           </Link>
           <h1 className="text-3xl font-bold tracking-tight mt-4">Email Recipients</h1>
           <p className="text-muted-foreground mt-1 max-w-prose">

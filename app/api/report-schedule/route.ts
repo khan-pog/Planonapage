@@ -10,6 +10,7 @@ export async function GET() {
         frequency: "weekly",
         dayOfWeek: "monday",
         time: "08:00",
+        sendDate: null,
         enabled: true,
       });
       return NextResponse.json(defaultSchedule);
@@ -24,11 +25,12 @@ export async function GET() {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { frequency, dayOfWeek, time, enabled } = body;
+    const { frequency, dayOfWeek, time, enabled, sendDate } = body;
     const updated = await upsertReportSchedule({
       frequency,
       dayOfWeek,
       time,
+      sendDate,
       enabled,
     });
     return NextResponse.json(updated);

@@ -55,6 +55,7 @@ export const reportSchedules = pgTable('report_schedules', {
   frequency: varchar('frequency', { length: 10 }).notNull(), // daily | weekly | monthly
   dayOfWeek: varchar('day_of_week', { length: 10 }), // monday, tuesday, etc.
   time: varchar('time', { length: 5 }).notNull(), // HH:MM
+  sendDate: varchar('send_date', { length: 10 }), // YYYY-MM-DD
   enabled: boolean('enabled').notNull().default(true),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

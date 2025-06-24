@@ -23,10 +23,12 @@ export async function POST() {
           frequency VARCHAR(10) NOT NULL,
           day_of_week VARCHAR(10),
           time VARCHAR(5) NOT NULL,
+          send_date VARCHAR(10),
           enabled BOOLEAN NOT NULL DEFAULT TRUE,
           created_at TIMESTAMP NOT NULL DEFAULT NOW(),
           updated_at TIMESTAMP NOT NULL DEFAULT NOW()
        );`,
+      `ALTER TABLE IF EXISTS report_schedules ADD COLUMN IF NOT EXISTS send_date VARCHAR(10);`,
       `CREATE TABLE IF NOT EXISTS report_history (
           id SERIAL PRIMARY KEY,
           sent_at TIMESTAMP NOT NULL DEFAULT NOW(),
