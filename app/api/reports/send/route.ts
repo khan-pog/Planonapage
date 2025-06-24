@@ -29,6 +29,9 @@ export async function GET(request: Request) {
   if(!sched){
     return NextResponse.json({error:'No schedule configured'}, {status:500});
   }
+  if(!sched.enabled && !testEmail){
+    return NextResponse.json({skipped:true, reason:'Schedule disabled'});
+  }
   const now = new Date();
   const send = sched.nextSend;
   const sameDay = now.getUTCFullYear()===send.getUTCFullYear() && now.getUTCMonth()===send.getUTCMonth() && now.getUTCDate()===send.getUTCDate();

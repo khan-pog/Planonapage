@@ -11,7 +11,7 @@ import { resolveReportSchedule } from "@/lib/schedule-utils";
 export async function POST() {
   try {
     const sched = await resolveReportSchedule();
-    if(!sched){ return NextResponse.json({error:'No schedule'}, {status:500}); }
+    if(!sched || !sched.enabled){ return NextResponse.json({skipped:true, reason:'Schedule disabled'}); }
 
     const now = new Date();
 
