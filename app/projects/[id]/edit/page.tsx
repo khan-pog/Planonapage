@@ -48,6 +48,7 @@ export default function EditProjectPage() {
         }
         const data = await response.json()
         setProject(data)
+        setPmEmail(data.pmEmail ?? "")
       } catch (error) {
         console.error("Error fetching project:", error)
         setError(error instanceof Error ? error.message : "An error occurred")
@@ -58,21 +59,6 @@ export default function EditProjectPage() {
 
     fetchProject()
   }, [projectId])
-
-  // Fetch existing PM email for this project
-  useEffect(()=>{
-    if(!project) return;
-    (async()=>{
-      try{
-        const res = await fetch(`/api/recipients?projectId=${projectId}&isPm=true`);
-        if(!res.ok) return;
-        const data = await res.json();
-        if(Array.isArray(data) && data.length>0){
-          setPmEmail(data[0].email);
-        }
-      }catch(err){ console.error('Failed to load PM email', err); }
-    })();
-  }, [project]);
 
   const validateForm = () => {
     if (!project) return false
@@ -121,7 +107,7 @@ export default function EditProjectPage() {
       const response = await fetch(`/api/projects/${projectId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(project),
+        body: JSON.stringify({ ...project, pmEmail: pmEmail.trim() }),
       })
 
       if (!response.ok) {
@@ -136,7 +122,7 @@ export default function EditProjectPage() {
         fetch("/api/recipients", {
           method: "POST",
           headers: { "Content-Type":"application/json" },
-          body: JSON.stringify({ email: pmEmail.trim(), isPm: true, projectId: projectId }),
+          body: JSON.stringify({ email: pmEmail.trim(), isPm: true, projectIds: [projectId] }),
         }).catch(()=>{});
       }
 
@@ -398,4 +384,85 @@ export default function EditProjectPage() {
                         }).map(([key, label]) => (
                           <div key={key} className="space-y-2">
                             <div className="flex justify-between">
-                              <Label htmlFor={`
+                              <Label htmlFor={`phase-${key}`}>{label}</Label>
+                              <span className="text-sm text-muted-foreground">
+                                {project.phasePercentages[key as keyof typeof project.phasePercentages]}%
+                              </span>
+                            </div>
+                            <Input
+                              id={`phase-${key}`}
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={project.phasePercentages[key as keyof typeof project.phasePercentages]}
+                              onChange={(e) => {
+                                setProject({
+                                  ...project,
+                                  phasePercentages: {
+                                    ...project.phasePercentages,
+                                    [key]: Number.parseInt(e.target.value),
+                                  },
+                                })
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="cost" className="pt-6">
+                  <ProjectCostForm
+                    costTracking={project.costTracking}
+                    onChange={(costTracking) => setProject({ ...project, costTracking })}
+                    editable={true}
+                  />
+                </TabsContent>
+
+                <TabsContent value="narratives" className="pt-6">
+                  <ProjectNarratives 
+                    narrative={project.narrative} 
+                    editable={true} 
+                    onChange={(narrative) => setProject({ ...project, narrative })}
+                  />
+                </TabsContent>
+
+                <TabsContent value="milestones" className="space-y-6 pt-6">
+                  <ProjectMilestones
+                    milestones={project.milestones}
+                    editable={true}
+                    onChange={(milestones) => setProject({ ...project, milestones })}
+                  />
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Project Images</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ImageUpload
+                        images={project.images}
+                        onChange={(images) => setProject({ ...project, images })}
+                      />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </form>
+          </CardContent>
+          <CardFooter className="flex justify-end">
+            <Button 
+              type="submit" 
+              form="edit-project-form" 
+              className="flex gap-2"
+              disabled={isSubmitting}
+            >
+              <Save className="h-4 w-4" />
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    </div>
+  )
+}

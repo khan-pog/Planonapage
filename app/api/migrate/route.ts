@@ -21,6 +21,7 @@ export async function POST() {
       `ALTER TABLE IF EXISTS email_recipients ADD COLUMN IF NOT EXISTS is_pm BOOLEAN NOT NULL DEFAULT FALSE;`,
       `ALTER TABLE IF EXISTS email_recipients ADD COLUMN IF NOT EXISTS project_ids INTEGER[];`,
       `ALTER TABLE IF EXISTS email_recipients DROP COLUMN IF EXISTS project_id;`,
+      `ALTER TABLE IF EXISTS projects ADD COLUMN IF NOT EXISTS pm_email TEXT;`,
       `DO $$ BEGIN CREATE TYPE report_trigger_enum AS ENUM ('cron', 'manual', 'demo'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;`,
       `CREATE TABLE IF NOT EXISTS report_schedules (
           id SERIAL PRIMARY KEY,
