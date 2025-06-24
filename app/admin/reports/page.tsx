@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Mail, Download, Calendar, Settings, Plus, Trash2, Send, Clock, ArrowLeft, Database, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { SeedDatabaseButton } from "@/components/seed-database-button"
+import { MigrateDatabaseButton } from "@/components/migrate-database-button"
 import { toast } from "sonner"
 import {
   AlertDialog,
@@ -315,6 +316,7 @@ export default function AdminReportsPage() {
             Test Seeding
           </Button>
           <SeedDatabaseButton />
+          <MigrateDatabaseButton />
           <Button variant="outline" onClick={handleWarmCache}>
             Warm Up Cache
           </Button>
@@ -335,6 +337,7 @@ export default function AdminReportsPage() {
             </p>
             <div className="flex gap-2">
               <SeedDatabaseButton />
+              <MigrateDatabaseButton />
               <Button onClick={testSeeding} variant="outline">
                 Test Seeding Validation
               </Button>
