@@ -1,4 +1,4 @@
-import { pgTable, serial, text, varchar, timestamp, jsonb, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, varchar, timestamp, jsonb, pgEnum, boolean, integer } from 'drizzle-orm/pg-core';
 
 // Define enum types for plant and discipline classifications
 export const plantEnum = pgEnum('plant_enum', [
@@ -44,4 +44,28 @@ export const emailRecipients = pgTable('email_recipients', {
   disciplines: disciplineEnum('disciplines').array(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Enum for history trigger source
+export const reportTriggerEnum = pgEnum('report_trigger_enum', ['cron', 'manual', 'demo']);
+
+// Table for scheduling configuration (single-row)
+export const reportSchedules = pgTable('report_schedules', {
+  id: serial('id').primaryKey(),
+  frequency: varchar('frequency', { length: 10 }).notNull(), // daily | weekly | monthly
+  dayOfWeek: varchar('day_of_week', { length: 10 }), // monday, tuesday, etc.
+  time: varchar('time', { length: 5 }).notNull(), // HH:MM
+  enabled: boolean('enabled').notNull().default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// History log for report sends
+export const reportHistory = pgTable('report_history', {
+  id: serial('id').primaryKey(),
+  sentAt: timestamp('sent_at').defaultNow().notNull(),
+  recipients: integer('recipients').notNull(),
+  failures: integer('failures').notNull(),
+  triggeredBy: reportTriggerEnum('triggered_by').notNull(),
+  testEmail: text('test_email'),
 });

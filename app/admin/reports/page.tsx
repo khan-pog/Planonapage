@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Mail, Download, Calendar, Settings, Plus, Trash2, Send, Clock, ArrowLeft, Database, AlertCircle } from "lucide-react"
+import { Mail, Download, Calendar, Trash2, Send, Clock, ArrowLeft, Database, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { SeedDatabaseButton } from "@/components/seed-database-button"
 import { MigrateDatabaseButton } from "@/components/migrate-database-button"
@@ -26,6 +26,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import RecipientsManager from "@/components/recipients-manager"
+import ReportHistory from "@/components/report-history"
 
 interface Project {
   id: number
@@ -49,21 +50,20 @@ interface Project {
   }
 }
 
+type ScheduleSettings = {
+  frequency: string;
+  dayOfWeek: string;
+  time: string;
+  enabled: boolean;
+};
+
 export default function AdminReportsPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
-  const [emailList, setEmailList] = useState([
-    "jane.smith@company.com",
-    "michael.johnson@company.com",
-    "amanda.lee@company.com",
-  ])
-  // Primary admin email – used for one-off test sends.
-  const [adminEmail, setAdminEmail] = useState<string>(
-    (typeof emailList !== "undefined" && emailList.length > 0 ? emailList[0] : "") ?? "",
-  )
-
+  // Read-only preview of DB-backed recipients list (for Settings tab)
+  const [recipientsPreview, setRecipientsPreview] = useState<{ id?: number; email: string }[]>([])
   // Information returned after the most recent send action
   const [lastSentInfo, setLastSentInfo] = useState<
     | {
@@ -73,15 +73,12 @@ export default function AdminReportsPage() {
       }
     | null
   >(null)
-  const [newEmail, setNewEmail] = useState("")
-  const [reportSettings, setReportSettings] = useState({
+
+  const [reportSettings, setReportSettings] = useState<ScheduleSettings>({
     frequency: "weekly",
     dayOfWeek: "monday",
     time: "08:00",
     enabled: true,
-    includeCharts: true,
-    includeSummary: true,
-    includeDetails: true,
   })
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -132,16 +129,11 @@ export default function AdminReportsPage() {
     }
   }
 
-  // Trigger a one-off report send to the admin email using the new public endpoint.
+  // Trigger a one-off report to the full recipient list (no testEmail param)
   const sendReportNow = async () => {
-    if (!adminEmail) {
-      toast.error('Admin email is not set')
-      return
-    }
-
     setIsGenerating(true)
     try {
-      const res = await fetch(`/api/reports/send?testEmail=${encodeURIComponent(adminEmail)}`)
+      const res = await fetch('/api/reports/send')
       if (!res.ok) throw new Error(`Request failed: ${res.status}`)
       const data: { sent: number; failed: number } = await res.json()
 
@@ -170,16 +162,20 @@ export default function AdminReportsPage() {
     }
   }
 
-  const addEmail = () => {
-    if (newEmail && !emailList.includes(newEmail)) {
-      setEmailList([...emailList, newEmail])
-      setNewEmail("")
+  // Load recipients preview for Settings tab
+  useEffect(() => {
+    const fetchRecipientsPreview = async () => {
+      try {
+        const res = await fetch('/api/recipients')
+        if (!res.ok) return
+        const data = await res.json()
+        setRecipientsPreview(data || [])
+      } catch (err) {
+        console.error('Failed to load recipients preview', err)
+      }
     }
-  }
-
-  const removeEmail = (email: string) => {
-    setEmailList(emailList.filter((e) => e !== email))
-  }
+    fetchRecipientsPreview()
+  }, [])
 
   const getProjectSummary = () => {
     const totalProjects = projects.length
@@ -226,6 +222,42 @@ export default function AdminReportsPage() {
       }
     } catch (error: any) {
       toast.error(`Failed to warm cache: ${error.message}`);
+    }
+  };
+
+  // --- Load & save schedule ---
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      try {
+        const res = await fetch("/api/report-schedule");
+        if (!res.ok) throw new Error("Failed to fetch schedule");
+        const data = await res.json();
+        setReportSettings({
+          frequency: data.frequency,
+          dayOfWeek: data.dayOfWeek ?? "monday",
+          time: data.time,
+          enabled: data.enabled,
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchSchedule();
+  }, []);
+
+  const persistSchedule = async (partial: Partial<ScheduleSettings>) => {
+    const optimistic = { ...reportSettings, ...partial };
+    setReportSettings(optimistic);
+    try {
+      await fetch("/api/report-schedule", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(optimistic),
+      });
+      toast.success("Schedule updated");
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Failed to update schedule: " + err.message);
     }
   };
 
@@ -362,9 +394,7 @@ export default function AdminReportsPage() {
             <div className="flex gap-2">
               <SeedDatabaseButton />
               <MigrateDatabaseButton />
-              <Button onClick={testSeeding} variant="outline">
-                Test Seeding Validation
-              </Button>
+              {/* Duplicate Test Seeding Validation button removed */}
             </div>
           </CardContent>
         </Card>
@@ -489,44 +519,25 @@ export default function AdminReportsPage() {
                 <Mail className="h-5 w-5" />
                 Email Recipients
               </CardTitle>
-              <CardDescription>Manage who receives the automated reports</CardDescription>
+              <CardDescription>Current DB recipient list (read-only)</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Enter email address"
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && addEmail()}
-                />
-                <Button onClick={addEmail} className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  Add
-                </Button>
-                <Button 
-                  onClick={sendDemoEmail}
-                  className="flex items-center gap-2"
-                >
-                  <Send className="h-4 w-4" />
-                  Send Demo Email
-                </Button>
-              </div>
-
-              <div className="space-y-2">
-                {emailList.map((email, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 border rounded">
-                    <span>{email}</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeEmail(email)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
+              {recipientsPreview.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No recipients found.</p>
+              ) : (
+                <ul className="list-disc list-inside text-sm space-y-1">
+                  {recipientsPreview.map((r) => (
+                    <li key={r.id ?? r.email}>{r.email}</li>
+                  ))}
+                </ul>
+              )}
+              <p className="text-xs text-muted-foreground">
+                To add or edit recipients, use the "Recipients" tab.
+              </p>
+              <Button onClick={sendDemoEmail} className="flex items-center gap-2" variant="outline">
+                <Send className="h-4 w-4" />
+                Send Demo Email
+              </Button>
             </CardContent>
           </Card>
 
@@ -548,7 +559,7 @@ export default function AdminReportsPage() {
                 <Switch
                   id="enable-reports"
                   checked={reportSettings.enabled}
-                  onCheckedChange={(checked) => setReportSettings({ ...reportSettings, enabled: checked })}
+                  onCheckedChange={(checked) => persistSchedule({ enabled: checked })}
                 />
               </div>
 
@@ -557,7 +568,7 @@ export default function AdminReportsPage() {
                   <Label htmlFor="frequency">Frequency</Label>
                   <Select
                     value={reportSettings.frequency}
-                    onValueChange={(value) => setReportSettings({ ...reportSettings, frequency: value })}
+                    onValueChange={(value) => persistSchedule({ frequency: value })}
                   >
                     <SelectTrigger id="frequency">
                       <SelectValue />
@@ -575,7 +586,7 @@ export default function AdminReportsPage() {
                     <Label htmlFor="day-of-week">Day of Week</Label>
                     <Select
                       value={reportSettings.dayOfWeek}
-                      onValueChange={(value) => setReportSettings({ ...reportSettings, dayOfWeek: value })}
+                      onValueChange={(value) => persistSchedule({ dayOfWeek: value })}
                     >
                       <SelectTrigger id="day-of-week">
                         <SelectValue />
@@ -597,7 +608,7 @@ export default function AdminReportsPage() {
                     id="time"
                     type="time"
                     value={reportSettings.time}
-                    onChange={(e) => setReportSettings({ ...reportSettings, time: e.target.value })}
+                    onChange={(e) => persistSchedule({ time: e.target.value })}
                   />
                 </div>
               </div>
@@ -614,53 +625,7 @@ export default function AdminReportsPage() {
             </CardContent>
           </Card>
 
-          {/* Report Content Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
-                Report Content
-              </CardTitle>
-              <CardDescription>Choose what to include in the automated reports</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="include-summary">Include Summary</Label>
-                  <p className="text-sm text-muted-foreground">Project count and status overview</p>
-                </div>
-                <Switch
-                  id="include-summary"
-                  checked={reportSettings.includeSummary}
-                  onCheckedChange={(checked) => setReportSettings({ ...reportSettings, includeSummary: checked })}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="include-charts">Include Charts</Label>
-                  <p className="text-sm text-muted-foreground">Cost tracking charts and graphs</p>
-                </div>
-                <Switch
-                  id="include-charts"
-                  checked={reportSettings.includeCharts}
-                  onCheckedChange={(checked) => setReportSettings({ ...reportSettings, includeCharts: checked })}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="include-details">Include Project Details</Label>
-                  <p className="text-sm text-muted-foreground">Detailed information for each project</p>
-                </div>
-                <Switch
-                  id="include-details"
-                  checked={reportSettings.includeDetails}
-                  onCheckedChange={(checked) => setReportSettings({ ...reportSettings, includeDetails: checked })}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          {/* Report Content Settings removed per Step 3 – now hard-coded in template */}
         </TabsContent>
 
         <TabsContent value="recipients" className="space-y-6">
@@ -668,32 +633,7 @@ export default function AdminReportsPage() {
         </TabsContent>
 
         <TabsContent value="history" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Report History</CardTitle>
-              <CardDescription>View previously sent reports and their status</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {[
-                  { date: "2023-05-22", status: "Sent", recipients: 3, type: "Weekly" },
-                  { date: "2023-05-15", status: "Sent", recipients: 3, type: "Weekly" },
-                  { date: "2023-05-08", status: "Sent", recipients: 2, type: "Weekly" },
-                  { date: "2023-05-01", status: "Failed", recipients: 3, type: "Weekly" },
-                ].map((report, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <div className="font-medium">
-                        {report.type} Report - {report.date}
-                      </div>
-                      <div className="text-sm text-muted-foreground">Sent to {report.recipients} recipients</div>
-                    </div>
-                    <Badge variant={report.status === "Sent" ? "default" : "destructive"}>{report.status}</Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <ReportHistory />
         </TabsContent>
       </Tabs>
     </div>

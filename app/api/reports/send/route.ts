@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAllRecipients } from '@/lib/db';
+import { getAllRecipients, insertReportHistory } from '@/lib/db';
 import { buildFilteredGalleryURL } from '@/lib/report-link';
 import { sendFilteredGalleryEmail } from '@/lib/mailer';
 
@@ -43,6 +43,13 @@ export async function GET(request: Request) {
   let sent = 0;
   let failed = 0;
 
+  // Determine trigger type for history
+  const trigger: 'cron' | 'manual' | 'demo' = testEmail
+    ? 'demo'
+    : request.headers.get('x-vercel-cron') === 'true'
+    ? 'cron'
+    : 'manual';
+
   for (const recipient of recipients) {
     const link = buildFilteredGalleryURL({
       plants: recipient.plants ?? undefined,
@@ -56,6 +63,15 @@ export async function GET(request: Request) {
       failed += 1;
     }
   }
+
+  // Insert history record (fire-and-forget)
+  insertReportHistory({
+    sentAt: new Date(),
+    recipients: sent,
+    failures: failed,
+    triggeredBy: trigger,
+    testEmail: testEmail ?? null,
+  }).catch((err) => console.error('[reports/send] Failed to insert history', err));
 
   return NextResponse.json({ sent, failed });
 }
