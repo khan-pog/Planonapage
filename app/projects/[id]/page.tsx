@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel"
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, type CarouselApi } from "@/components/ui/carousel"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -26,6 +26,9 @@ export default function ProjectDetailPage() {
   const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // For auto-scrolling the hero carousel
+  const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null)
 
   useEffect(() => {
     async function fetchProject() {
@@ -52,6 +55,18 @@ export default function ProjectDetailPage() {
 
     fetchProject()
   }, [projectId])
+
+  useEffect(() => {
+    if (!carouselApi) return
+    const id = setInterval(() => {
+      if (carouselApi?.canScrollNext()) {
+        carouselApi.scrollNext()
+      } else {
+        carouselApi.scrollTo(0)
+      }
+    }, 5000) // 5-second interval
+    return () => clearInterval(id)
+  }, [carouselApi])
 
   if (loading) {
     return (
@@ -142,7 +157,7 @@ export default function ProjectDetailPage() {
             <TabsContent value="overview" className="space-y-6 pt-4">
               {/* Photo carousel hero */}
               {project.images && project.images.length > 0 && (
-                <Carousel className="w-full">
+                <Carousel className="w-full" opts={{ loop: true }} setApi={setCarouselApi}>
                   <CarouselContent>
                     {project.images.map((image, index) => (
                       <CarouselItem key={index}>
@@ -156,8 +171,8 @@ export default function ProjectDetailPage() {
                       </CarouselItem>
                     ))}
                   </CarouselContent>
-                  <CarouselPrevious />
-                  <CarouselNext />
+                  <CarouselPrevious className="!left-2 !top-1/2 !-translate-y-1/2" variant="ghost" />
+                  <CarouselNext className="!right-2 !top-1/2 !-translate-y-1/2" variant="ghost" />
                 </Carousel>
               )}
 
