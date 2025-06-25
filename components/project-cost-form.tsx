@@ -22,8 +22,16 @@ interface ProjectCostFormProps {
 }
 
 export function ProjectCostForm({ costTracking, onChange, editable = true }: ProjectCostFormProps) {
+  const computeForecast = (ct: CostTracking) => {
+    const totalSpent = ct.monthlyData.reduce((sum, m) => sum + m.actualCost, 0)
+    const cumulativeBudget = ct.monthlyData.reduce((sum, m) => sum + m.budgetedCost, 0)
+    return ct.totalBudget + (totalSpent - cumulativeBudget)
+  }
+
   const updateCostTracking = (updates: Partial<CostTracking>) => {
-    onChange({ ...costTracking, ...updates })
+    const merged = { ...costTracking, ...updates }
+    const forecastCompletion = computeForecast(merged)
+    onChange({ ...merged, forecastCompletion })
   }
 
   const updateMonthlyData = (index: number, updates: Partial<MonthlyCostData>) => {
@@ -185,14 +193,11 @@ export function ProjectCostForm({ costTracking, onChange, editable = true }: Pro
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="forecast-completion">Forecast at Completion</Label>
+              <Label>Forecast at Completion</Label>
               <Input
-                id="forecast-completion"
-                type="number"
-                placeholder="Enter forecast"
-                value={costTracking.forecastCompletion}
-                onChange={(e) => updateCostTracking({ forecastCompletion: Number(e.target.value) })}
-                disabled={!editable}
+                value={formatCurrency(costTracking.forecastCompletion)}
+                disabled
+                className="cursor-default"
               />
             </div>
           </div>
