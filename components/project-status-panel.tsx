@@ -145,18 +145,18 @@ export function ProjectStatusPanel({ status, editable = false, onChange }: Proje
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="rag-comment">Red-Amber-Green Comment</Label>
+          <Label htmlFor="critical-path-blocker">Critical Path / Next Blocker</Label>
           {editable ? (
             <Textarea
-              id="rag-comment"
+              id="critical-path-blocker"
               value={status.cpmRagComment}
               onChange={(e) => handleStatusChange('cpmRagComment', e.target.value)}
-              placeholder="Add RAG comments..."
+              placeholder="Add critical path or next blocker comment..."
               className="min-h-[100px]"
             />
           ) : (
             <div className="p-3 border rounded-md min-h-[100px] whitespace-pre-wrap">
-              {status.cpmRagComment || "No RAG comments provided."}
+              {status.cpmRagComment || "No critical path or next blocker provided."}
             </div>
           )}
         </div>

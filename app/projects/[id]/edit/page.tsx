@@ -178,7 +178,7 @@ export default function EditProjectPage() {
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-5">
                   <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                  <TabsTrigger value="status">Status & RAG</TabsTrigger>
+                  <TabsTrigger value="status">Status & Blockers</TabsTrigger>
                   <TabsTrigger value="cost">Cost Tracking</TabsTrigger>
                   <TabsTrigger value="narratives">Narratives</TabsTrigger>
                   <TabsTrigger value="milestones">Milestones & Images</TabsTrigger>

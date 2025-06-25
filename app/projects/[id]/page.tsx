@@ -29,6 +29,7 @@ export default function ProjectDetailPage() {
 
   // For auto-scrolling the hero carousel
   const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null)
+  const [selectedIndex, setSelectedIndex] = useState(0)
 
   useEffect(() => {
     async function fetchProject() {
@@ -58,6 +59,11 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     if (!carouselApi) return
+    // update selected index on init & on select
+    const updateSelected = () => setSelectedIndex(carouselApi.selectedScrollSnap())
+    updateSelected()
+    carouselApi.on('select', updateSelected)
+
     const id = setInterval(() => {
       if (carouselApi?.canScrollNext()) {
         carouselApi.scrollNext()
@@ -65,7 +71,10 @@ export default function ProjectDetailPage() {
         carouselApi.scrollTo(0)
       }
     }, 5000) // 5-second interval
-    return () => clearInterval(id)
+    return () => {
+      clearInterval(id)
+      carouselApi.off('select', updateSelected)
+    }
   }, [carouselApi])
 
   if (loading) {
@@ -146,34 +155,47 @@ export default function ProjectDetailPage() {
           </div>
 
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="narratives">Narratives</TabsTrigger>
-              <TabsTrigger value="milestones">Milestones</TabsTrigger>
+              <TabsTrigger value="details">Narratives & Milestones</TabsTrigger>
               <TabsTrigger value="cost">Cost</TabsTrigger>
-              <TabsTrigger value="images">Images</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6 pt-4">
               {/* Photo carousel hero */}
               {project.images && project.images.length > 0 && (
-                <Carousel className="w-full" opts={{ loop: true }} setApi={setCarouselApi}>
-                  <CarouselContent>
-                    {project.images.map((image, index) => (
-                      <CarouselItem key={index}>
-                        <div className="relative w-full aspect-[16/9] overflow-hidden rounded-md border">
-                          <img
-                            src={image || "/placeholder.svg"}
-                            alt={`Project image ${index + 1}`}
-                            className="object-cover w-full h-full"
-                          />
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious className="!left-2 !top-1/2 !-translate-y-1/2" variant="ghost" />
-                  <CarouselNext className="!right-2 !top-1/2 !-translate-y-1/2" variant="ghost" />
-                </Carousel>
+                <div className="relative">
+                  <Carousel className="w-full" opts={{ loop: true }} setApi={setCarouselApi}>
+                    <CarouselContent>
+                      {project.images.map((image, index) => (
+                        <CarouselItem key={index}>
+                          <div className="relative w-full aspect-[16/9] overflow-hidden rounded-md border">
+                            <img
+                              src={image || "/placeholder.svg"}
+                              alt={`Project image ${index + 1}`}
+                              className="object-cover w-full h-full"
+                            />
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="!left-2 !top-1/2 !-translate-y-1/2" variant="ghost" />
+                    <CarouselNext className="!right-2 !top-1/2 !-translate-y-1/2" variant="ghost" />
+                  </Carousel>
+                  {/* dot indicators */}
+                  {project.images.length > 1 && (
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2">
+                      {project.images.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => carouselApi?.scrollTo(i)}
+                          className={`h-2 w-2 rounded-full transition-colors ${selectedIndex === i ? 'bg-white' : 'bg-white/50'}`}
+                          aria-label={`Go to slide ${i + 1}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
               )}
 
               <ProjectStatusPanel status={project.status} />
@@ -190,30 +212,13 @@ export default function ProjectDetailPage() {
               </Accordion>
             </TabsContent>
 
-            <TabsContent value="narratives" className="pt-4">
+            <TabsContent value="details" className="space-y-8 pt-4">
               <ProjectNarratives narrative={project.narrative} />
-            </TabsContent>
-
-            <TabsContent value="milestones" className="pt-4">
               <ProjectMilestones milestones={project.milestones} />
             </TabsContent>
 
             <TabsContent value="cost" className="pt-4">
               <ProjectCostTracking costTracking={project.costTracking} />
-            </TabsContent>
-
-            <TabsContent value="images" className="pt-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {project.images.map((image, index) => (
-                  <div key={index} className="relative aspect-square overflow-hidden rounded-md border">
-                    <img
-                      src={image || "/placeholder.svg"}
-                      alt={`Project image ${index + 1}`}
-                      className="object-cover w-full h-full"
-                    />
-                  </div>
-                ))}
-              </div>
             </TabsContent>
           </Tabs>
         </div>
