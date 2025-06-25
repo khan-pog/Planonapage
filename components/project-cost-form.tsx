@@ -202,9 +202,15 @@ export function ProjectCostForm({ costTracking, onChange, editable = true }: Pro
                       <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p className="max-w-xs text-left">
-                        EAC = Total Budget + (Total Spent&nbsp;–&nbsp;Cumulative Budget)
-                      </p>
+                      <div className="max-w-xs text-left space-y-1">
+                        <p>
+                          Forecast at Completion = Original Total Budget + ( Money Spent So Far – Money You <em>Planned</em> to Have Spent by Now )
+                        </p>
+                        <p>
+                          • If you've spent <strong>more</strong> than planned so far, the forecast goes <strong>up</strong>.
+                          <br />• If you've spent <strong>less</strong>, the forecast goes <strong>down</strong>.
+                        </p>
+                      </div>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
