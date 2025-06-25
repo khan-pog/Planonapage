@@ -119,11 +119,13 @@ export default function ScheduleCalendarPreview({ settings }: ScheduleCalendarPr
         selected={sendDate}
         modifiers={{
           reminder: reminderDates,
-          send: [sendDate],
+          send: sendDates,
+          today: [new Date()],
         }}
         modifiersClassNames={{
           send: "bg-green-600 text-green-50 hover:bg-green-600",
           reminder: "bg-yellow-300/50 text-yellow-900 hover:bg-yellow-300/60",
+          today: "ring-2 ring-primary text-primary-foreground",
         }}
       />
       <div className="text-xs text-muted-foreground flex flex-col gap-1">
@@ -131,8 +133,10 @@ export default function ScheduleCalendarPreview({ settings }: ScheduleCalendarPr
           <span className="inline-block h-2 w-2 rounded-full bg-green-600 mr-2" /> Report Send Day
         </span>
         <span>
-          <span className="inline-block h-2 w-2 rounded-full bg-yellow-300 mr-2 border border-yellow-500" /> PM
-          Reminder Day
+          <span className="inline-block h-2 w-2 rounded-full bg-yellow-300 mr-2 border border-yellow-500" /> PM Reminder Day
+        </span>
+        <span>
+          <span className="inline-block h-2 w-2 rounded-full ring-2 ring-primary mr-2" /> Today
         </span>
       </div>
     </div>
