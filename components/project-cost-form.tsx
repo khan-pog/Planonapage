@@ -4,8 +4,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Trash2 } from "lucide-react"
+import { Plus, Trash2, HelpCircle } from "lucide-react"
 import type { CostTracking, MonthlyCostData } from "@/lib/types"
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip"
 
 // Add function to get current month and year
 const getCurrentMonthYear = () => {
@@ -193,7 +194,21 @@ export function ProjectCostForm({ costTracking, onChange, editable = true }: Pro
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Forecast at Completion</Label>
+              <div className="flex items-center gap-1">
+                <Label>Forecast at Completion</Label>
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs text-left">
+                        EAC = Total Budget + (Total Spent&nbsp;–&nbsp;Cumulative Budget)
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <Input
                 value={formatCurrency(costTracking.forecastCompletion)}
                 disabled
