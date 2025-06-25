@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import ReportHistory from "@/components/report-history"
 import { DatePickerInput } from "@/components/date-picker-input"
+import ScheduleCalendarPreview from "@/components/schedule-calendar-preview"
 
 interface Project {
   id: number
@@ -589,6 +590,9 @@ export default function AdminReportsPage() {
                     : "Disabled"}
                 </p>
               </div>
+
+              {/* Calendar preview of upcoming sends & reminders */}
+              <ScheduleCalendarPreview />
 
               <Button onClick={async ()=>{
                 try {

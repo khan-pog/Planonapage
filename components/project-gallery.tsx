@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Search, SlidersHorizontal } from "lucide-react"
 
 import { Input } from "@/components/ui/input"
@@ -25,7 +25,8 @@ export function ProjectGallery() {
   const [sortBy, setSortBy] = useState("updatedAt")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
+  const loadMoreRef = useRef<HTMLDivElement | null>(null)
 
   // URL-based filters
   const [plantFilter, setPlantFilter] = useState<string | null>(null)
@@ -98,12 +99,28 @@ export function ProjectGallery() {
     }
   })
 
-  // Paginate projects
-  const totalPages = Math.ceil(sortedProjects.length / ITEMS_PER_PAGE)
-  const paginatedProjects = sortedProjects.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  )
+  // Visible slice for infinite scroll
+  const visibleProjects = sortedProjects.slice(0, visibleCount)
+
+  // Intersection observer to load more
+  useEffect(() => {
+    if (!loadMoreRef.current) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0]
+        if (entry.isIntersecting) {
+          setVisibleCount((c) => Math.min(sortedProjects.length, c + ITEMS_PER_PAGE))
+        }
+      },
+      {
+        rootMargin: "200px",
+      },
+    )
+    observer.observe(loadMoreRef.current)
+    return () => {
+      observer.disconnect()
+    }
+  }, [sortedProjects.length])
 
   return (
     <div className="space-y-6">
@@ -198,7 +215,7 @@ export function ProjectGallery() {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {paginatedProjects.map((project) => (
+            {visibleProjects.map((project) => (
               <ProjectCard key={project.id} project={project} />
             ))}
           </div>
@@ -210,34 +227,10 @@ export function ProjectGallery() {
             </div>
           )}
 
-          {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-8">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </Button>
-              <div className="flex items-center gap-2">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <Button
-                    key={page}
-                    variant={currentPage === page ? "default" : "outline"}
-                    onClick={() => setCurrentPage(page)}
-                    className="w-10"
-                  >
-                    {page}
-                  </Button>
-                ))}
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </Button>
+          {/* Sentinel element for intersection observer */}
+          {visibleCount < sortedProjects.length && (
+            <div className="py-6 flex justify-center" ref={loadMoreRef}>
+              <p className="text-sm text-muted-foreground">Loading more projects…</p>
             </div>
           )}
         </>
