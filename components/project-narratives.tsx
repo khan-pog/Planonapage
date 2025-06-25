@@ -6,9 +6,10 @@ interface ProjectNarrativesProps {
   narrative: ProjectNarrative
   editable?: boolean
   onChange?: (narrative: ProjectNarrative) => void
+  showGeneral?: boolean
 }
 
-export function ProjectNarratives({ narrative, editable = false, onChange }: ProjectNarrativesProps) {
+export function ProjectNarratives({ narrative, editable = false, onChange, showGeneral = true }: ProjectNarrativesProps) {
   const handleNarrativeChange = (field: keyof ProjectNarrative, value: string) => {
     if (onChange) {
       onChange({ ...narrative, [field]: value })
@@ -17,23 +18,25 @@ export function ProjectNarratives({ narrative, editable = false, onChange }: Pro
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>General</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {editable ? (
-            <Textarea
-              value={narrative.general}
-              onChange={(e) => handleNarrativeChange('general', e.target.value)}
-              placeholder="Add general narrative..."
-              className="min-h-[150px]"
-            />
-          ) : (
-            <div className="whitespace-pre-wrap">{narrative.general || "No general narrative provided."}</div>
-          )}
-        </CardContent>
-      </Card>
+      {showGeneral && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Project Description</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {editable ? (
+              <Textarea
+                value={narrative.general}
+                onChange={(e) => handleNarrativeChange('general', e.target.value)}
+                placeholder="Add project description..."
+                className="min-h-[150px]"
+              />
+            ) : (
+              <div className="whitespace-pre-wrap">{narrative.general || "No project description provided."}</div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

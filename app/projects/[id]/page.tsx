@@ -199,6 +199,21 @@ export default function ProjectDetailPage() {
               )}
 
               <ProjectStatusPanel status={project.status} />
+
+              {/* Project Description */}
+              {project.narrative.general && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Project Description</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="whitespace-pre-wrap">
+                      {project.narrative.general}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               <ProjectPhaseProgress percentages={project.phasePercentages} />
 
               {/* PM Reporting Table inside collapsible accordion at bottom */}
@@ -213,7 +228,7 @@ export default function ProjectDetailPage() {
             </TabsContent>
 
             <TabsContent value="details" className="space-y-8 pt-4">
-              <ProjectNarratives narrative={project.narrative} />
+              <ProjectNarratives narrative={project.narrative} showGeneral={false} />
               <ProjectMilestones milestones={project.milestones} />
             </TabsContent>
 

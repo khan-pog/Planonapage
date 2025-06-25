@@ -9,6 +9,7 @@ import { ArrowLeft, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -358,6 +359,18 @@ export default function EditProjectPage() {
                       />
                       {errors.pmEmail && <p className="text-sm text-red-500">{errors.pmEmail}</p>}
                     </div>
+
+                    {/* Project Description */}
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="project-description">Project Description</Label>
+                      <Textarea
+                        id="project-description"
+                        value={project.narrative.general}
+                        onChange={(e) => setProject({ ...project, narrative: { ...project.narrative, general: e.target.value } })}
+                        placeholder="Enter a brief project description..."
+                        className="min-h-[120px]"
+                      />
+                    </div>
                   </div>
                 </TabsContent>
 
@@ -394,13 +407,15 @@ export default function EditProjectPage() {
                               type="range"
                               min="0"
                               max="100"
+                              step="50"
                               value={project.phasePercentages[key as keyof typeof project.phasePercentages]}
                               onChange={(e) => {
+                                const snapped = Math.round(Number(e.target.value) / 50) * 50;
                                 setProject({
                                   ...project,
                                   phasePercentages: {
                                     ...project.phasePercentages,
-                                    [key]: Number.parseInt(e.target.value),
+                                    [key]: snapped,
                                   },
                                 })
                               }}
@@ -424,6 +439,7 @@ export default function EditProjectPage() {
                   <ProjectNarratives 
                     narrative={project.narrative} 
                     editable={true} 
+                    showGeneral={false}
                     onChange={(narrative) => setProject({ ...project, narrative })}
                   />
                 </TabsContent>
