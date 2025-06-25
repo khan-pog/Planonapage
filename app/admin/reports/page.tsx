@@ -592,7 +592,7 @@ export default function AdminReportsPage() {
               </div>
 
               {/* Calendar preview of upcoming sends & reminders */}
-              <ScheduleCalendarPreview />
+              <ScheduleCalendarPreview settings={reportSettings} />
 
               <Button onClick={async ()=>{
                 try {

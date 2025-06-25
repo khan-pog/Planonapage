@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { Calendar } from "@/components/ui/calendar"
-import { addDays, addWeeks, isSameDay, parseISO } from "date-fns"
+import { addDays, addWeeks, addMonths, isSameDay, parseISO } from "date-fns"
 
-interface ScheduleApiResponse {
+export interface ScheduleApiResponse {
   frequency: string
   dayOfWeek?: string | null
   time: string
@@ -13,6 +13,10 @@ interface ScheduleApiResponse {
   pmReminderDay?: string | null
   pmFinalReminderDays?: number | null
   pmStartWeeksBefore?: number | null
+}
+
+interface ScheduleCalendarPreviewProps {
+  settings?: ScheduleApiResponse
 }
 
 const weekdayToNumber: Record<string, number> = {
@@ -41,18 +45,24 @@ function getNextSendDate(base: Date, sendDateStr?: string | null) {
   return new Date(now.getFullYear(), now.getMonth() + 1, 1)
 }
 
-export default function ScheduleCalendarPreview() {
+export default function ScheduleCalendarPreview({ settings }: ScheduleCalendarPreviewProps) {
   const [sendDate, setSendDate] = useState<Date | null>(null)
+  const [sendDates, setSendDates] = useState<Date[]>([])
   const [reminderDates, setReminderDates] = useState<Date[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let ignore = false
-    async function fetchSchedule() {
+    async function resolveSchedule() {
       try {
-        const res = await fetch("/api/report-schedule")
-        if (!res.ok) throw new Error("Failed to load schedule")
-        const data: ScheduleApiResponse = await res.json()
+        let data: ScheduleApiResponse
+        if (settings) {
+          data = settings
+        } else {
+          const res = await fetch("/api/report-schedule")
+          if (!res.ok) throw new Error("Failed to load schedule")
+          data = await res.json()
+        }
 
         const nextSend = getNextSendDate(new Date(), data.sendDate)
         const pmStartWeeksBefore = data.pmStartWeeksBefore ?? 2
@@ -87,11 +97,11 @@ export default function ScheduleCalendarPreview() {
       }
     }
 
-    fetchSchedule()
+    resolveSchedule()
     return () => {
       ignore = true
     }
-  }, [])
+  }, [settings])
 
   if (loading) {
     return <p className="text-sm text-muted-foreground">Loading calendar…</p>
