@@ -198,8 +198,6 @@ export default function ProjectDetailPage() {
                 </div>
               )}
 
-              <ProjectStatusPanel status={project.status} />
-
               {/* Project Description */}
               {project.narrative.general && (
                 <Card>
@@ -213,6 +211,8 @@ export default function ProjectDetailPage() {
                   </CardContent>
                 </Card>
               )}
+
+              <ProjectStatusPanel status={project.status} />
 
               <ProjectPhaseProgress percentages={project.phasePercentages} />
 

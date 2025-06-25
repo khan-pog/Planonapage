@@ -9,7 +9,6 @@ import { ArrowLeft, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -423,20 +422,7 @@ export default function NewProjectPage() {
                     narrative={project.narrative} 
                     editable={true} 
                     onChange={(narrative) => setProject({ ...project, narrative })}
-                    showGeneral={false}
                   />
-
-                  {/* Project Description */}
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="project-description">Project Description</Label>
-                    <Textarea
-                      id="project-description"
-                      value={project.narrative.general}
-                      onChange={(e) => setProject({ ...project, narrative: { ...project.narrative, general: e.target.value } })}
-                      placeholder="Enter a brief project description..."
-                      className="min-h-[120px]"
-                    />
-                  </div>
                 </TabsContent>
 
                 <TabsContent value="milestones" className="pt-6">
