@@ -1,7 +1,5 @@
 "use client"
 import { useParams, useRouter } from "next/navigation"
-import Image from "next/image"
-import Link from "next/link"
 import { ArrowLeft, Calendar, Edit, User } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -9,6 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ProjectStatusPanel } from "@/components/project-status-panel"
@@ -140,9 +140,39 @@ export default function ProjectDetailPage() {
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6 pt-4">
+              {/* Photo carousel hero */}
+              {project.images && project.images.length > 0 && (
+                <Carousel className="w-full">
+                  <CarouselContent>
+                    {project.images.map((image, index) => (
+                      <CarouselItem key={index}>
+                        <div className="relative w-full aspect-[16/9] overflow-hidden rounded-md border">
+                          <img
+                            src={image || "/placeholder.svg"}
+                            alt={`Project image ${index + 1}`}
+                            className="object-cover w-full h-full"
+                          />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
+              )}
+
               <ProjectStatusPanel status={project.status} />
-              <ProjectReportingTable reporting={project.pmReporting} />
               <ProjectPhaseProgress percentages={project.phasePercentages} />
+
+              {/* PM Reporting Table inside collapsible accordion at bottom */}
+              <Accordion type="single" collapsible>
+                <AccordionItem value="pm-reporting">
+                  <AccordionTrigger>PM Reporting Tool Update</AccordionTrigger>
+                  <AccordionContent>
+                    <ProjectReportingTable reporting={project.pmReporting} />
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </TabsContent>
 
             <TabsContent value="narratives" className="pt-4">
