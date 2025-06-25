@@ -29,18 +29,29 @@ export function ProjectCostForm({ costTracking, onChange, editable = true }: Pro
     return ct.totalBudget + (totalSpent - cumulativeBudget)
   }
 
+  const computeVariancePct = (ct: CostTracking) => {
+    const totalSpent = ct.monthlyData.reduce((sum, m) => sum + m.actualCost, 0)
+    const budgetToDate = ct.monthlyData.reduce((sum, m) => sum + m.budgetedCost, 0)
+    return budgetToDate > 0 ? ((totalSpent - budgetToDate) / budgetToDate) * 100 : 0
+  }
+
+  const computeCostStatus = (variancePct: number) => {
+    if (variancePct > 10) return "Over Budget"
+    if (variancePct < -10) return "Under Budget"
+    return "On Track"
+  }
+
   const updateCostTracking = (updates: Partial<CostTracking>) => {
     const merged = { ...costTracking, ...updates }
     const forecastCompletion = computeForecast(merged)
-    onChange({ ...merged, forecastCompletion })
+    const variance = computeVariancePct(merged)
+    const costStatus = computeCostStatus(variance)
+    onChange({ ...merged, forecastCompletion, variance, costStatus })
   }
 
   const updateMonthlyData = (index: number, updates: Partial<MonthlyCostData>) => {
     const newMonthlyData = [...costTracking.monthlyData]
     const updatedMonth = { ...newMonthlyData[index], ...updates }
-    
-    // Calculate variance
-    updatedMonth.variance = updatedMonth.actualCost - updatedMonth.budgetedCost
     
     // Calculate cumulative values
     let cumulativeBudget = 0
@@ -78,14 +89,11 @@ export function ProjectCostForm({ costTracking, onChange, editable = true }: Pro
       }
     }
 
-    // Calculate overall variance percentage
-    const totalBudget = costTracking.totalBudget
-    const totalActual = newMonthlyData.reduce((sum, month) => sum + month.actualCost, 0)
-    const variancePercentage = totalBudget > 0 ? ((totalActual - totalBudget) / totalBudget) * 100 : 0
+    // Update variance for this month
+    updatedMonth.variance = updatedMonth.actualCost - updatedMonth.budgetedCost
 
     updateCostTracking({ 
-      monthlyData: newMonthlyData,
-      variance: variancePercentage
+      monthlyData: newMonthlyData
     })
   }
 
@@ -172,24 +180,6 @@ export function ProjectCostForm({ costTracking, onChange, editable = true }: Pro
                   <SelectItem value="EUR">EUR - Euro</SelectItem>
                   <SelectItem value="GBP">GBP - British Pound</SelectItem>
                   <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="cost-status">Cost Status</Label>
-              <Select
-                value={costTracking.costStatus}
-                onValueChange={(value: any) => updateCostTracking({ costStatus: value })}
-                disabled={!editable}
-              >
-                <SelectTrigger id="cost-status">
-                  <SelectValue placeholder="Select cost status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Under Budget">Under Budget</SelectItem>
-                  <SelectItem value="On Track">On Track</SelectItem>
-                  <SelectItem value="Monitor">Monitor</SelectItem>
-                  <SelectItem value="Over Budget">Over Budget</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -68,7 +68,7 @@ export function ProjectCostTracking({ costTracking }: ProjectCostTrackingProps) 
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {costTracking.variance > 0 ? "+" : ""}
-              {costTracking.variance.toFixed(1)}% variance
+              {costTracking.variance.toFixed(1)}% vs budget to&nbsp;date
             </p>
           </CardContent>
         </Card>
