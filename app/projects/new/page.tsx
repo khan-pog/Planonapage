@@ -20,6 +20,7 @@ import { ProjectCostForm } from "@/components/project-cost-form"
 import { ImageUpload } from "@/components/image-upload"
 import { Checkbox } from "@/components/ui/checkbox"
 import { PLANTS, DISCIPLINES } from "@/lib/constants"
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
 // Add function to get current month and year
 const getCurrentMonthYear = () => {
@@ -173,12 +174,11 @@ export default function NewProjectPage() {
           <CardContent>
             <form id="new-project-form" onSubmit={handleSubmit}>
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-5">
+                <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                  <TabsTrigger value="status">Status & Blockers</TabsTrigger>
-                  <TabsTrigger value="cost">Cost Tracking</TabsTrigger>
                   <TabsTrigger value="narratives">Narratives</TabsTrigger>
-                  <TabsTrigger value="milestones">Milestones & Images</TabsTrigger>
+                  <TabsTrigger value="status">Status & Milestones</TabsTrigger>
+                  <TabsTrigger value="cost">Cost Tracking</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="basic" className="space-y-6 pt-6">
@@ -353,6 +353,24 @@ export default function NewProjectPage() {
                         })}
                       </div>
                     </div>
+                    <div className="space-y-2">
+                      <Label>Project Images</Label>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline">Manage Images</Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-4xl">
+                          <DialogHeader>
+                            <DialogTitle>Project Images</DialogTitle>
+                            <DialogDescription>Upload and manage project images for this project.</DialogDescription>
+                          </DialogHeader>
+                          <ImageUpload
+                            images={project.images}
+                            onChange={(images) => setProject({ ...project, images })}
+                          />
+                        </DialogContent>
+                      </Dialog>
+                    </div>
                   </div>
                 </TabsContent>
 
@@ -407,6 +425,12 @@ export default function NewProjectPage() {
                       </div>
                     </CardContent>
                   </Card>
+
+                  <ProjectMilestones
+                    milestones={project.milestones}
+                    editable={true}
+                    onChange={(milestones) => setProject({ ...project, milestones })}
+                  />
                 </TabsContent>
 
                 <TabsContent value="cost" className="pt-6">
@@ -428,30 +452,16 @@ export default function NewProjectPage() {
                     onChange={(narrative) => setProject({ ...project, narrative })}
                   />
                 </TabsContent>
-
-                <TabsContent value="milestones" className="pt-6">
-                  <div className="space-y-6">
-                    <ProjectMilestones
-                      milestones={project.milestones}
-                      editable={true}
-                      onChange={(milestones) => setProject({ ...project, milestones })}
-                    />
-                    <ImageUpload
-                      images={project.images}
-                      onChange={(images) => setProject({ ...project, images })}
-                    />
-                  </div>
-                </TabsContent>
               </Tabs>
             </form>
           </CardContent>
           <CardFooter>
-            {activeTab !== "milestones" ? (
+            {activeTab !== "cost" ? (
               <Button
                 type="button"
                 className="w-full"
                 onClick={() => {
-                  const tabsOrder = ["basic", "status", "cost", "narratives", "milestones"] as const;
+                  const tabsOrder = ["basic", "narratives", "status", "cost"] as const;
                   const currentIndex = tabsOrder.indexOf(activeTab as typeof tabsOrder[number]);
                   if (currentIndex !== -1 && currentIndex < tabsOrder.length - 1) {
                     setActiveTab(tabsOrder[currentIndex + 1]);
