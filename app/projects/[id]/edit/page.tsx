@@ -182,10 +182,9 @@ export default function EditProjectPage() {
           <CardContent>
             <form id="edit-project-form" onSubmit={handleSubmit}>
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                  <TabsTrigger value="narratives">Narratives</TabsTrigger>
-                  <TabsTrigger value="status">Status & Milestones</TabsTrigger>
+                  <TabsTrigger value="progress">Progress</TabsTrigger>
                   <TabsTrigger value="cost">Cost Tracking</TabsTrigger>
                 </TabsList>
 
@@ -384,7 +383,7 @@ export default function EditProjectPage() {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="status" className="space-y-6 pt-6">
+                <TabsContent value="progress" className="space-y-6 pt-6">
                   <ProjectStatusPanel 
                     status={project.status} 
                     editable={true} 
@@ -441,6 +440,12 @@ export default function EditProjectPage() {
                     editable={true}
                     onChange={(milestones) => setProject({ ...project, milestones })}
                   />
+
+                  <ProjectNarratives
+                    narrative={project.narrative}
+                    editable={true}
+                    onChange={(narrative) => setProject({ ...project, narrative })}
+                  />
                 </TabsContent>
 
                 <TabsContent value="cost" className="pt-6">
@@ -454,14 +459,6 @@ export default function EditProjectPage() {
                     editable={true}
                   />
                 </TabsContent>
-
-                <TabsContent value="narratives" className="pt-6">
-                  <ProjectNarratives 
-                    narrative={project.narrative} 
-                    editable={true}
-                    onChange={(narrative) => setProject({ ...project, narrative })}
-                  />
-                </TabsContent>
               </Tabs>
             </form>
           </CardContent>
@@ -471,7 +468,7 @@ export default function EditProjectPage() {
                 type="button"
                 className="flex gap-2"
                 onClick={() => {
-                  const tabsOrder = ["basic", "narratives", "status", "cost"] as const;
+                  const tabsOrder = ["basic", "progress", "cost"] as const;
                   const currentIndex = tabsOrder.indexOf(activeTab as typeof tabsOrder[number]);
                   if (currentIndex !== -1 && currentIndex < tabsOrder.length - 1) {
                     setActiveTab(tabsOrder[currentIndex + 1]);

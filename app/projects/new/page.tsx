@@ -174,10 +174,9 @@ export default function NewProjectPage() {
           <CardContent>
             <form id="new-project-form" onSubmit={handleSubmit}>
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                  <TabsTrigger value="narratives">Narratives</TabsTrigger>
-                  <TabsTrigger value="status">Status & Milestones</TabsTrigger>
+                  <TabsTrigger value="progress">Progress</TabsTrigger>
                   <TabsTrigger value="cost">Cost Tracking</TabsTrigger>
                 </TabsList>
 
@@ -374,7 +373,7 @@ export default function NewProjectPage() {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="status" className="space-y-6 pt-6">
+                <TabsContent value="progress" className="space-y-6 pt-6">
                   <ProjectStatusPanel 
                     status={project.status} 
                     editable={true} 
@@ -431,6 +430,12 @@ export default function NewProjectPage() {
                     editable={true}
                     onChange={(milestones) => setProject({ ...project, milestones })}
                   />
+
+                  <ProjectNarratives
+                    narrative={project.narrative}
+                    editable={true}
+                    onChange={(narrative) => setProject({ ...project, narrative })}
+                  />
                 </TabsContent>
 
                 <TabsContent value="cost" className="pt-6">
@@ -444,14 +449,6 @@ export default function NewProjectPage() {
                     editable={true}
                   />
                 </TabsContent>
-
-                <TabsContent value="narratives" className="pt-6">
-                  <ProjectNarratives 
-                    narrative={project.narrative} 
-                    editable={true} 
-                    onChange={(narrative) => setProject({ ...project, narrative })}
-                  />
-                </TabsContent>
               </Tabs>
             </form>
           </CardContent>
@@ -461,7 +458,7 @@ export default function NewProjectPage() {
                 type="button"
                 className="w-full"
                 onClick={() => {
-                  const tabsOrder = ["basic", "narratives", "status", "cost"] as const;
+                  const tabsOrder = ["basic", "progress", "cost"] as const;
                   const currentIndex = tabsOrder.indexOf(activeTab as typeof tabsOrder[number]);
                   if (currentIndex !== -1 && currentIndex < tabsOrder.length - 1) {
                     setActiveTab(tabsOrder[currentIndex + 1]);
