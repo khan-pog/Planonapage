@@ -89,8 +89,8 @@ export function ProjectCostForm({ costTracking, onChange, editable = true }: Pro
       }
     }
 
-    // Update variance for this month
-    updatedMonth.variance = updatedMonth.actualCost - updatedMonth.budgetedCost
+    // Update variance for this month in the array (must use array element, not the updatedMonth temp)
+    newMonthlyData[index].variance = newMonthlyData[index].actualCost - newMonthlyData[index].budgetedCost
 
     updateCostTracking({ 
       monthlyData: newMonthlyData
