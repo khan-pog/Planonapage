@@ -394,10 +394,10 @@ export default function EditProjectPage() {
                               type="range"
                               min="0"
                               max="100"
-                              step="50"
+                              step="10"
                               value={project.phasePercentages[key as keyof typeof project.phasePercentages]}
                               onChange={(e) => {
-                                const snapped = Math.round(Number(e.target.value) / 50) * 50;
+                                const snapped = Math.round(Number(e.target.value) / 10) * 10;
                                 setProject({
                                   ...project,
                                   phasePercentages: {
