@@ -19,7 +19,7 @@ export interface Project {
 }
 
 export interface ProjectStatus {
-  safety: "Yes" | "No" | "Monitor"
+  safety: "On Track" | "Monitor" | "Off Track"
   scopeQuality: "On Track" | "Monitor" | "Not Applicable"
   cost: "On Track" | "Over Budget" | "Under Budget"
   schedule: "On Track" | "Monitor" | "Delayed"

@@ -47,6 +47,11 @@ export default function EditProjectPage() {
           throw new Error("Failed to fetch project")
         }
         const data = await response.json()
+        if (data.status && data.status.safety) {
+          const legacy = data.status.safety
+          if (legacy === "Yes") data.status.safety = "On Track"
+          if (legacy === "No") data.status.safety = "Off Track"
+        }
         setProject(data)
         setPmEmail(data.pmEmail ?? "")
       } catch (error) {

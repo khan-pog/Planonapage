@@ -14,7 +14,6 @@ export function ProjectStatusPanel({ status, editable = false, onChange }: Proje
   const getStatusColor = (status: string) => {
     switch (status) {
       case "On Track":
-      case "Yes":
         return "bg-emerald-500"
       case "Delayed":
         return "bg-rose-500"
@@ -26,10 +25,14 @@ export function ProjectStatusPanel({ status, editable = false, onChange }: Proje
         return "bg-rose-500"
       case "Monitor":
         return "bg-amber-500"
-      case "No":
+      case "Off Track":
         return "bg-rose-500"
       case "Not Applicable":
         return "bg-slate-300"
+      case "Yes":
+        return "bg-emerald-500"
+      case "No":
+        return "bg-rose-500"
       default:
         return "bg-slate-300"
     }
@@ -47,7 +50,7 @@ export function ProjectStatusPanel({ status, editable = false, onChange }: Proje
         <CardTitle>Status</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="safety-status">Safety</Label>
             {editable ? (
@@ -56,9 +59,9 @@ export function ProjectStatusPanel({ status, editable = false, onChange }: Proje
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Yes">Yes</SelectItem>
+                  <SelectItem value="On Track">On Track</SelectItem>
                   <SelectItem value="Monitor">Monitor</SelectItem>
-                  <SelectItem value="No">No</SelectItem>
+                  <SelectItem value="Off Track">Off Track</SelectItem>
                 </SelectContent>
               </Select>
             ) : (
@@ -88,14 +91,6 @@ export function ProjectStatusPanel({ status, editable = false, onChange }: Proje
                 <span>{status.scopeQuality}</span>
               </div>
             )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="cost-status">Cost</Label>
-            <div className="flex items-center gap-2 h-10 px-3 border rounded-md bg-muted/50">
-              <div className={`w-3 h-3 rounded-full ${getStatusColor(status.cost)}`} />
-              <span>{status.cost}</span>
-            </div>
           </div>
 
           <div className="space-y-2">
