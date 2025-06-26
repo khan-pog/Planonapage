@@ -453,15 +453,31 @@ export default function EditProjectPage() {
             </form>
           </CardContent>
           <CardFooter className="flex justify-end">
-            <Button 
-              type="submit" 
-              form="edit-project-form" 
-              className="flex gap-2"
-              disabled={isSubmitting}
-            >
-              <Save className="h-4 w-4" />
-              {isSubmitting ? "Saving..." : "Save Changes"}
-            </Button>
+            {activeTab !== "milestones" ? (
+              <Button
+                type="button"
+                className="flex gap-2"
+                onClick={() => {
+                  const tabsOrder = ["basic", "status", "cost", "narratives", "milestones"] as const;
+                  const currentIndex = tabsOrder.indexOf(activeTab as typeof tabsOrder[number]);
+                  if (currentIndex !== -1 && currentIndex < tabsOrder.length - 1) {
+                    setActiveTab(tabsOrder[currentIndex + 1]);
+                  }
+                }}
+              >
+                Next
+              </Button>
+            ) : (
+              <Button 
+                type="submit" 
+                form="edit-project-form" 
+                className="flex gap-2"
+                disabled={isSubmitting}
+              >
+                <Save className="h-4 w-4" />
+                {isSubmitting ? "Saving..." : "Save Changes"}
+              </Button>
+            )}
           </CardFooter>
         </Card>
       </div>

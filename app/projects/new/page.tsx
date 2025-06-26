@@ -442,15 +442,31 @@ export default function NewProjectPage() {
             </form>
           </CardContent>
           <CardFooter>
-            <Button 
-              type="submit" 
-              form="new-project-form" 
-              className="w-full"
-              disabled={isSubmitting}
-            >
-              <Save className="mr-2 h-4 w-4" />
-              {isSubmitting ? "Creating..." : "Create Project"}
-            </Button>
+            {activeTab !== "milestones" ? (
+              <Button
+                type="button"
+                className="w-full"
+                onClick={() => {
+                  const tabsOrder = ["basic", "status", "cost", "narratives", "milestones"] as const;
+                  const currentIndex = tabsOrder.indexOf(activeTab as typeof tabsOrder[number]);
+                  if (currentIndex !== -1 && currentIndex < tabsOrder.length - 1) {
+                    setActiveTab(tabsOrder[currentIndex + 1]);
+                  }
+                }}
+              >
+                Next
+              </Button>
+            ) : (
+              <Button 
+                type="submit" 
+                form="new-project-form" 
+                className="w-full"
+                disabled={isSubmitting}
+              >
+                <Save className="mr-2 h-4 w-4" />
+                {isSubmitting ? "Creating..." : "Create Project"}
+              </Button>
+            )}
           </CardFooter>
         </Card>
       </div>
