@@ -287,9 +287,36 @@ export default function NewProjectPage() {
                       <Select
                         value={project.phase}
                         onValueChange={(value: any) => {
-                          setProject({ ...project, phase: value })
+                          const phaseOrder = [
+                            "FEL0",
+                            "FEL2",
+                            "FEL3",
+                            "Pre-Execution",
+                            "Execution",
+                            "Close-Out",
+                          ] as const;
+
+                          const keyMap: Record<typeof phaseOrder[number], keyof typeof project.phasePercentages> = {
+                            "FEL0": "fel0",
+                            "FEL2": "fel2",
+                            "FEL3": "fel3",
+                            "Pre-Execution": "preExecution",
+                            "Execution": "execution",
+                            "Close-Out": "closeOut",
+                          };
+
+                          const chosenIndex = phaseOrder.indexOf(value as typeof phaseOrder[number]);
+                          const newPhasePercentages = { ...project.phasePercentages };
+                          phaseOrder.forEach((p, idx) => {
+                            const key = keyMap[p];
+                            if (idx < chosenIndex) {
+                              newPhasePercentages[key] = 100;
+                            }
+                          });
+
+                          setProject({ ...project, phase: value, phasePercentages: newPhasePercentages });
                           if (errors.phase) {
-                            setErrors({ ...errors, phase: "" })
+                            setErrors({ ...errors, phase: "" });
                           }
                         }}
                       >
