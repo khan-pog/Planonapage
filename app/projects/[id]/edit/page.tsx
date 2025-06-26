@@ -417,7 +417,11 @@ export default function EditProjectPage() {
                 <TabsContent value="cost" className="pt-6">
                   <ProjectCostForm
                     costTracking={project.costTracking}
-                    onChange={(costTracking) => setProject({ ...project, costTracking })}
+                    onChange={(costTracking) => setProject({
+                      ...project,
+                      costTracking,
+                      status: { ...project.status, cost: costTracking.costStatus },
+                    })}
                     editable={true}
                   />
                 </TabsContent>

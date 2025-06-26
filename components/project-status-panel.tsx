@@ -11,15 +11,21 @@ interface ProjectStatusPanelProps {
 }
 
 export function ProjectStatusPanel({ status, editable = false, onChange }: ProjectStatusPanelProps) {
-  const getStatusColor = (status: "On Track" | "Monitor" | "Over" | "Delayed" | "Yes" | "No" | "Not Applicable") => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "On Track":
       case "Yes":
         return "bg-emerald-500"
-      case "Monitor":
+      case "Delayed":
+        return "bg-rose-500"
+      case "Over Budget":
+        return "bg-rose-500"
+      case "Under Budget":
         return "bg-amber-500"
       case "Over":
-      case "Delayed":
+        return "bg-rose-500"
+      case "Monitor":
+        return "bg-amber-500"
       case "No":
         return "bg-rose-500"
       case "Not Applicable":
@@ -86,23 +92,10 @@ export function ProjectStatusPanel({ status, editable = false, onChange }: Proje
 
           <div className="space-y-2">
             <Label htmlFor="cost-status">Cost</Label>
-            {editable ? (
-              <Select value={status.cost} onValueChange={(value) => handleStatusChange('cost', value)}>
-                <SelectTrigger id="cost-status">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="On Track">On Track</SelectItem>
-                  <SelectItem value="Monitor">Monitor</SelectItem>
-                  <SelectItem value="Over">Over</SelectItem>
-                </SelectContent>
-              </Select>
-            ) : (
-              <div className="flex items-center gap-2 h-10 px-3 border rounded-md">
-                <div className={`w-3 h-3 rounded-full ${getStatusColor(status.cost)}`} />
-                <span>{status.cost}</span>
-              </div>
-            )}
+            <div className="flex items-center gap-2 h-10 px-3 border rounded-md bg-muted/50">
+              <div className={`w-3 h-3 rounded-full ${getStatusColor(status.cost)}`} />
+              <span>{status.cost}</span>
+            </div>
           </div>
 
           <div className="space-y-2">

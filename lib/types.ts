@@ -21,7 +21,7 @@ export interface Project {
 export interface ProjectStatus {
   safety: "Yes" | "No" | "Monitor"
   scopeQuality: "On Track" | "Monitor" | "Not Applicable"
-  cost: "On Track" | "Monitor" | "Over"
+  cost: "On Track" | "Over Budget" | "Under Budget"
   schedule: "On Track" | "Monitor" | "Delayed"
   comments: string
   cpmRagComment: string
@@ -60,7 +60,7 @@ export interface CostTracking {
   totalBudget: number
   currency: string
   monthlyData: MonthlyCostData[]
-  costStatus: "Under Budget" | "On Track" | "Monitor" | "Over Budget"
+  costStatus: "Under Budget" | "On Track" | "Over Budget"
   variance: number // percentage variance from budget
   forecastCompletion: number
 }
