@@ -21,7 +21,8 @@ import { ProjectCostForm } from "@/components/project-cost-form"
 import { ImageUpload } from "@/components/image-upload"
 import { Checkbox } from "@/components/ui/checkbox"
 import { PLANTS, DISCIPLINES } from "@/lib/constants"
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { normalizeProjectData } from "@/lib/utils"
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog"
 
 export default function EditProjectPage() {
   const params = useParams()
@@ -49,12 +50,7 @@ export default function EditProjectPage() {
           throw new Error("Failed to fetch project")
         }
         const data = await response.json()
-        if (data.status && data.status.safety) {
-          const legacy = data.status.safety
-          if (legacy === "Yes") data.status.safety = "On Track"
-          if (legacy === "No") data.status.safety = "Off Track"
-        }
-        setProject(data)
+        setProject(normalizeProjectData(data))
         setPmEmail(data.pmEmail ?? "")
       } catch (error) {
         console.error("Error fetching project:", error)
@@ -431,6 +427,11 @@ export default function EditProjectPage() {
                             images={project.images}
                             onChange={(images) => setProject({ ...project, images })}
                           />
+                          <div className="flex justify-end mt-4">
+                            <DialogClose asChild>
+                              <Button variant="default">Done</Button>
+                            </DialogClose>
+                          </div>
                         </DialogContent>
                       </Dialog>
                     </div>

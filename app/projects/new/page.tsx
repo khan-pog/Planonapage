@@ -20,7 +20,7 @@ import { ProjectCostForm } from "@/components/project-cost-form"
 import { ImageUpload } from "@/components/image-upload"
 import { Checkbox } from "@/components/ui/checkbox"
 import { PLANTS, DISCIPLINES } from "@/lib/constants"
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog"
 
 // Add function to get current month and year
 const getCurrentMonthYear = () => {
@@ -401,6 +401,11 @@ export default function NewProjectPage() {
                             images={project.images}
                             onChange={(images) => setProject({ ...project, images })}
                           />
+                          <div className="flex justify-end mt-4">
+                            <DialogClose asChild>
+                              <Button variant="default">Done</Button>
+                            </DialogClose>
+                          </div>
                         </DialogContent>
                       </Dialog>
                     </div>
@@ -491,11 +496,16 @@ export default function NewProjectPage() {
               <Button
                 type="button"
                 className="w-full"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+
                   const tabsOrder = ["basic", "progress", "cost"] as const;
                   const currentIndex = tabsOrder.indexOf(activeTab as typeof tabsOrder[number]);
                   if (currentIndex !== -1 && currentIndex < tabsOrder.length - 1) {
-                    setActiveTab(tabsOrder[currentIndex + 1]);
+                    setTimeout(() => {
+                      setActiveTab(tabsOrder[currentIndex + 1]);
+                    }, 0);
                   }
                 }}
               >

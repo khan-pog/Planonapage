@@ -18,6 +18,7 @@ import { ProjectNarratives } from "@/components/project-narratives"
 import { ProjectMilestones } from "@/components/project-milestones"
 import { ProjectCostTracking } from "@/components/project-cost-tracking"
 import type { Project } from "@/lib/types"
+import { normalizeProjectData } from "@/lib/utils"
 
 export default function ProjectDetailPage() {
   const params = useParams()
@@ -45,7 +46,7 @@ export default function ProjectDetailPage() {
           throw new Error('Failed to fetch project')
         }
         const data = await response.json()
-        setProject(data)
+        setProject(normalizeProjectData(data))
       } catch (error) {
         console.error('Error fetching project:', error)
         setError(error instanceof Error ? error.message : 'An error occurred')
@@ -57,25 +58,29 @@ export default function ProjectDetailPage() {
     fetchProject()
   }, [projectId])
 
+  // Keep selected index in sync
   useEffect(() => {
     if (!carouselApi) return
-    // update selected index on init & on select
     const updateSelected = () => setSelectedIndex(carouselApi.selectedScrollSnap())
     updateSelected()
     carouselApi.on('select', updateSelected)
+    return () => {
+      carouselApi.off('select', updateSelected)
+    }
+  }, [carouselApi])
 
+  // Auto-scroll every 5 s, but reset the timer every time the slide changes
+  useEffect(() => {
+    if (!carouselApi) return
     const id = setInterval(() => {
-      if (carouselApi?.canScrollNext()) {
+      if (carouselApi.canScrollNext()) {
         carouselApi.scrollNext()
       } else {
         carouselApi.scrollTo(0)
       }
-    }, 5000) // 5-second interval
-    return () => {
-      clearInterval(id)
-      carouselApi.off('select', updateSelected)
-    }
-  }, [carouselApi])
+    }, 5000)
+    return () => clearInterval(id)
+  }, [carouselApi, selectedIndex])
 
   if (loading) {
     return (

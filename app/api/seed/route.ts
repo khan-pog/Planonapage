@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { createProject } from "@/lib/db"
 import { mockProjects } from "@/lib/mock-data"
 import { validateProjectSchema, logger } from "@/lib/debug-utils"
+import { normalizeProjectData } from "@/lib/utils"
 
 export async function POST() {
   logger.info("Starting database seeding process...")
@@ -19,7 +20,7 @@ export async function POST() {
     logger.info("Validating mock projects before seeding...")
     
     for (let i = 0; i < mockProjects.length; i++) {
-      const project = mockProjects[i]
+      const project = normalizeProjectData(mockProjects[i] as any)
       const { id, ...projectData } = project
       
       logger.debug(`Validating project ${i + 1}: ${project.title || project.id}`)

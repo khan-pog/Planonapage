@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Mail, Calendar, Trash2, Send, Clock, ArrowLeft, Database, AlertCircle, Bell } from "lucide-react"
+import { Mail, Calendar, Trash2, Send, Clock, ArrowLeft, Database, AlertCircle, Bell, RefreshCcw } from "lucide-react"
 import Link from "next/link"
 import { SeedDatabaseButton } from "@/components/seed-database-button"
 import { MigrateDatabaseButton } from "@/components/migrate-database-button"
@@ -204,6 +204,20 @@ export default function AdminReportsPage() {
     }
   };
 
+  // Normalize status values across all projects
+  const handleNormalize = async () => {
+    try {
+      const res = await fetch('/api/projects/normalize', { method: 'POST' })
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+      const data = await res.json()
+      toast.success(`Normalization complete. Updated ${data.updated}, unchanged ${data.unchanged}.`)
+      fetchProjects()
+    } catch (err: any) {
+      console.error('Normalize error', err)
+      toast.error(`Normalization failed: ${err.message || err}`)
+    }
+  }
+
   // --- Load & save schedule ---
   useEffect(() => {
     const fetchSchedule = async () => {
@@ -355,6 +369,10 @@ export default function AdminReportsPage() {
             Test Seeding
           </Button>
           <SeedDatabaseButton />
+          <Button onClick={handleNormalize} className="flex gap-2" variant="outline">
+            <RefreshCcw className="h-4 w-4" />
+            Normalize Data
+          </Button>
           <MigrateDatabaseButton />
           <Button variant="outline" onClick={handleWarmCache}>
             Warm Up Cache
