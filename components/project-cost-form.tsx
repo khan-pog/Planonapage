@@ -254,17 +254,23 @@ export function ProjectCostForm({ costTracking, onChange, editable = true }: Pro
                         <SelectValue placeholder="Select month" />
                       </SelectTrigger>
                       <SelectContent>
-                        {Array.from({ length: 12 }, (_, i) => {
-                          const date = new Date()
-                          date.setMonth(i)
-                          const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' })
-                          const value = `${date.getFullYear()}-${String(i + 1).padStart(2, '0')}`
-                          return (
-                            <SelectItem key={value} value={value}>
-                              {monthYear}
+                        {(() => {
+                          const currentYear = new Date().getFullYear();
+                          const years = Array.from({ length: 7 }, (_, idx) => currentYear - 3 + idx); // 3 past, current, 3 future
+                          const options: { value: string; label: string }[] = [];
+                          years.forEach((year) => {
+                            Array.from({ length: 12 }, (_, i) => {
+                              const value = `${year}-${String(i + 1).padStart(2, '0')}`;
+                              const label = new Date(year, i).toLocaleString('default', { month: 'long', year: 'numeric' });
+                              options.push({ value, label });
+                            });
+                          });
+                          return options.map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>
+                              {opt.label}
                             </SelectItem>
-                          )
-                        })}
+                          ));
+                        })()}
                       </SelectContent>
                     </Select>
                   </div>
