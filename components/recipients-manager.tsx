@@ -28,10 +28,12 @@ interface Recipient {
   disciplines: string[] | null
   isPm?: boolean
   projectIds?: number[] | null
+  isCapitalManager?: boolean;
 }
 
 interface RecipientsManagerProps {
   pmOnly?: boolean;
+  capitalOnly?: boolean;
 }
 
 const plantOptions = [
@@ -44,7 +46,7 @@ const plantOptions = [
 
 const disciplineOptions = ["HSE", "Rotating", "Static", "EIC"]
 
-export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {}) {
+export default function RecipientsManager({ pmOnly, capitalOnly }: RecipientsManagerProps = {}) {
   const [recipients, setRecipients] = useState<Recipient[]>([])
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -78,7 +80,13 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
       if (!res.ok) throw new Error("Failed to fetch recipients")
       const data: Recipient[] = await res.json()
       const list: Recipient[] = data || []
-      setRecipients(pmOnly === undefined ? list : list.filter((rec)=>!!(rec.isPm) === pmOnly))
+      if(pmOnly !== undefined){
+        setRecipients(list.filter((rec)=>!!rec.isPm === pmOnly))
+      } else if(capitalOnly !== undefined){
+        setRecipients(list.filter((rec)=>!!rec.isCapitalManager === capitalOnly))
+      } else {
+        setRecipients(list.filter((rec)=>!rec.isPm && !rec.isCapitalManager))
+      }
     } catch (err: any) {
       toast.error(`Failed to load recipients: ${err.message}`)
     } finally {
@@ -119,8 +127,15 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
   const handleSave = async () => {
     try {
       setSaving(true)
-      const payload = pmOnly ? { email, isPm:true, projectIds } : { email, plants, disciplines }
-      if(pmOnly && projectIds.length===0){ toast.error('Select at least one project'); return; }
+      let payload: any;
+      if(pmOnly){
+        payload = { email, isPm:true, projectIds };
+        if(projectIds.length===0){ toast.error('Select at least one project'); return; }
+      } else if(capitalOnly){
+        payload = { email, isCapitalManager:true };
+      } else {
+        payload = { email, plants, disciplines };
+      }
       let res: Response
       if (editingRecipient) {
         res = await fetch(`/api/recipients/${editingRecipient.id}`, {
@@ -180,8 +195,8 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
               <thead>
                 <tr className="border-b text-left">
                   <th className="py-2 px-2">Email</th>
-                  {!pmOnly && <th className="py-2 px-2">Plants</th>}
-                  {!pmOnly && <th className="py-2 px-2">Disciplines</th>}
+                  {(!pmOnly && !capitalOnly) && <th className="py-2 px-2">Plants</th>}
+                  {(!pmOnly && !capitalOnly) && <th className="py-2 px-2">Disciplines</th>}
                   <th className="py-2 px-2">Projects</th>
                   <th className="py-2 px-2 text-right">Actions</th>
                 </tr>
@@ -190,7 +205,7 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
                 {recipients.map((r: Recipient) => (
                   <tr key={r.id} className="border-b hover:bg-muted/50">
                     <td className="py-2 px-2 whitespace-nowrap">{r.email}</td>
-                    {!pmOnly && (
+                    {(!pmOnly && !capitalOnly) && (
                       <>
                         <td className="py-2 px-2">{(r.plants || []).join(", ")}</td>
                         <td className="py-2 px-2">{(r.disciplines || []).join(", ")}</td>
@@ -275,7 +290,7 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
                   </div>
                 </ScrollArea>
               </div>
-            ) : (
+            ) : capitalOnly ? null : (
               <div>
                 <p className="text-sm font-medium mb-1">Plants</p>
                 <div className="grid grid-cols-2 gap-2">
@@ -294,7 +309,7 @@ export default function RecipientsManager({ pmOnly }: RecipientsManagerProps = {
               </div>
             )}
 
-            {!pmOnly && (
+            {!pmOnly && !capitalOnly && (
             <div>
               <p className="text-sm font-medium mb-1">Disciplines</p>
               <div className="grid grid-cols-2 gap-2">

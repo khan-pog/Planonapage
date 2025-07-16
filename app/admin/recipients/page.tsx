@@ -38,15 +38,19 @@ export default function AdminRecipientsPage() {
       </Card>
 
       <Tabs defaultValue="general" className="mt-6">
-        <TabsList className="grid grid-cols-2 w-full mb-4">
+        <TabsList className="grid grid-cols-3 w-full mb-4">
           <TabsTrigger value="general">Email Groups</TabsTrigger>
           <TabsTrigger value="pm">PM Reminders</TabsTrigger>
+          <TabsTrigger value="capital">Capital Managers</TabsTrigger>
         </TabsList>
         <TabsContent value="general">
           <RecipientsManager />
         </TabsContent>
         <TabsContent value="pm">
           <RecipientsManager pmOnly={true} />
+        </TabsContent>
+        <TabsContent value="capital">
+          <RecipientsManager capitalOnly={true} />
         </TabsContent>
       </Tabs>
     </div>

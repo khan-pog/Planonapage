@@ -131,13 +131,26 @@ export default function AdminReportsPage() {
   // Sends a one-off demo email to a hard-coded address for testing.
   const sendDemoEmail = async () => {
     try {
-      const res = await fetch('/api/reports/send?testEmail=khan.thompson@my.jcu.edu.au,khanthompson123@gmail.com,khan.thompson@incitecpivot.com.au')
+      const res = await fetch('/api/reports/send?testEmail=khan.thompson@incitecpivot.com.au')
       if (!res.ok) throw new Error(`Request failed: ${res.status}`)
       const data = await res.json()
       toast.success(`Demo email sent! (sent: ${data.sent}, failed: ${data.failed})`)
     } catch (err: any) {
       console.error('Error sending demo email', err)
       toast.error(`Demo email failed: ${err.message || err}`)
+    }
+  }
+
+  // Sends a one-off capital-manager demo email
+  const sendDemoCapitalEmail = async () => {
+    try {
+      const res = await fetch('/api/reports/capital-manager/send?testEmail=khan.thompson@incitecpivot.com.au')
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+      const data = await res.json()
+      toast.success(`Capital demo sent! (sent: ${data.sent}, failed: ${data.failed})`)
+    } catch (err: any) {
+      console.error('Error sending capital demo', err)
+      toast.error(`Capital demo failed: ${err.message || err}`)
     }
   }
 
@@ -503,10 +516,16 @@ export default function AdminReportsPage() {
               <p className="text-xs text-muted-foreground">
                 To add or edit recipients, use the "Recipients" tab.
               </p>
-              <Button onClick={sendDemoEmail} className="flex items-center gap-2" variant="outline">
-                <Send className="h-4 w-4" />
-                Send Demo Email
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={sendDemoEmail} className="flex items-center gap-2" variant="outline">
+                  <Send className="h-4 w-4" />
+                  Send Demo Email
+                </Button>
+                <Button onClick={sendDemoCapitalEmail} className="flex items-center gap-2" variant="outline">
+                  <Send className="h-4 w-4" />
+                  Send Capital Demo
+                </Button>
+              </div>
             </CardContent>
           </Card>
 

@@ -64,6 +64,7 @@ export async function POST(request: Request) {
         disciplines: mergedDisc.length ? mergedDisc : null,
         projectIds: mergedProjects.length ? mergedProjects : null,
         isPm: incoming.isPm ?? current.isPm,
+        isCapitalManager: incoming.isCapitalManager ?? current.isCapitalManager,
         updatedAt: new Date(),
       })
       .where(eq(schema.emailRecipients.id, current.id))
