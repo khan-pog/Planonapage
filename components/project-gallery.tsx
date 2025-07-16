@@ -21,7 +21,7 @@ const ITEMS_PER_PAGE = 12
 export function ProjectGallery() {
   const [projects, setProjects] = useState<Project[]>([])
   const [searchQuery, setSearchQuery] = useState("")
-  const [phaseFilter, setPhaseFilter] = useState<string | null>(null)
+  const [phaseFilters, setPhaseFilters] = useState<string[]>([])
   const [sortBy, setSortBy] = useState("updatedAt")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -80,7 +80,7 @@ export function ProjectGallery() {
       project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       project.number.toLowerCase().includes(searchQuery.toLowerCase())
 
-    const matchesPhase = phaseFilter === null || project.phase === phaseFilter
+    const matchesPhase = phaseFilters.length === 0 || phaseFilters.includes(project.phase)
 
     const matchesPlantDiscipline = matchesPlantAndDiscipline(project, plantFilter, disciplineFilters)
 
@@ -143,42 +143,81 @@ export function ProjectGallery() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuCheckboxItem checked={phaseFilter === null} onCheckedChange={() => setPhaseFilter(null)}>
+            <DropdownMenuCheckboxItem 
+              checked={phaseFilters.length === 0} 
+              onCheckedChange={() => setPhaseFilters([])}
+            >
               All Phases
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
-              checked={phaseFilter === "FEL0"}
-              onCheckedChange={() => setPhaseFilter(phaseFilter === "FEL0" ? null : "FEL0")}
+              checked={phaseFilters.includes("FEL0")}
+              onCheckedChange={() => {
+                if (phaseFilters.includes("FEL0")) {
+                  setPhaseFilters(phaseFilters.filter(p => p !== "FEL0"))
+                } else {
+                  setPhaseFilters([...phaseFilters, "FEL0"])
+                }
+              }}
             >
               FEL0
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
-              checked={phaseFilter === "FEL2"}
-              onCheckedChange={() => setPhaseFilter(phaseFilter === "FEL2" ? null : "FEL2")}
+              checked={phaseFilters.includes("FEL2")}
+              onCheckedChange={() => {
+                if (phaseFilters.includes("FEL2")) {
+                  setPhaseFilters(phaseFilters.filter(p => p !== "FEL2"))
+                } else {
+                  setPhaseFilters([...phaseFilters, "FEL2"])
+                }
+              }}
             >
               FEL2
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
-              checked={phaseFilter === "FEL3"}
-              onCheckedChange={() => setPhaseFilter(phaseFilter === "FEL3" ? null : "FEL3")}
+              checked={phaseFilters.includes("FEL3")}
+              onCheckedChange={() => {
+                if (phaseFilters.includes("FEL3")) {
+                  setPhaseFilters(phaseFilters.filter(p => p !== "FEL3"))
+                } else {
+                  setPhaseFilters([...phaseFilters, "FEL3"])
+                }
+              }}
             >
               FEL3
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
-              checked={phaseFilter === "Pre-Execution"}
-              onCheckedChange={() => setPhaseFilter(phaseFilter === "Pre-Execution" ? null : "Pre-Execution")}
+              checked={phaseFilters.includes("Pre-Execution")}
+              onCheckedChange={() => {
+                if (phaseFilters.includes("Pre-Execution")) {
+                  setPhaseFilters(phaseFilters.filter(p => p !== "Pre-Execution"))
+                } else {
+                  setPhaseFilters([...phaseFilters, "Pre-Execution"])
+                }
+              }}
             >
               Pre-Execution
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
-              checked={phaseFilter === "Execution"}
-              onCheckedChange={() => setPhaseFilter(phaseFilter === "Execution" ? null : "Execution")}
+              checked={phaseFilters.includes("Execution")}
+              onCheckedChange={() => {
+                if (phaseFilters.includes("Execution")) {
+                  setPhaseFilters(phaseFilters.filter(p => p !== "Execution"))
+                } else {
+                  setPhaseFilters([...phaseFilters, "Execution"])
+                }
+              }}
             >
               Execution
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
-              checked={phaseFilter === "Close-Out"}
-              onCheckedChange={() => setPhaseFilter(phaseFilter === "Close-Out" ? null : "Close-Out")}
+              checked={phaseFilters.includes("Close-Out")}
+              onCheckedChange={() => {
+                if (phaseFilters.includes("Close-Out")) {
+                  setPhaseFilters(phaseFilters.filter(p => p !== "Close-Out"))
+                } else {
+                  setPhaseFilters([...phaseFilters, "Close-Out"])
+                }
+              }}
             >
               Close-Out
             </DropdownMenuCheckboxItem>
