@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Upload, X, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ImageUploadProps {
   images: string[];
@@ -10,8 +11,12 @@ interface ImageUploadProps {
 }
 
 export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadProps) {
+  // Track whether any upload operation is in progress
   const [uploading, setUploading] = useState(false);
-  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
+  // Keep a list of image indices that are currently uploading so we can
+  // render a skeleton + spinner for each. These indices relate to the
+  // `images` array that is passed in from the parent component.
+  const [uploadingIndices, setUploadingIndices] = useState<number[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,8 +53,17 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
         continue;
       }
 
+      // Add a temporary placeholder entry so the UI immediately shows a slot
+      // for this image. We use the generic placeholder graphic which will be
+      // replaced with the real URL once the upload succeeds.
+      const placeholderIndex = images.length + newImages.length;
+      let currentImages = [...images, ...newImages, "/placeholder.svg"];
+      onChange(currentImages);
+
+      // Mark this placeholder as uploading so we can render a skeleton.
+      setUploadingIndices((prev) => [...prev, placeholderIndex]);
+
       try {
-        setUploadingIndex(i);
         const formData = new FormData();
         formData.append('file', file);
 
@@ -64,13 +78,35 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
         }
 
         const data = await response.json();
+        // Replace the placeholder with the actual image URL
+        const successImages = [...currentImages];
+        successImages[placeholderIndex] = data.url;
         newImages.push(data.url);
+
+        // Update parent with the real URL replacing the placeholder
+        onChange(successImages);
+
+        // Remove the index from uploading list
+        setUploadingIndices((prev) => prev.filter((idx) => idx !== placeholderIndex));
+
         successCount++;
         toast.success(`Successfully uploaded "${file.name}"`, {
           icon: <CheckCircle2 className="h-4 w-4" />,
         });
       } catch (error) {
         console.error('Error processing file:', error);
+
+        // Remove the placeholder slot and adjust indices accordingly
+        const failIndex = placeholderIndex;
+        const failImages = [...currentImages];
+        failImages.splice(failIndex, 1);
+        onChange(failImages);
+
+        setUploadingIndices((prev) => prev
+          .filter((idx) => idx !== failIndex)
+          .map((idx) => (idx > failIndex ? idx - 1 : idx))
+        );
+
         toast.error(`Failed to upload "${file.name}"`, {
           icon: <AlertCircle className="h-4 w-4" />,
           description: error instanceof Error ? error.message : 'Please try again',
@@ -96,9 +132,9 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
       }
     }
 
-    onChange([...images, ...newImages]);
+    // All uploads finished
     setUploading(false);
-    setUploadingIndex(null);
+    setUploadingIndices([]);
     
     // Clear the input
     if (fileInputRef.current) {
@@ -142,23 +178,34 @@ export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadPro
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {images.map((image, index) => (
-          <div key={index} className="relative aspect-square overflow-hidden rounded-md border">
-            <img
-              src={image || "/placeholder.svg"}
-              alt={`Project image ${index + 1}`}
-              className="object-cover w-full h-full"
-            />
-            <Button
-              variant="destructive"
-              size="sm"
-              className="absolute top-2 right-2"
-              onClick={() => removeImage(index)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        ))}
+        {images.map((image, index) => {
+          const isUploading = uploadingIndices.includes(index);
+          return (
+            <div key={index} className="relative aspect-square overflow-hidden rounded-md border">
+              {isUploading ? (
+                <Skeleton className="flex items-center justify-center w-full h-full">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </Skeleton>
+              ) : (
+                <>
+                  <img
+                    src={image || "/placeholder.svg"}
+                    alt={`Project image ${index + 1}`}
+                    className="object-cover w-full h-full"
+                  />
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={() => removeImage(index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+            </div>
+          );
+        })}
         
         {images.length < maxImages && (
           <div 

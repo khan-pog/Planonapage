@@ -521,11 +521,21 @@ export default function EditProjectPage() {
               <Button
                 type="button"
                 className="flex gap-2"
-                onClick={() => {
+                onClick={(e) => {
+                  // Prevent this click from accidentally triggering the newly rendered
+                  // "Save" submit button on the next tab (Cost)
+                  e.preventDefault();
+                  e.stopPropagation();
+
                   const tabsOrder = ["basic", "progress", "cost"] as const;
                   const currentIndex = tabsOrder.indexOf(activeTab as typeof tabsOrder[number]);
                   if (currentIndex !== -1 && currentIndex < tabsOrder.length - 1) {
-                    setActiveTab(tabsOrder[currentIndex + 1]);
+                    // Defer the tab change until after the current click event stack
+                    // has finished to avoid the browser re-firing the click on the
+                    // new "Save" button.
+                    setTimeout(() => {
+                      setActiveTab(tabsOrder[currentIndex + 1]);
+                    }, 0);
                   }
                 }}
               >
