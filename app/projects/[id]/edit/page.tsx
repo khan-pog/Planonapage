@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Save } from "lucide-react"
+import { ArrowLeft, Save, Image as ImageIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -390,7 +390,14 @@ export default function EditProjectPage() {
                       <Label>Project Images</Label>
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button variant="outline">Manage Images</Button>
+                          <Button
+                            variant="default"
+                            size="lg"
+                            className="w-full"
+                          >
+                            <ImageIcon className="h-5 w-5" />
+                            Manage Images
+                          </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-4xl">
                           <DialogHeader>
