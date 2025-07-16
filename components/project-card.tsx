@@ -32,16 +32,20 @@ export function ProjectCard({ project }: ProjectCardProps) {
   }
 
   // Function to determine status indicator color
-  const getStatusColor = (status: "On Track" | "Monitor" | "Over" | "Delayed" | "Yes" | "No" | "Not Applicable") => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "On Track":
       case "Yes":
         return "bg-emerald-500"
       case "Monitor":
         return "bg-amber-500"
+      case "Over Budget":
       case "Over":
       case "Delayed":
+      case "Off Track":
       case "No":
+        return "bg-rose-500"
+      case "Under Budget":
         return "bg-rose-500"
       case "Not Applicable":
         return "bg-slate-300"

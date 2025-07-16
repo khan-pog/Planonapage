@@ -7,6 +7,7 @@ export default function Home() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
+          <h2 className="text-lg font-semibold text-primary mb-1">Plan on a Page</h2>
           <h1 className="text-3xl font-bold tracking-tight">Project Gallery</h1>
           <p className="text-muted-foreground mt-1">Browse all projects and their current status</p>
           <p className="text-sm mt-1 text-primary">
@@ -21,6 +22,26 @@ export default function Home() {
           Add New Project
         </Link>
       </div>
+      
+      {/* Traffic Light Legend */}
+      <div className="flex items-center gap-6 text-sm text-muted-foreground mb-6">
+        <span className="font-medium">Status Legend:</span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+            <span>On Track</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+            <span>Monitor</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-rose-500"></div>
+            <span>Off Track / Under Budget / Over Budget</span>
+          </div>
+        </div>
+      </div>
+      
       <ProjectGallery />
     </div>
   )
