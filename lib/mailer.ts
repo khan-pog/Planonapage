@@ -24,23 +24,23 @@ export async function sendFilteredGalleryEmail(recipientEmail: string, link: str
 
   // Build a friendly, dated subject
   const subjectDate = new Date().toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })
-  const subject = `Project Cost Report – ${subjectDate}`
+  const subject = `Plan on a Page – Project Updates (${subjectDate})`
 
   // Pre-header text (first in body, hidden in most clients)
-  const preheader = "Your latest project status is ready – click to view the live dashboard.";
+  const preheader = "Your latest Plan on a Page updates are ready – view your projects dashboard.";
 
   const html = /* html */ `
     <div style="display:none;font-size:1px;color:#fff;max-height:0;opacity:0;overflow:hidden">${preheader}</div>
     <p style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.45;margin:0 0 16px;">Hi there,</p>
-    <p style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.45;margin:0 0 24px;">Your latest project cost update is ready. Tap the button below to open the live dashboard.</p>
+    <p style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.45;margin:0 0 24px;">The latest Plan on a Page updates for the projects in your area are now available. Click the button below to open the live dashboard and review all active projects.</p>
     <p style="text-align:center;margin:0 0 32px;">
-      <a href="${link}" style="display:inline-block;padding:12px 24px;background:#2563EB;color:#ffffff;border-radius:6px;text-decoration:none;font-weight:600;font-family:Arial,Helvetica,sans-serif;">View Report</a>
+      <a href="${link}" style="display:inline-block;padding:12px 24px;background:#2563EB;color:#ffffff;border-radius:6px;text-decoration:none;font-weight:600;font-family:Arial,Helvetica,sans-serif;">Open Dashboard</a>
     </p>
     <p style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#666;margin:0">Questions or feedback? Just reply to this email.</p>
     <p style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#666;margin:24px 0 0;">Regards,<br/>The Plan on a Page Team</p>
   `
 
-  const text = `Hi there,\n\nYour latest project cost update is ready. Open the link below to view it:\n${link}\n\nRegards,\nPlan on a Page`;
+  const text = `Hi there,\n\nThe latest Plan on a Page updates for the projects in your area are available. Open the link below to view them:\n${link}\n\nRegards,\nPlan on a Page`;
 
   try {
     const response = await fetch("https://api.resend.com/emails", {
@@ -103,9 +103,9 @@ export async function sendFilteredGalleryEmailsBatch(items: {email:string; link:
 
   for(const [idx, chunk] of chunks.entries()){
     const batchPayload = chunk.map(it=>{
-      const preheader = "Your latest project status is ready – click to view the live dashboard.";
-      const html = /* html */ `\n        <div style=\"display:none;font-size:1px;color:#fff;max-height:0;opacity:0;overflow:hidden\">${preheader}</div>\n        <p style=\"font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.45;margin:0 0 24px;\">Hi there, your latest project cost update is ready.</p>\n        <p style=\"text-align:center;margin:0 0 32px;\">\n          <a href=\"${it.link}\" style=\"display:inline-block;padding:12px 24px;background:#2563EB;color:#ffffff;border-radius:6px;text-decoration:none;font-weight:600;font-family:Arial,Helvetica,sans-serif;\">View Report</a>\n        </p>`;
-      const text = `Hi there,\n\nYour latest project cost update is ready:\n${it.link}\n\nRegards,\nPlan on a Page`;
+      const preheader = "Your latest Plan on a Page updates are ready – view your projects dashboard.";
+      const html = /* html */ `\n        <div style=\"display:none;font-size:1px;color:#fff;max-height:0;opacity:0;overflow:hidden\">${preheader}</div>\n        <p style=\"font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.45;margin:0 0 24px;\">Hi there, your latest Plan on a Page project updates are now available.</p>\n        <p style=\"text-align:center;margin:0 0 32px;\">\n          <a href=\"${it.link}\" style=\"display:inline-block;padding:12px 24px;background:#2563EB;color:#ffffff;border-radius:6px;text-decoration:none;font-weight:600;font-family:Arial,Helvetica,sans-serif;\">Open Dashboard</a>\n        </p>`;
+      const text = `Hi there,\n\nYour latest Plan on a Page project updates are available:\n${it.link}\n\nRegards,\nPlan on a Page`;
 
       return {from: fromAddress, to:[it.email], subject, html, text, reply_to: replyToAddress, headers:{'List-Unsubscribe':'<mailto:unsubscribe@poap.space>'}};
     });
