@@ -25,7 +25,7 @@ export async function sendCapitalManagerEmail(
     return { success: false, error: "Email API key not configured" };
   }
 
-  const fromAddress = process.env.CAPITAL_FROM_EMAIL || process.env.REPORTS_FROM_EMAIL || "Plan on a Page <reports@planonapage.com>";
+  const fromAddress = process.env.REPORTS_FROM_EMAIL || "Plan on a Page <reports@planonapage.com>";
   const replyToAddress = process.env.REPLY_TO_EMAIL || undefined;
 
   const behind = projects.filter((p) => p.costStatus === "Over Budget");

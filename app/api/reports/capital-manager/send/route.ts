@@ -54,6 +54,7 @@ export async function GET(request: Request) {
   const monthLabel = new Date().toLocaleDateString(undefined, {
     year: "numeric",
     month: "short",
+    day: "numeric",
   });
 
   let sent = 0;
