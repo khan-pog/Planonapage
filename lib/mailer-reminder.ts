@@ -10,7 +10,7 @@ export async function sendPmReminderEmail(recipientEmail:string, projects:Projec
   }
   if(projects.length===0){ return {success:true}; }
 
-  const fromAddress = process.env.REMINDER_FROM_EMAIL || process.env.REPORTS_FROM_EMAIL || "Plan on a Page <reminders@planonapage.com>";
+  const fromAddress = process.env.REMINDER_FROM_EMAIL || process.env.REPORTS_FROM_EMAIL || "Plan on a Page <reminders@poap.space>";
   const replyTo = process.env.REPLY_TO_EMAIL || undefined;
 
   const subjectDate = format(new Date(), 'MMM d, yyyy');

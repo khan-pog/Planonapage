@@ -19,7 +19,7 @@ export async function sendFilteredGalleryEmail(recipientEmail: string, link: str
     return { success: false, error: "Email API key not configured" }
   }
 
-  const fromAddress = process.env.REPORTS_FROM_EMAIL || "Plan on a Page <reports@planonapage.com>"
+  const fromAddress = process.env.REPORTS_FROM_EMAIL || "Plan on a Page <reminders@poap.space>"
   const replyToAddress = process.env.REPLY_TO_EMAIL || undefined
 
   // Build a friendly, dated subject
@@ -87,7 +87,7 @@ export async function sendFilteredGalleryEmailsBatch(items: {email:string; link:
     return {sent:0, failed:items.length, error:'API key missing'};
   }
 
-  const fromAddress = process.env.REPORTS_FROM_EMAIL || "Plan on a Page <reports@planonapage.com>";
+  const fromAddress = process.env.REPORTS_FROM_EMAIL || "Plan on a Page <reminders@poap.space>";
   const replyToAddress = process.env.REPLY_TO_EMAIL || undefined;
 
   const subjectDate = new Date().toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
