@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     const ct = p.costTracking as any;
     if(!ct) return false;
     const variance = typeof ct.variance === 'number' ? ct.variance : 0;
-    return Math.abs(variance) >= 20; // >=20% variance threshold
+    return Math.abs(variance) >= 5; // >=20% variance threshold
   });
 
   const projects = interesting.map((p: any) => {
