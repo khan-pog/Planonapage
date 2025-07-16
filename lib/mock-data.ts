@@ -4,6 +4,7 @@ export const mockProjects = [
     title: "HP Nitrogen Line Extension in Ammonia",
     number: "SPA24011",
     projectManager: "Michael Nguyen",
+    pmEmail: "michael.nguyen@test-example.com",
     reportMonth: "2024-04",
     phase: "Execution",
     status: {
@@ -62,6 +63,7 @@ export const mockProjects = [
     title: "Water Quality Improvement",
     number: "SPA23006",
     projectManager: "Laura Chen",
+    pmEmail: "laura.chen@test-example.com",
     reportMonth: "2024-04",
     phase: "Pre-Execution",
     status: {
@@ -118,6 +120,7 @@ export const mockProjects = [
     title: "Syngas Condenser HE3302 Replacement",
     number: "SPA25005",
     projectManager: "Antonio Rossi",
+    pmEmail: "antonio.rossi@test-example.com",
     reportMonth: "2024-04",
     phase: "Execution",
     status: {
@@ -175,6 +178,7 @@ export const mockProjects = [
     title: "Ammonia Plant Water Improvement - Deaerator",
     number: "SPA24001",
     projectManager: "Priya Kapoor",
+    pmEmail: "priya.kapoor@test-example.com",
     reportMonth: "2024-04",
     phase: "Execution",
     status: {
@@ -231,6 +235,7 @@ export const mockProjects = [
     title: "Ammonia Cooler (Chiller) Replacement",
     number: "SPA23028",
     projectManager: "Daniel Lee",
+    pmEmail: "daniel.lee@test-example.com",
     reportMonth: "2024-04",
     phase: "FEL3",
     status: {
@@ -287,6 +292,7 @@ export const mockProjects = [
     title: "PSA Valve Upgrade",
     number: "SPA24013",
     projectManager: "Sarah Johnson",
+    pmEmail: "sarah.johnson@test-example.com",
     reportMonth: "2024-04",
     phase: "Execution",
     status: {
@@ -341,6 +347,7 @@ export const mockProjects = [
     title: "PSA PLC Upgrade",
     number: "SPA23027",
     projectManager: "Kevin Wright",
+    pmEmail: "kevin.wright@test-example.com",
     reportMonth: "2024-04",
     phase: "Pre-Execution",
     status: {
@@ -395,6 +402,7 @@ export const mockProjects = [
     title: "Oil Fire Protection Upgrade",
     number: "SPA25001",
     projectManager: "Aisha Al-Farsi",
+    pmEmail: "aisha.alfarsi@test-example.com",
     reportMonth: "2024-04",
     phase: "Execution",
     status: {
@@ -450,6 +458,7 @@ export const mockProjects = [
     title: "FSM Compliance Stage 3",
     number: "SPA24008",
     projectManager: "Jacob Svensson",
+    pmEmail: "jacob.svensson@test-example.com",
     reportMonth: "2024-04",
     phase: "Execution",
     status: {
@@ -503,6 +512,7 @@ export const mockProjects = [
     title: "Blow Down Drum II PN3307 Replacement",
     number: "SPA25004",
     projectManager: "Olivia King",
+    pmEmail: "olivia.king@test-example.com",
     reportMonth: "2024-04",
     phase: "Close-Out",
     status: {

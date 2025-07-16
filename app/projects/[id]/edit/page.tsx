@@ -5,6 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft, Save, Image as ImageIcon } from "lucide-react"
+import { toast } from "@/components/ui/use-toast"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -66,27 +67,28 @@ export default function EditProjectPage() {
     fetchProject()
   }, [projectId])
 
+  // Returns the map of validation errors (empty when valid)
   const validateForm = () => {
-    if (!project) return false
-    
+    if (!project) return {}
+
     const newErrors: Record<string, string> = {}
-    
+
     if (!project.title.trim()) {
       newErrors.title = "Project title is required"
     }
-    
+
     if (!project.number.trim()) {
       newErrors.number = "Project number is required"
     }
-    
+
     if (!project.projectManager.trim()) {
       newErrors.projectManager = "Project manager is required"
     }
-    
+
     if (!project.reportMonth) {
       newErrors.reportMonth = "Report month is required"
     }
-    
+
     if (!project.phase) {
       newErrors.phase = "Current phase is required"
     }
@@ -96,14 +98,35 @@ export default function EditProjectPage() {
     }
 
     setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    return newErrors
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!project) return
 
-    if (!validateForm()) {
+    const validationErrors = validateForm()
+    if (Object.keys(validationErrors).length > 0) {
+      // Decide which tab to show based on which fields have errors
+      const basicFields = ["title", "number", "projectManager", "reportMonth", "phase", "pmEmail"]
+      const progressFields: string[] = [] // extend in the future as needed
+
+      let targetTab = activeTab
+      if (basicFields.some((key) => validationErrors[key])) {
+        targetTab = "basic"
+      } else if (progressFields.some((key) => validationErrors[key])) {
+        targetTab = "progress"
+      }
+
+      if (targetTab !== activeTab) {
+        setActiveTab(targetTab)
+      }
+
+      toast({
+        title: "Missing required information",
+        description: "Please complete the highlighted fields before saving.",
+      })
+
       return
     }
 
