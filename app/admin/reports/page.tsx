@@ -154,6 +154,19 @@ export default function AdminReportsPage() {
     }
   }
 
+  // Sends a one-off PM Reminder demo email
+  const sendDemoReminderEmail = async () => {
+    try {
+      const res = await fetch('/api/reminders/test?email=khan.thompson@incitecpivot.com.au')
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`)
+      toast.success(`Reminder demo sent! (sent: ${data.sent}, failed: ${data.failed})`)
+    } catch (err: any) {
+      console.error('Error sending reminder demo', err)
+      toast.error(`Reminder demo failed: ${err.message || err}`)
+    }
+  }
+
   // Load recipients preview for Settings tab
   useEffect(() => {
     const fetchRecipientsPreview = async () => {
@@ -524,6 +537,10 @@ export default function AdminReportsPage() {
                 <Button onClick={sendDemoCapitalEmail} className="flex items-center gap-2" variant="outline">
                   <Send className="h-4 w-4" />
                   Send Capital Demo
+                </Button>
+                <Button onClick={sendDemoReminderEmail} className="flex items-center gap-2" variant="outline">
+                  <Bell className="h-4 w-4" />
+                  Send Reminder Demo
                 </Button>
               </div>
             </CardContent>

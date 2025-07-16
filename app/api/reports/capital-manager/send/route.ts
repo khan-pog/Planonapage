@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { sendCapitalManagerEmail } from "@/lib/mailer-capital";
+import { getCostChartUrls } from "@/lib/chart-utils";
 
 export const revalidate = 0; // disable cache
 
@@ -33,12 +34,14 @@ export async function GET(request: Request) {
   const projRows = await db.select().from(schema.projects);
   const interesting = projRows.filter((p: any) => {
     const ct = p.costTracking as any;
-    const status = ct?.costStatus;
-    return status === "Over Budget" || status === "Under Budget";
+    if(!ct) return false;
+    const variance = typeof ct.variance === 'number' ? ct.variance : 0;
+    return Math.abs(variance) >= 20; // >=20% variance threshold
   });
 
   const projects = interesting.map((p: any) => {
     const ct = p.costTracking as any;
+    const charts = getCostChartUrls(ct);
     return {
       id: p.id,
       title: p.title,
@@ -48,6 +51,8 @@ export async function GET(request: Request) {
       currency: ct?.currency ?? null,
       variance: ct?.variance ?? null,
       link: `${process.env.NEXT_PUBLIC_BASE_URL ?? ""}/projects/${p.id}`,
+      monthlyChartUrl: charts.monthlyChartUrl,
+      cumulativeChartUrl: charts.cumulativeChartUrl,
     };
   });
 

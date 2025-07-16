@@ -12,6 +12,8 @@ export interface CapitalProject {
   currency?: string | null;
   variance?: number | null; // positive => over budget
   link: string;
+  monthlyChartUrl?: string;
+  cumulativeChartUrl?: string;
 }
 
 export async function sendCapitalManagerEmail(
@@ -34,32 +36,22 @@ export async function sendCapitalManagerEmail(
   const subject = `Funding Status – Projects Behind / Ahead (${monthLabel})`;
   const preheader = `${behind.length} behind, ${ahead.length} ahead`;
 
-  // Build HTML rows
-  const rowsHtml = projects
-    .map((p) => {
-      const ragColour = p.costStatus === "Over Budget" ? "#DC2626" : "#16A34A"; // red / green
-      return /* html */ `
-        <tr>
-          <td style="padding:8px 12px;border:1px solid #e5e7eb;">${p.title} <span style="color:#6b7280;font-size:12px;">#${p.number}</span></td>
-          <td style="padding:8px 12px;border:1px solid #e5e7eb;text-align:right;">${p.currency ?? ""}${p.totalBudget ?? "-"}</td>
-          <td style="padding:8px 12px;border:1px solid #e5e7eb;text-align:center;font-weight:600;color:${ragColour};">${p.costStatus}</td>
-          <td style="padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">${p.variance ?? "-"}</td>
-        </tr>`;
-    })
-    .join("\n");
-
-  const projectsTable = /* html */ `
-    <table style="width:100%;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;margin:16px 0 24px;">
-      <thead>
-        <tr style="background:#f9fafb;">
-          <th style="padding:8px 12px;border:1px solid #e5e7eb;text-align:left;">Project</th>
-          <th style="padding:8px 12px;border:1px solid #e5e7eb;text-align:right;">Budget</th>
-          <th style="padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">Status</th>
-          <th style="padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">Δ vs prev&nbsp;month</th>
-        </tr>
-      </thead>
-      <tbody>${rowsHtml}</tbody>
-    </table>`;
+  // Build project sections with charts
+  const projectBlocks = projects.map((p) => {
+    const ragColour = p.costStatus === "Over Budget" ? "#DC2626" : "#16A34A";
+    const badgeBg = p.costStatus === "Over Budget" ? "#fee2e2" : "#d1fae5";
+    return /* html */ `
+      <h3 style="font-family:Arial,Helvetica,sans-serif;font-size:16px;margin:24px 0 8px;">
+        ${p.title} <span style="color:#6b7280;font-size:12px;">#${p.number}</span>
+        <span style="background:${badgeBg};color:${ragColour};padding:2px 6px;border-radius:4px;margin-left:8px;font-size:12px;">${p.costStatus}</span>
+        <span style="font-size:12px;margin-left:8px;">${p.variance ? p.variance.toFixed(1) : "0"}%</span>
+      </h3>
+      <a href="${p.link}">
+        <img src="${p.monthlyChartUrl}" alt="Monthly cost chart" style="max-width:100%;border:1px solid #e5e7eb;border-radius:4px;margin-bottom:8px;" />
+        <img src="${p.cumulativeChartUrl}" alt="Cumulative cost chart" style="max-width:100%;border:1px solid #e5e7eb;border-radius:4px;" />
+      </a>
+    `;
+  }).join("\n");
 
   const dashboardUrl = `${process.env.NEXT_PUBLIC_BASE_URL ?? ""}/?filter=capital&month=${encodeURIComponent(monthLabel)}`;
 
@@ -68,7 +60,7 @@ export async function sendCapitalManagerEmail(
     <p style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.45;margin:0 0 16px;">Hi Capital Manager,</p>
     <p style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.45;margin:0 0 16px;">Here is your monthly funding status snapshot for <strong>${monthLabel}</strong>.</p>
     <p style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;margin:0 0 8px;"><strong>${behind.length}</strong> project(s) behind budget, <strong>${ahead.length}</strong> ahead.</p>
-    ${projectsTable}
+    ${projectBlocks}
     <p style="text-align:center;margin:24px 0;">
       <a href="${dashboardUrl}" style="display:inline-block;padding:12px 24px;background:#2563EB;color:#ffffff;border-radius:6px;text-decoration:none;font-weight:600;font-family:Arial,Helvetica,sans-serif;">Open Live Dashboard</a>
     </p>
