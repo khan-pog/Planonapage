@@ -35,7 +35,10 @@ export const mockProjects = [
     images: [],
     pmReporting: [
       { type: "PoAP Created", complete: true, date: "2024-01-15", signatory: "Michael Nguyen" },
-      { type: "PoAP Report", complete: true, date: "2024-03-31", signatory: "Michael Nguyen" }
+      { type: "PoAP Report", complete: true, date: "2024-01-31", signatory: "Michael Nguyen" },
+      { type: "PoAP Report", complete: true, date: "2024-02-29", signatory: "Michael Nguyen" },
+      { type: "PoAP Report", complete: true, date: "2024-03-31", signatory: "Michael Nguyen" },
+      { type: "PoAP Report", complete: true, date: "2024-04-30", signatory: "Michael Nguyen" }
     ],
     costTracking: {
       totalBudget: 600000,
@@ -43,11 +46,13 @@ export const mockProjects = [
       monthlyData: [
         { month: "Jan 2024", budgetedCost: 80000, actualCost: 75000, cumulativeBudget: 80000, cumulativeActual: 75000, variance: -5000 },
         { month: "Feb 2024", budgetedCost: 100000, actualCost: 105000, cumulativeBudget: 180000, cumulativeActual: 180000, variance: 0 },
-        { month: "Mar 2024", budgetedCost: 120000, actualCost: 118000, cumulativeBudget: 300000, cumulativeActual: 298000, variance: -2000 }
+        { month: "Mar 2024", budgetedCost: 120000, actualCost: 118000, cumulativeBudget: 300000, cumulativeActual: 298000, variance: -2000 },
+        { month: "Apr 2024", budgetedCost: 130000, actualCost: 127000, cumulativeBudget: 430000, cumulativeActual: 425000, variance: -5000 },
+        { month: "May 2024", budgetedCost: 110000, actualCost: 115000, cumulativeBudget: 540000, cumulativeActual: 540000, variance: 0 }
       ],
       costStatus: "Monitor",
-      variance: -0.7,
-      forecastCompletion: 590000
+      variance: -1.0,
+      forecastCompletion: 595000
     },
     plant: "Ammonia & Laboratory",
     disciplines: ["Static", "HSE"]
@@ -87,7 +92,9 @@ export const mockProjects = [
     images: [],
     pmReporting: [
       { type: "PoAP Created", complete: true, date: "2024-02-01", signatory: "Laura Chen" },
-      { type: "PoAP Report", complete: true, date: "2024-03-29", signatory: "Laura Chen" }
+      { type: "PoAP Report", complete: true, date: "2024-02-29", signatory: "Laura Chen" },
+      { type: "PoAP Report", complete: true, date: "2024-03-29", signatory: "Laura Chen" },
+      { type: "PoAP Report", complete: true, date: "2024-04-30", signatory: "Laura Chen" }
     ],
     costTracking: {
       totalBudget: 950000,
@@ -95,11 +102,13 @@ export const mockProjects = [
       monthlyData: [
         { month: "Feb 2024", budgetedCost: 70000, actualCost: 68000, cumulativeBudget: 70000, cumulativeActual: 68000, variance: -2000 },
         { month: "Mar 2024", budgetedCost: 90000, actualCost: 91000, cumulativeBudget: 160000, cumulativeActual: 159000, variance: -1000 },
-        { month: "Apr 2024", budgetedCost: 110000, actualCost: 105000, cumulativeBudget: 270000, cumulativeActual: 264000, variance: -6000 }
+        { month: "Apr 2024", budgetedCost: 110000, actualCost: 105000, cumulativeBudget: 270000, cumulativeActual: 264000, variance: -6000 },
+        { month: "May 2024", budgetedCost: 130000, actualCost: 135000, cumulativeBudget: 400000, cumulativeActual: 399000, variance: -1000 },
+        { month: "Jun 2024", budgetedCost: 140000, actualCost: 138000, cumulativeBudget: 540000, cumulativeActual: 537000, variance: -3000 }
       ],
       costStatus: "On Track",
-      variance: -0.6,
-      forecastCompletion: 940000
+      variance: -0.9,
+      forecastCompletion: 930000
     },
     plant: "Power & Utilities",
     disciplines: ["EIC", "Static"]
@@ -139,7 +148,10 @@ export const mockProjects = [
     images: [],
     pmReporting: [
       { type: "PoAP Created", complete: true, date: "2024-01-20", signatory: "Antonio Rossi" },
-      { type: "PoAP Report", complete: true, date: "2024-03-30", signatory: "Antonio Rossi" }
+      { type: "PoAP Report", complete: true, date: "2024-01-31", signatory: "Antonio Rossi" },
+      { type: "PoAP Report", complete: true, date: "2024-02-29", signatory: "Antonio Rossi" },
+      { type: "PoAP Report", complete: true, date: "2024-03-30", signatory: "Antonio Rossi" },
+      { type: "PoAP Report", complete: true, date: "2024-04-30", signatory: "Antonio Rossi" }
     ],
     costTracking: {
       totalBudget: 1800000,
@@ -147,11 +159,13 @@ export const mockProjects = [
       monthlyData: [
         { month: "Jan 2024", budgetedCost: 200000, actualCost: 220000, cumulativeBudget: 200000, cumulativeActual: 220000, variance: 20000 },
         { month: "Feb 2024", budgetedCost: 300000, actualCost: 320000, cumulativeBudget: 500000, cumulativeActual: 540000, variance: 40000 },
-        { month: "Mar 2024", budgetedCost: 350000, actualCost: 400000, cumulativeBudget: 850000, cumulativeActual: 940000, variance: 90000 }
+        { month: "Mar 2024", budgetedCost: 350000, actualCost: 400000, cumulativeBudget: 850000, cumulativeActual: 940000, variance: 90000 },
+        { month: "Apr 2024", budgetedCost: 380000, actualCost: 420000, cumulativeBudget: 1230000, cumulativeActual: 1360000, variance: 130000 },
+        { month: "May 2024", budgetedCost: 400000, actualCost: 435000, cumulativeBudget: 1630000, cumulativeActual: 1795000, variance: 165000 }
       ],
       costStatus: "Over Budget",
-      variance: 10.6,
-      forecastCompletion: 1990000
+      variance: 12.0,
+      forecastCompletion: 2050000
     },
     plant: "Granulation",
     disciplines: ["Static", "HSE"]
@@ -192,7 +206,10 @@ export const mockProjects = [
     images: [],
     pmReporting: [
       { type: "PoAP Created", complete: true, date: "2024-01-11", signatory: "Priya Kapoor" },
-      { type: "PoAP Report", complete: true, date: "2024-03-28", signatory: "Priya Kapoor" }
+      { type: "PoAP Report", complete: true, date: "2024-01-31", signatory: "Priya Kapoor" },
+      { type: "PoAP Report", complete: true, date: "2024-02-29", signatory: "Priya Kapoor" },
+      { type: "PoAP Report", complete: true, date: "2024-03-28", signatory: "Priya Kapoor" },
+      { type: "PoAP Report", complete: true, date: "2024-04-30", signatory: "Priya Kapoor" }
     ],
     costTracking: {
       totalBudget: 1300000,
@@ -244,7 +261,9 @@ export const mockProjects = [
     images: [],
     pmReporting: [
       { type: "PoAP Created", complete: true, date: "2024-02-08", signatory: "Daniel Lee" },
-      { type: "PoAP Report", complete: true, date: "2024-04-01", signatory: "Daniel Lee" }
+      { type: "PoAP Report", complete: true, date: "2024-02-28", signatory: "Daniel Lee" },
+      { type: "PoAP Report", complete: true, date: "2024-03-31", signatory: "Daniel Lee" },
+      { type: "PoAP Report", complete: true, date: "2024-04-30", signatory: "Daniel Lee" }
     ],
     costTracking: {
       totalBudget: 2500000,
@@ -252,11 +271,13 @@ export const mockProjects = [
       monthlyData: [
         { month: "Feb 2024", budgetedCost: 60000, actualCost: 58000, cumulativeBudget: 60000, cumulativeActual: 58000, variance: -2000 },
         { month: "Mar 2024", budgetedCost: 80000, actualCost: 82000, cumulativeBudget: 140000, cumulativeActual: 140000, variance: 0 },
-        { month: "Apr 2024", budgetedCost: 90000, actualCost: 89000, cumulativeBudget: 230000, cumulativeActual: 229000, variance: -1000 }
+        { month: "Apr 2024", budgetedCost: 90000, actualCost: 89000, cumulativeBudget: 230000, cumulativeActual: 229000, variance: -1000 },
+        { month: "May 2024", budgetedCost: 95000, actualCost: 96000, cumulativeBudget: 325000, cumulativeActual: 325000, variance: 0 },
+        { month: "Jun 2024", budgetedCost: 100000, actualCost: 99000, cumulativeBudget: 425000, cumulativeActual: 424000, variance: -1000 }
       ],
       costStatus: "On Track",
-      variance: -0.4,
-      forecastCompletion: 2490000
+      variance: -0.6,
+      forecastCompletion: 2480000
     },
     plant: "Ammonia & Laboratory",
     disciplines: ["Static", "EIC"]
@@ -296,7 +317,9 @@ export const mockProjects = [
     images: [],
     pmReporting: [
       { type: "PoAP Created", complete: true, date: "2024-02-12", signatory: "Sarah Johnson" },
-      { type: "PoAP Report", complete: true, date: "2024-04-01", signatory: "Sarah Johnson" }
+      { type: "PoAP Report", complete: true, date: "2024-02-29", signatory: "Sarah Johnson" },
+      { type: "PoAP Report", complete: true, date: "2024-03-31", signatory: "Sarah Johnson" },
+      { type: "PoAP Report", complete: true, date: "2024-04-30", signatory: "Sarah Johnson" }
     ],
     costTracking: {
       totalBudget: 750000,
@@ -347,7 +370,10 @@ export const mockProjects = [
     ],
     images: [],
     pmReporting: [
-      { type: "PoAP Created", complete: true, date: "2024-02-20", signatory: "Kevin Wright" }
+      { type: "PoAP Created", complete: true, date: "2024-02-20", signatory: "Kevin Wright" },
+      { type: "PoAP Report", complete: true, date: "2024-02-29", signatory: "Kevin Wright" },
+      { type: "PoAP Report", complete: true, date: "2024-03-31", signatory: "Kevin Wright" },
+      { type: "PoAP Report", complete: true, date: "2024-04-30", signatory: "Kevin Wright" }
     ],
     costTracking: {
       totalBudget: 550000,
@@ -399,7 +425,10 @@ export const mockProjects = [
     images: [],
     pmReporting: [
       { type: "PoAP Created", complete: true, date: "2024-01-30", signatory: "Aisha Al-Farsi" },
-      { type: "PoAP Report", complete: true, date: "2024-03-28", signatory: "Aisha Al-Farsi" }
+      { type: "PoAP Report", complete: true, date: "2024-01-31", signatory: "Aisha Al-Farsi" },
+      { type: "PoAP Report", complete: true, date: "2024-02-29", signatory: "Aisha Al-Farsi" },
+      { type: "PoAP Report", complete: true, date: "2024-03-28", signatory: "Aisha Al-Farsi" },
+      { type: "PoAP Report", complete: true, date: "2024-04-30", signatory: "Aisha Al-Farsi" }
     ],
     costTracking: {
       totalBudget: 1450000,
@@ -450,7 +479,9 @@ export const mockProjects = [
     ],
     images: [],
     pmReporting: [
-      { type: "PoAP Created", complete: true, date: "2024-03-01", signatory: "Jacob Svensson" }
+      { type: "PoAP Created", complete: true, date: "2024-03-01", signatory: "Jacob Svensson" },
+      { type: "PoAP Report", complete: true, date: "2024-03-31", signatory: "Jacob Svensson" },
+      { type: "PoAP Report", complete: true, date: "2024-04-30", signatory: "Jacob Svensson" }
     ],
     costTracking: {
       totalBudget: 850000,
@@ -503,6 +534,9 @@ export const mockProjects = [
     images: [],
     pmReporting: [
       { type: "PoAP Created", complete: true, date: "2024-01-25", signatory: "Olivia King" },
+      { type: "PoAP Report", complete: true, date: "2024-01-31", signatory: "Olivia King" },
+      { type: "PoAP Report", complete: true, date: "2024-02-29", signatory: "Olivia King" },
+      { type: "PoAP Report", complete: true, date: "2024-03-31", signatory: "Olivia King" },
       { type: "Final Report", complete: false, date: "2024-04-10", signatory: "Olivia King" }
     ],
     costTracking: {
