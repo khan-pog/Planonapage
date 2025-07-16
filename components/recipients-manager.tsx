@@ -15,7 +15,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Trash2, Plus, Pencil } from "lucide-react"
+import { Trash2, Plus, Pencil, Send } from "lucide-react"
 import { toast } from "sonner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -173,6 +173,17 @@ export default function RecipientsManager({ pmOnly, capitalOnly }: RecipientsMan
     }
   }
 
+  const sendGroupDemo = async () => {
+    try {
+      const res = await fetch('/api/reports/send?testEmail=khan.thompson@incitecpivot.com.au');
+      if(!res.ok) throw new Error(`Request failed: ${res.status}`);
+      const data = await res.json();
+      toast.success(`Demo email sent! (sent: ${data.sent}, failed: ${data.failed})`);
+    } catch(err:any){
+      toast.error(err.message || 'Failed to send demo');
+    }
+  }
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -180,9 +191,16 @@ export default function RecipientsManager({ pmOnly, capitalOnly }: RecipientsMan
           <CardTitle>Email Recipients</CardTitle>
           <CardDescription>Manage who receives automated reports</CardDescription>
         </div>
-        <Button onClick={openAdd} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" /> Add Recipient
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={openAdd} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" /> Add Recipient
+          </Button>
+          {(!pmOnly && !capitalOnly) && (
+            <Button onClick={sendGroupDemo} variant="outline" className="flex items-center gap-2">
+              <Send className="h-4 w-4" /> Send Demo Email
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         {loading ? (
