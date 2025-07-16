@@ -10,9 +10,16 @@ export async function POST() {
 
     for (const p of projects) {
       const normalized = normalizeProjectData(p as any);
-      // Only update if status changed
-      if (JSON.stringify(normalized.status) !== JSON.stringify(p.status)) {
-        await updateProject(p.id, { status: normalized.status });
+      const changedPhase = JSON.stringify(normalized.phasePercentages) !== JSON.stringify(p.phasePercentages)
+      const changedStatus = JSON.stringify(normalized.status) !== JSON.stringify(p.status)
+      const changedCost = JSON.stringify(normalized.costTracking) !== JSON.stringify(p.costTracking)
+
+      if (changedStatus || changedCost || changedPhase) {
+        await updateProject(p.id, {
+          ...(changedStatus ? { status: normalized.status } : {}),
+          ...(changedCost ? { costTracking: normalized.costTracking } : {}),
+          ...(changedPhase ? { phasePercentages: normalized.phasePercentages } : {}),
+        });
         updated++;
       } else {
         unchanged++;
